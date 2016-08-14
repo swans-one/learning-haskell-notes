@@ -1,0 +1,160 @@
+* 1.1 All You need is lambda
+
+* 1.2 What is function programming
+
+- Functions modeled on mathematical functions
+- Expressions: concrete values, variable, functions
+- functions are first class
+- pure functions: functions that are translatable into the lambda calculus
+- pure functions: referentially transparent
+
+* 1.3 What is a function
+
+- domain: set of possible input values
+- codomain: set of possible output values
+- range: all possible output values (values may appear more than once)
+- A function must map a given input to exactly one output
+
+* 1.4 The structure of lambda terms
+
+- Expressions
+- Variables
+- Abstractions
+
+
+Abstractions have a head and a body:
+
+        λx.x
+        ^  ^
+        |  |
+   head-+  +-body
+
+The dot separates the head from the body. The head is a lambda
+character and a single argument. The body is any expression.
+
+** Alpha Equivalence
+
+All of these are "alpha equivalent":
+
+λx.x
+λy.y
+λd.d
+
+since the specific character used to represent the argument has no
+meaning.
+
+* 1.5 Beta Reduction
+
+Steps:
+- Substitute the input for all matching variables in the body
+- Eliminate the head
+
+     (λx.x)2
+     2
+
+Note that we're using numbers, even though they can be derived from
+the lambda calculus, just for simplicity.
+
+We can also use beta reduction with other lambda abstractions as arguments
+
+    (λx.x)(λy.y)
+    [x := (λy.y)]
+    λy.y
+
+- The process of beta reduction stops when
+  - There are no more heads
+  - or there are no more arguments
+
+** Free variables
+
+- free variables: variables in the body that are not in the head
+- bound variables: variables named in the head
+
+    (λx.xy)z
+    zy
+
+
+Note, alpha equivalence does not apply to free variables:
+
+λx.xy != λx.xz
+
+but
+
+λxy.yx == λab.ba
+
+
+* 1.6 Multiple Arguments
+
+Lambda calculus actually only allows one argument per head
+
+    λxy.xy
+
+is actually convenient shorthand for
+
+    λx.(λy.xy)
+
+
+An example:
+
+    (λxy.xy)(λz.a) 1
+    (λx.(λy.xy))(λz.a) 1
+    (λy.(λz.a)y) 1
+    (λz.a) 1
+    a
+
+
+Another example
+
+    (λxyz.xz(yz))(λmn.m)(λp.p)
+    (λx.λy.λz.xz(yz))(λm.λn.m)(λp.p)
+    (λy.λz.(λm.λn.m)z(yz))(λp.p)
+    λz.(λm.λn.m)(z)((λp.p)z)
+    λz.(λn.z)((λp.p)z)
+    λz.z
+
+
+* 1.7 Evaluation is simplification
+
+- normal form: fully reduced form of an expression
+- beta normal form: fully reduced form by beta reduction
+
+* 1.8 Combinators
+
+- combinator: lambda term with no free variables.
+- They combine the arguments given
+
+examples:
+
+    λx.x
+    λxy.x
+    λxyz.xz(yz)
+
+
+* 1.9 Divergence
+
+- Some expressions don't reduce to a beta normal form
+- Divergence: the reduction process never terminates
+
+Example:
+
+    (λx.xx)(λx.xx)
+    ([x := (λx.xx)]xx)
+    (λx.xx)(λx.xx)
+
+
+* 1.10 Summary
+
+- Functional programming is based on expressions, values, and
+  abstractions of those.
+- Functions have a head and a body, and can be applied to arguments.
+- Variables may be bound in the functional declaration
+- All functions (in the lambda calculus) take one argument and return
+  one result
+- Functions are a mappint of a unique set of inputs to a unique set of
+  outputs.
+
+- Sematically Haskell is the lambda calculus
+
+* 1.11 Chapter exercises
+
+See excersises file.

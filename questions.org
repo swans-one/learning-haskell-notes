@@ -1,0 +1,15 @@
+* Chapter 1: Anything From Almost Nothing
+** 1.6 Multiple Arugments
+
+There's an expression in here:
+
+(λx(λy.xy))(λz.a) 1
+
+Which I would expect to look like:
+
+(λx.(λy.xy))(λz.a) 1
+
+Especially given that in earlier parts of this section, there is a dot
+in that location.
+
+Why was the dot omitted?
