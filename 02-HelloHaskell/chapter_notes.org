@@ -1,0 +1,96 @@
+* 2.1 Hello, Haskell
+
+* 2.2 Interacting with Haskell code
+
+- Repl
+
+  stack ghci
+
+- Using a file
+
+  Prelude> :load my_file.hs
+  Prelude> funcFromThatFile "argument"
+
+- Unloading a file
+
+  Main*> :module
+
+- Note that `:load` is _not_ a Haskell command, it is a GHCi feature
+- Using `:module` will unload the definitions we loaded in
+
+
+* 2.3 Understanding expressions
+
+- Everything in Haskell is one of:
+  - expression
+  - declaration
+
+#+BEGIN_SRC haskell
+  1
+  1 + 1
+  "Icarus"
+#+END_SRC
+
+- Expressions can be nested with parens
+
+#+BEGIN_SRC haskell
+  ((1 + 2) * 3) + 100
+#+END_SRC
+
+- Functions are in normal form when they cannot be reduced down any
+  further.
+
+* 2.4 Functions
+
+- An expression that takes an argument and returns a result
+- All functions in Haskell take one argument.
+
+- To introduce a function in GHCi, you have to use a `let` declaration
+
+  Prelude> let triple x = x * 3
+
+- In a source file we do not need the let
+
+#+BEGIN_SRC haskell
+  triple x = x * 3
+
+  triple 9
+#+END_SRC
+
+* 2.5 Infix operators
+
+- Functions default to prefix syntax
+- Operators are functions which can be used in infix style
+- All operators are functions
+
+- You can sometimes use functions in an infix or prefix style with a
+  small change in syntax
+
+#+BEGIN_SRC haskell
+  div 10 4
+  10 `div` 4
+#+END_SRC
+
+** Associativity and precedence
+
+- We can find out associativity and precedence info with :info
+
+  Prelude> :info (*)
+
+
+* 2.6 Declaring values
+
+- declaration order doesn't matter in source files
+- declaration order does matter in the REPL
+
+- use `let` in the REPL
+
+In a source file, this works fine:
+
+#+BEGIN_SRC haskell
+  module Learn where
+
+  x = 10 * 5 + y
+  myResult = x * 5
+  y = 10
+#+END_SRC
