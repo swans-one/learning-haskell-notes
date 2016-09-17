@@ -13,3 +13,13 @@ Especially given that in earlier parts of this section, there is a dot
 in that location.
 
 Why was the dot omitted?
+* Chapter 2: Basic Expressions and Functions
+- The syntax for indentation was introduced, but not for
+  semicolons. What's the deal with them?
+
+** Exercises with Let and where
+I'm confused about what they're asking from us. Where clauses are not
+expressions, so we can't translate these directly without doing some
+sort of binding.
+
+What did other people come up with?
