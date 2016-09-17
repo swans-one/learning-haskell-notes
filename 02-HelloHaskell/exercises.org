@@ -55,3 +55,170 @@ No, the parentheses do not change the result.
    b. f x = x / (2 + 9)
 
 Yes, the parentheses do change the result.
+
+* Heal the Sick
+
+The following code samples are broken and won't compile. The first two
+are as you might enter into the REPL; the third is from a source
+file. Find the mistakes and fix them so that they will.
+
+1. Original:
+
+#+BEGIN_SRC haskell
+  let area x = 3. 14 * (x * x)
+#+END_SRC
+
+Fixed:
+
+#+BEGIN_SRC haskell
+  let area x = 3.14 * (x * x)
+#+END_SRC
+
+2. Original
+
+#+BEGIN_SRC haskell
+  let double x = b * 2
+#+END_SRC
+
+Fixed:
+
+#+BEGIN_SRC haskell
+  let double x = x * 2
+#+END_SRC
+
+3. Original:
+
+#+BEGIN_SRC haskell
+  let x = 7
+       y = 10
+      f = x + y
+#+END_SRC
+
+Fixed:
+
+#+BEGIN_SRC haskell
+  let x = 7
+      y = 10
+      f = x + y
+#+END_SRC
+
+* A Head Code
+
+Determine in your head what the following expressions will
+return. Then validate in the REPL.
+
+1. let x = 5 in x
+2. let x = 5 in x * x
+3. let x = 5; y = 6 in x * y
+4. let x = 3; y = 1000 in x + 3
+
+Answers:
+1. 5
+2. 25
+3. 30
+4. 6
+
+* Excercises with let and where!
+
+Rewrite the following let expressions into declarations with where
+clauses:
+
+1. let x = 3; y = 1000 in x * 3 + y
+2. let y = 10; x = 10 * 5 + y in x * 5
+3. let x = 7; y = negate x; z = y * 10 in x / x + y
+
+Answers:
+
+1.
+
+#+BEGIN_SRC haskell
+let ans = x * 3 + y where x = 3; y = 1000
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+let ans = x * 5 where y = 10; x = 10 * 5 + y
+#+END_SRC
+
+3.
+
+#+BEGIN_SRC haskell
+let ans = z / x + y where x = 7; y = negate x; z = y * 10
+#+END_SRC
+
+* Chapter Exercises
+
+Given what we know about the precedence of (*), (+), and (^), how can
+we parenthesize the following expressions more explicitly without
+changing their results?
+
+1. 2 + 2 * 3 - 1
+2. (^) 10 $ 1 + 1
+3. 2 ^ 2 * 4 ^ 5 + 1
+
+Answers:
+
+1. 2 + (2 * 3) - 1
+2. (^) 10 $ (1 + 1)
+3. ((2 ^ 2) * (4 ^ 5)) + 1
+
+* Equivalent Expressions
+
+Which of the following pairs of expressions will return the same
+result when evaluated? Try to reason them out in your head by reading
+the code and then enter them into the REPL to check your work.
+
+1. 1 + 1       and 2
+2. 10 ^ 2      and 10 + 9 * 10
+3. 400 - 37    and (-) 37 400
+4. 100 `div` 3 and 100 / 3
+5. 2 * 5 + 18  and 2 * (5 + 18)
+
+Answers:
+
+1. yes
+2. yes
+3. no
+4. no
+5. no
+
+* More Fun with Functions
+
+Enter the following into the REPL
+
+#+BEGIN_SRC haskell
+let z = 7
+let y = z + 8
+let x = y ^ 2
+let waxOn = x * 5
+#+END_SRC
+
+1. Now that you have a value called waxOn in your REPL what do you
+   think will happen when you enter:
+
+#+BEGIN_SRC haskell
+10 + waxOn
+(+10) waxOn
+(-15) waxOn
+(-) waxOn 15
+#+END_SRC
+
+Answer:
+waxOn = 1125
+1135
+1135
+error
+1110
+
+3. Given a function `triple x = x * 3` What will happen when you
+   run. `triple waxOn`?
+
+Answer
+3375
+
+4. Rewrite `waxOn` as a function with a where statement
+
+#+BEGIN_SRC haskell
+let waxOn = x * 5 where x = y ^ 2; y = z + 8; z = 7
+#+END_SRC

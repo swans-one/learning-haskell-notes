@@ -1,5 +1,4 @@
 * 2.1 Hello, Haskell
-
 * 2.2 Interacting with Haskell code
 
 - Repl
@@ -94,3 +93,110 @@ In a source file, this works fine:
   myResult = x * 5
   y = 10
 #+END_SRC
+
+- The order of declarations does not matter
+
+** Indentation is significant
+
+In the following function definition, note that the `y` and `z`
+declarations are indented to be aligned, and the `let` and `in`
+statements are also indented to be aligned.
+
+#+BEGIN_SRC haskell
+  foo x =
+    let y = x * 2
+        z = x ^ 2
+    in 2 * y * x
+#+END_SRC
+
+
+* 2.7 Arithmetic Functions in Haskell
+
+- These are all infix operators:
+  - +, -, *, /
+- These are prefix operators:
+  - div, mod, quot, rem
+
+* 2.8 Negative Numbers
+
+Note that `100 + -99` is invalid because of precedence resolution
+problems. Use `100 + (-99)` instead.
+
+* 2.9 Parenthesizing infix functions
+
+If you want to refer to infix functions as values, you have to
+parenthesize them. The following are equivalent:
+
+#+BEGIN_SRC haskell
+1 + 2
+(+) 1 2
+(+1) 2
+(+ 1) 2
+(1 +) 2
+#+END_SRC
+
+Note subtraction is weird. `(-)` works, but `(-1) 2` doesn't do what
+you'd expect from the above because of negation. Use `(1 -) 2` instead.
+
+* 2.10 Laws for quotients and remainders
+
+* 2.11 Evaluation
+
+- Values are irreducible
+- Application of a function to a value is reducible
+- As in the lambda calculus, application is evaluation.
+
+* 2.12 Let and where
+
+Both `let` and `where` can be used to introduce names for expressions
+inside functions. They're used slightly differently. The following
+definitions should behave similarly:
+
+#+BEGIN_SRC haskell
+printInc n = print plusTwo
+  where plusTwo = n + 2
+
+printInc2 n = let plusTwo = n + 2
+              in print plusTwo
+#+END_SRC
+
+** Desugaring Let into Lambda
+
+#+BEGIN_SRC haskell
+printInc2' n =
+  (\plusTwo -> print plusTwo) (n + 2)
+#+END_SRC
+
+This is what the let statement above maps to.
+
+** Lambdas
+
+Remeber lambdas? In haskell, the lambda expression:
+
+    λ x . x
+
+Can be written as:
+
+#+BEGIN_SRC haskell
+(\x -> x)
+#+END_SRC
+
+We can then translate some let/where expressions to use lambda. The
+following three expressions are equivalent.
+
+#+BEGIN_SRC haskell
+let x = 10 in x + 9001
+
+x + 9001 where x = 10
+
+(\x -> x + 9001) 10
+#+END_SRC
+
+
+* 2.13 Chapter Exercises
+
+- Get info about functions with `:info`
+- The `$` operater is an operater with the lowest possible precedence.
+  - It's defined such that `f $ a = f a`
+  - Lets you use less parens
+  - "Evaluate everything to the right of me first"
