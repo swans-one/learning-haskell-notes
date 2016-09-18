@@ -1,0 +1,95 @@
+* 3.1 Printing Strings
+* 3.2 A first look at types
+
+- Types are a way of categorizing values
+- Use `:type` in ghci to find out about a value
+
+    > :type 'a'
+    'a' :: Char
+
+- Note that the `::` can be read as "has the type"
+
+Let's try a string:
+
+    > :type "Hello"
+    "Hello" :: [Char]
+
+- This is a list of chars.
+
+* 3.3 Printing Simple Strings
+
+Now, let's look at some simple commands for printing strings of text
+in the REPL.
+
+    > print "hello world!"
+    > putStrLn "Hello World"
+    > putStr "Hello nurse"
+
+- Note that `print` includes the quotation marks, while the others
+  don't.
+
+- Note the difference in type between `print` & `putStr`
+  - "Show a => a -> IO ()"
+  - "String -> IO ()"
+
+We can create a more complicated demonstration as well:
+
+#+BEGIN_SRC haskell
+module Print3 where
+
+myGreeting :: String
+myGreeting = "hello" ++ " world!"
+
+hello :: String
+hello = "hello"
+
+world :: String
+world = "world!"
+
+main :: IO ()
+main = do
+  putStrLn myGreeting
+  putStrLn secondGreeting
+  where secondGreeting = concat [hello, " ", world]
+#+END_SRC
+
+Here we can see a few things
+
+1. Values declared at the top level can be used globally
+2. We can specify explicit types for top level definitions
+3. We can concatenate strings with (++) and concat
+
+** Global versus local definitions
+
+- Global vars are available when the module is imported
+- Local variables are defined just for the scope of an expression
+  - `let` and `where` can be used for this
+
+* 3.4 Types of Concatenation functions
+
+Let's look at the type of (++):
+
+    :type (++)
+    (++) :: [a] -> [a] -> [a]
+
+In the above:
+  - a is a type variable
+  - the function takes two list arguments
+  - the function returns a list
+
+- Strings are a type of list
+- The type variable in [a] is polymorphic
+- But, it must represent a constant type within each invocation.
+  - i.e. `"hello" ++ [1, 2, 3]` will not work
+
+* 3.5 Concatenation and scoping
+
+* 3.6 More list functions
+
+You can use list functions on strings. Here are some examples:
+- `:`, infix, called "cons"
+- `head`
+- `tail`
+- `take n`
+- `drop n`
+- `!!`, infix, called "index"

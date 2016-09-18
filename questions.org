@@ -23,3 +23,23 @@ expressions, so we can't translate these directly without doing some
 sort of binding.
 
 What did other people come up with?
+
+* Chapter 3: String
+** Types of concatenation functions
+Prelude> :type (++)
+(++) :: [a] -> [a] -> [a]
+Prelude> :type concat
+concat :: Foldable t => t [a] -> [a]
+
+But the book says:
+#+BEGIN_SRC haskell
+concat :: [[a]] -> [a]
+#+END_SRC
+
+I guess the book does explain this.
+
+** Concatenation and scoping
+- Can we talk about "right associativity"?
+
+** Building functions
+- Lets talk about exercise 5. I want to see others implementations

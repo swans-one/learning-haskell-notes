@@ -1,0 +1,140 @@
+* Scope
+
+1. These lines of code are from a REPL session. Is `y` in scope for
+   the function `z`?
+
+    Prelude> let x = 5
+    Prelude> let y = 7
+    Prelude> let z = x * y
+
+Answer: yes
+
+2. These lines of code are from a REPL session. Is `h` in scope for
+   the function `g`?
+
+     Prelude> let f = 3
+     Prelude> let g = 6 * f + h
+
+Answer: no
+
+3. This code sample is from a source file. Is everything we need to
+   execute `area` in scope?
+
+    area d = pi * (r * r)
+    r = d / 2
+
+Answer: No, the definition or `r` will not capture the value of `d` in
+the function.
+
+4. This code sample is from a source file. Now are r and d in scope
+   for the area?
+
+    area d = pi * (r * r)
+      where r = d / 2
+
+Answer: Yes, the `where` introduces a local binding for area.
+
+* Syntax Errors
+
+Read the syntax of the following functions and decide whether it will
+compile. Test them in your REPL and try to fix the syntax errors where
+they occur.
+
+1. ++ [1, 2, 3] [4, 5, 6]
+2. '<3' ++ ' Haskell'
+3. concat ["<3", " Haskell"]
+
+Answers:
+
+1. No, ++ is an infix operator
+2. No, '' is for characters, not lists
+3. Yes
+
+* Reading syntax
+
+1. For the following lines of code, read the syntax carefully and
+   decide if they are written correctly. Test them in your REPL after
+   you've decided to check your work. Correct as many as you can.
+
+   a) concat [[1, 2, 3], [4, 5, 6]]
+   b) ++ [1, 2, 3] [4, 5, 6]
+   c) (++) "hello" " world"
+   d) ["hello" ++ " world]
+   e) 4 !! "hello"
+   f) (!!) "hello" 4
+   g) take "4 lovely"
+   h) take 3 "awesome"
+
+Answers:
+
+   a) Good      : concat [[1, 2, 3], [4, 5, 6]]
+   b) Corrected : (++) [1, 2, 3] [4, 5, 6]
+   c) Good      : (++) "hello" " world"
+   d) Corrected : ["hello" ++ " world"]
+   e) Corrected : "hello" !! 4
+   f) Good      : (!!) "hello" 4
+   g) Corrected : take 4 "lovely"
+   h) Good      : take 3 "awesome"
+
+2. Next we have two sets: the first set is lines of code and the other
+   is a set of results. Read the code and figure out which results
+   came from which lines of code. Be sure to test them in the REPL.
+
+   a) concat [[1 * 6], [2 * 6], [3 * 6]]
+   b) "rain" + drop 2 "elbow"
+   c) 10 * head [1, 2, 3]
+   d) (take 3 "Julie") ++ (tail "yes")
+   e) concat [tail [1,2,3], tail [4, 5, 6], tail [7, 8, 9]]
+
+   a) "Jules"
+   b) [2,3,5,6,8,9]
+   c) "rainbow"
+   d) [6,12,18]
+   e) 10
+
+Answer:
+a-d, b-c, c-e, d-a, e-b
+
+* Building functions
+
+1. Give the list-manipulation functions mentioned in this chapter,
+write functions that take the following inputs and return the expected
+outputs. Do them directly in your REPL and use the take and drop
+functions you've already seen.
+
+a) "Curry is awesome" to "Curry is awesome!"
+b) "Curry is awesome!" to "y"
+c) "Curry is awesome!" to "awesome!"
+
+Answers:
+
+a) f s = s ++ "!"
+b) f s = s !! 4
+c) f s = drop 9 s
+
+_For the rest of these, I'm not going to write the question down._
+
+2. Done
+
+3.
+
+#+BEGIN_SRC haskell
+thirdLetter :: String -> Char
+thirdLetter x = x !! 3
+#+END_SRC
+
+4.
+
+#+BEGIN_SRC haskell
+letterIndex :: Int -> Char
+letterIndex x = s !! x
+  where s = "Curry is awesome"
+#+END_SRC
+
+5.
+
+See ex5.hs
+
+6.
+
+See ex6.hs
