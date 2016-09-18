@@ -1,0 +1,139 @@
+* 4.1 Basic Datatypes
+
+In this chapter we'll
+
+- review tyepes we've seen
+- learn about datatypes, type constructors, and data constructors
+- work with predefined datatypes
+- learn more about type signatures and a bit about typeclasses
+
+* 4.2 Anatomy of a data declaration
+
+- data declaration :: how datatypes are defined
+- type constructor :: The name of the type
+  - capitalized, used in type signatures
+- data constructors :: the values that inhabit the type
+
+Here is a data declaration for the Bool type, with its part explained
+below:
+
+#+BEGIN_SRC haskell
+-- definition of bool
+data Bool = False | True
+--   [1]     [2] [3] [4]
+#+END_SRC
+
+1. Type constructor for Bool
+2. Data constructor for the value `False`
+3. Pipe indicates logical disjunction, "or"
+4. Data constructor for the value True
+
+- Some bool stuff:
+  - `:type not`, `not True`
+
+* 4.3 Numeric Types
+
+- There are more than one type of number in Haskell
+- Integral Numbers
+  - Int     :: A fixed precision integer
+  - Integer :: Integers of arbitrary size
+- Fractional
+  - Float      :: single precision floating point
+  - Double     :: double precision floating point
+  - Rational   :: fractional representation of two integers
+  - Scientific :: Space efficient, nearly arbitrarily precise
+
+- These numeric datatypes all have instances of a typeclass called
+  `Num`
+
+- Most programs should use Integer and not Int, unless you can
+  show otherwise that you can account for the limitations and the
+  performance matters.
+  - 127 :: int8
+  - :t minbound
+  - :t maxbound
+
+- You almost never want a float, unless you're doing graphics with,
+  e.g. OpenGL
+  - Get the `Scientific` library from hackage
+
+* 4.4 Comparing values
+
+- Compare with ==, <, >, /=
+
+If we look at the type of `==` or `<` we get a signature with
+typeclass constraints:
+
+    Prelude> :type (==)
+    (==) :: Eq a => a -> a -> Bool
+    Prelude> :type (<)
+    (<) :: Ord a => a -> a -> Bool
+
+- These constraints are declared before the `=>` and show that the
+  type variable `a` must be of that typeclass
+- Note that `Eq` and `Ord` don't apply to just numbers
+
+** Six Categories
+
+Six categories of entities that have names in Haskell
+
+1. Variables
+2. Data constructors
+3. Type Variables
+4. Type constructors
+5. Typeclasses
+6. Modules
+
+** Go on and bool me
+
+Standard boolean operators:
+
+#+BEGIN_SRC haskell
+not True
+True && True
+False || True
+#+END_SRC
+
+- Learn about things in scope with :info
+- Try :info Eq
+
+** Conditionals with if-then-else
+
+- Haskell doesn't have if statements, but it does have if expressions
+
+#+BEGIN_SRC haskell
+if True then "Thruthin'" else "Falsin'"
+#+END_SRC
+
+- Note that the predicate in the above must reduce to a boolean. This
+  is builtin syntax for booleans.
+
+This can be written across multiple lines though:
+
+#+BEGIN_SRC haskell
+greetIfCool :: String -> IO ()
+greetIfCool coolness =
+  if cool
+    then putStrLn "Eyyyyyy. What's shakin'?"
+  else
+    putStrLn "pshhhh"
+  where cool = coolness == "downright frosty yo"
+#+END_SRC
+
+* 4.5 Tuples
+- Store and pass around multiple values
+- Can have different types, like (Integer, String)
+
+    Prelude> let myTup = (1 :: Integer, "blah")
+    Prelude> fst myTup
+    Prelude> snd myTup
+    Prelude> import Data.Tuple
+    Prelude> swap myTup
+
+* 4.6 Lists
+
+- Way to contain multiple elements
+- Must be the same type
+- Represented by []
+  - both for the type constructor and at the term level
+- Number of elements can change

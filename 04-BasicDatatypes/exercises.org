@@ -1,0 +1,253 @@
+* Mood Swing
+
+Give the following datatype answer the following questions:
+
+#+BEGIN_SRC haskell
+data Mood = Blah | Woot deriving Show
+#+END_SRC
+
+1. What is the type constructor, or name of this type?
+
+Answer: Mood
+
+2. If the function requires a `Mood` value, what are the values you
+   could possibly use there?
+
+Answer: Blah, Woot
+
+3. We are trying to write a function `changeMood` to change Chirs's
+   mood instantaneously. So far, we've written a type signature
+   `changeMood :: Mood -> Woot`. What's wrong with that?
+
+Answer: Woot is a data constructor, not a type constructor. In a type
+signature, the type constructor must be used instead. Here we should
+use `Mood` for both parts.
+
+4. Now we want to write the function that chnages his mood. Give an
+   input mood, it gives us the other one. Fix any mistakes and
+   complete the function:
+
+#+BEGIN_SRC haskell
+changeMood :: Mood -> Mood
+changeMood Blah = Woot
+changeMood    _ = Blah
+#+END_SRC
+
+5. Enter all of the above -- datatype (including the "deriving Show"
+   bit), your corrected type signature, and the correct function into
+   a source file.
+
+see ex_mood_5.hs
+
+
+* Find the Mistakes
+
+The following lines of code may have mistakes -- some of them won't
+compile. Fix them
+
+1. not True && true
+2. not (x = 6)
+3. (1 * 2) > 5
+4. [Merry] > [Happy]
+5. [1, 2, 3] ++ "look at me!"
+
+Answers
+
+1. not True && True
+2. not (x == 6)
+3. Good
+4. "Merry" > "Happy"
+5. ['1', '2', '3'] ++ "look at me"
+
+* Chapter Exercises
+
+Assume these are in scope:
+
+#+BEGIN_SRC haskell
+awesome = ["Papuchon", "curry", ":)"]
+alsoAwesome = ["Quake", "The Simons"]
+allAwesome = [awesome, alsoAwesome]
+#+END_SRC
+
+`length` is a function that takes a list and returns a result that
+tells how many items are in the list.
+
+1. What would the type signature of length be, how many items does it
+   take, what is the type of the result it evaluates to?
+
+Answer:
+
+length :: [a] -> Integer
+
+Length takes one argument and returns an integer
+
+2. What are the results of the following expressions?
+
+a) length [1, 2, 3, 4, 5]
+b) length [(1, 2), (2, 3), (3, 4)]
+c) length allAwesome
+d) length (concat allAwesome)
+
+Answers:
+
+a) 5
+b) 3
+c) 2
+d) 5
+
+3. Which one of these gives an error and why?
+
+Prelude> 6 / 3
+Prelude> 6 / length [1, 2, 3]
+
+Answer:
+
+The second gives an error because it returns an Int, which does not
+implement `Fractional`. The `(/)` operator expects fractional
+arguments.
+
+For clarity, the following also does not work
+
+#+BEGIN_SRC haskell
+6 / (3 :: Int)
+#+END_SRC
+
+4. How could we fix the code from the previous exercise?
+
+Answer: by using `div` instead
+
+5. What is the type of the expression `2 + 3 == 5`. What would we
+   expect as a result?
+
+Answer: Bool. True.
+
+6. What is the type and expected result value of the following:
+
+Prelude> let x = 5
+Prelude> x + 3 == 5
+
+Answer: Bool. False
+
+7. Below are some bits of code, which will work? Why or why not? If
+   they will work, what value would these reduce to?
+
+#+BEGIN_SRC haskell
+length allAwesome == 2             -- a
+length [1, 'a', 3, 'b']            -- b
+length allAwesome + length awesome -- c
+(8 == 8) && ('b' < 'a')            -- d
+(8 == 8) && 9                      -- e
+#+END_SRC
+
+Answers:
+
+a) Fails, cannot compare list and integer
+b) Fails, lists must contain elements of the same type
+c) Works, 5
+d) Works, False
+e) Fails, 9 is not a Bool, && expects two bools
+
+8. Write a function that tells you whether or not a give String (or
+   list) is a palindrome. Use the predefined function `reverse`.
+
+Answer:
+
+#+BEGIN_SRC haskell
+isPalindrome :: (Eq a) => [a] -> Bool
+isPalindrome x = x == reverse x
+#+END_SRC
+
+9. Write a function to return the absolute value of a number using if
+   then else.
+
+Answer:
+
+#+BEGIN_SRC haskell
+myAbs :: Integer -> Integer
+myAbs i = if i < 0 then (-i) else i
+#+END_SRC
+
+10. Fill in the definition of the following function, using fst and
+    snd:
+
+Answer:
+
+#+BEGIN_SRC haskell
+f :: (a, b) -> (c, d) -> ((b, d), (a, c))
+f t1 t2 = ((snd t1, snd t2), (fst t1, fst t2))
+#+END_SRC
+
+* Correcting syntax
+
+In the following examples correct the syntactically incorrect code.
+
+1. We want a function that adds 1 to the length of a string argument
+   and returns that result.
+
+#+BEGIN_SRC haskell
+x = (+)
+F xs = w 'x' 1
+     where w = length xs
+#+END_SRC
+
+Answer:
+
+#+BEGIN_SRC haskell
+x = (+)
+f xs = x w 1 where w = length xs
+#+END_SRC
+
+2. This is suppsed to be the identity function, id.
+
+#+BEGIN_SRC haskell
+\ X = x
+#+END_SRC
+
+Answer:
+
+#+BEGIN_SRC haskell
+(\x -> x)
+#+END_SRC
+
+3. When fixed this function will return 1 from the value [1, 2, 3].
+
+#+BEGIN_SRC haskell
+\x : xs -> x
+#+END_SRC
+
+Answer:
+
+#+BEGIN_SRC haskell
+\(x : xs) -> x
+#+END_SRC
+
+
+4. When fixed, this function will return 1 from the value (1, 2)
+
+#+BEGIN_SRC haskell
+f (a b) = A
+#+END_SRC
+
+Answer:
+
+#+BEGIN_SRC haskell
+f (a, b) = a
+#+END_SRC
+
+* Match the function names to their types
+
+1. Type of `show`?
+
+Answer: Show a => a -> String
+
+2. Type of `(==)`?
+
+Answer: Eq a => a -> a -> Bool
+
+3. Type of `fst`?
+
+Answer: (a, b) -> a
+
+4. Type of `(+)`?
+
+Answer: Num a => a -> a -> a
