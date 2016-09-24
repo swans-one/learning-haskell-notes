@@ -42,4 +42,24 @@ I guess the book does explain this.
 - Can we talk about "right associativity"?
 
 ** Building functions
-- Lets talk about exercise 5. I want to see others implementations
+- Lets talk about exercise 5. I want to see others implementations (pg 115)
+
+* Chapter 4: Basic Types
+
+Let's talk about indentation
+* Chapter 5: Types
+- "Thinking about types as being like sets will help guide your
+  intuition on what types are and how they work in a mathematical
+  sense" pg 145.
+  - How?
+- pg 149 talks about the info of (->) can we break this down?
+  - It's a "type constructor for functions"
+  - _I think_:
+    - It's infix, with low precedence
+- pg 161 "Currying and uncurring functions of three or more arugments
+  automatically is quite possible but trickier"
+  - Want to try?
+- pg 161 - 164 -- Maybe go through these quickly?
+- pg 166 "A subclass cannot override the methods of its superclass"
+  - Really? Why?
+- pg 167 These are pretty cool questions

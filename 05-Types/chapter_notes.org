@@ -1,0 +1,227 @@
+* 5.1 Types
+* 5.2 What are types?
+- Types are like sets
+- In Haskell you cannot create untyped data.
+* 5.3 Querying and Reading Types
+
+- Remember you can query types with `:type` in the repl
+- Querying the type of a function will get you something like:
+
+    Prelude> :type not
+    not :: Bool -> Bool
+
+- We can even get info about the `->` operator!
+  - It's a built in language feature.
+  - It's the type constructor for functions in Haskell
+
+    Prelude> :info (->)
+    data (->) t1 t2
+
+* 5.4 Typeclass constrained type variables
+
+Sometimes we'll see type signatures that have multiple different
+typeclass constraints, like:
+
+#+BEGIN_SRC haskell
+(Num a, Num b) => a -> b -> b
+#+END_SRC
+
+or:
+
+#+BEGIN_SRC haskell
+(Ord a, Num a) => a -> Ordering
+#+END_SRC
+
+- In the above, the typeclass constraints look like a tuple, but they're
+  not.
+- The typeclass constraints do represent a product, or conjunction, of
+  constriants
+
+* 5.5 Currying
+
+- Argument/s/ in haskell is shorthand for the truth. All functions
+  only take one argument and return one result.
+
+(->) is an infix operator that is right associative. So:
+
+    a -> a -> a
+
+Is the same as:
+
+    a -> (a -> a)
+
+- Applying a function that takes multiple arguments to one argument
+  will return another function (which takes one fewer arguments).
+  - This is called "partial application"
+
+- Partial application can force a more specific type signature
+
+#+BEGIN_SRC haskell
+funcIngoresArgs :: a -> a -> a -> String
+funcIngoresArgs x y z = "blah"
+
+f' = funcIngoresArgs (1 :: Integer)
+#+END_SRC
+
+If we do the above, the type of `f'` will be:
+
+    Prelude> :t f'
+    f :: Integer -> Integer -> String
+
+Note how all the "a"s are Integer now.
+
+- `undefined` can pretend to be any type
+  - `undefined` "inhabits" all types
+
+    Prelude> :t undefined
+    undefined :: a
+
+- Interestingly:
+
+    Prelude> :t funcIngoresArgs undefined
+    funcIngoresArgs undefined :: a -> a -> String
+
+Sometimes undefined is also called "bottom" and it can provide no
+additional type information.
+
+** Manual Curring and Uncurry
+
+You can uncurry functions, i.e. Turn:
+
+    Num => a -> a -> a
+
+into
+
+   Num a => (a, a) -> a
+
+- Uncurried functions :: One function, many arguments
+- Curried functions :: Many functions, one argument apiece
+
+#+BEGIN_SRC haskell
+curried :: Integer -> Integer -> Integer
+curried x y = x + y
+
+uncurried :: (Integer, Integer) -> Integer
+uncurried (x, y) = x + y
+#+END_SRC
+
+** Curring and uncurring existing functions
+
+We can write code to do curring and uncurrying. Here we'll do it for
+two arguments, you can do it with more, but it's trickier.
+
+*** Currying
+
+The type signature of the following function is really cool:
+
+    Prelude> let curry f a b = f (a, b)
+    Prelude> :t curry
+    curry :: ((t1, t2) -> t) -> t1 -> t2 -> t
+
+    Prelude> :t curry fst
+    curry fst :: t -> b -> t
+    Prelude> curry fst 1 2
+    1
+
+*** Uncurrying
+
+    Prelude> let uncurry f (a, b) = f a b
+    Prelude> :t uncurry
+    (t -> t1 -> t2) -> (t, t1) -> t2
+
+#+BEGIN_SRC sh
+Prelude> :t uncurry (+)
+uncurry (+) :: Num a => (a, a) -> a
+Prelude> uncurry (+) (1, 2)
+3
+#+END_SRC
+
+* 5.6 Polymorphism
+- Broadly speaking, type signatures may have three kinds of types:
+  1. Concrete
+  2. Constrained polymorphic
+  3. Parametrically polymorphic
+
+- Most polymorphism in other languages is "constrained polymorphism"
+  or "Ad-hoc polymophism"
+  - In Haskell this is implemented with typeclasses
+- Parametrical polymophism is broader than constrained
+  - Implemented with type variables or parameters
+  - When unconstrained by a typeclass, their type could be anything
+
+When you see a lowercase name in a type signature it is a variable,
+and polymetric. When a type starts with a capital, it is a concrete
+type, such as Int, Bool, etc.
+
+An example of a maximally parametrically polymorphic function is ~id~
+
+#+BEGIN_SRC haskell
+id :: a -> a
+id x = x
+#+END_SRC
+
+- type :: a set of possible values.
+- type variable :: a set of possible types.
+
+- Typeclass constraints limit the set of types for a type variable
+  - But they increase the number of computations you can do
+
+- Concrete types further limit the set ot types (to one)
+  - But they greatly increase the number of computations
+  - By virtue of allowing computations from any of the typeclasses the
+    concrete type implements
+
+- A subclass cannot override the methods of its superclass
+
+** Polymorphic constants
+
+Look at the expressions below
+
+    Prelude> :t (-10) + 6.3
+    Fractional a => a
+    Prelude> :t (-10)
+    Num a => a
+
+How do we get from the less specific typeclass of ~Num a~ for (-10) to
+the more specific typeclass of ~Fractional a~ for the whole expression?
+
+- (-10) is a polymorphic constant in this expressions
+  - Since (-10) is not a variable
+  - But it's underlying type could be any of those that implement Num
+
+** Working around constraints
+
+- What if we want to convert from a more specific type to a more
+  general one?
+
+I don't know about generally, but in the case of an integer to num, we
+can use the following
+
+#+BEGIN_SRC haskell
+6 / fromIntegral (length [1, 2, 3])
+#+END_SRC
+
+The typeclass of fromIntegral is interesting:
+
+#+BEGIN_SRC haskell
+FromIntegral :: (Num b, Integral a) => a -> b
+#+END_SRC
+
+* 5.7 Type inference
+
+- Haskell will infer the most generally applicable (polymorphic) type
+  that is still correct.
+- When writing a program, it can be good to let haskell infer types at
+  first, and see what it comes up with.
+  - Think of it like a pleasant conversation with a collegue
+
+For generality, look at the different type signatures haskell comes up
+with for:
+
+    Prelude> let myGreet x = x ++ "hello"
+
+and
+
+    Prelude> let myGreet x y = x ++ y
+
+* 5.8 Asserting types for declarations
