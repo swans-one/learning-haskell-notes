@@ -1,0 +1,13 @@
+* pg 109:
+
+"Right Associativity" - This is a weird statement, ++ is fully associative
+
+* pg 132:
+
+"You know what you need to do" - Cute, but it would be better if this
+were more precise
+
+* pg 121
+
+Pattern matching hasn't been introduced yet. I had a hard time
+understanding this example.
