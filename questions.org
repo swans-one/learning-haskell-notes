@@ -63,3 +63,10 @@ Let's talk about indentation
 - pg 166 "A subclass cannot override the methods of its superclass"
   - Really? Why?
 - pg 167 These are pretty cool questions
+- pg 175, question 3, What is the answer? I said (b)
+- pg 179, question 6, Let's do this
+- pg 183 Principle types. Lets talk about what they are
+- What is the type of the empty list?
+  - Like, is it [a]?
+- pg 185. Let's talk about the difference between parametric and
+  ad-hoc polymorphism. Especially in regards to these definitions.
