@@ -146,3 +146,372 @@ Answer:
 #+BEGIN_SRC haskell
 myAlph :: Char -> Bool
 #+END_SRC
+
+* Chapter Exercises
+
+* Multiple Choice
+
+These are about types, I only wrote the answers below.
+
+1. (c)
+2. (a)
+3. (b)
+4. (c)
+
+* Determine the type
+
+For the following functions determine the type of the specified
+values.
+
+1. All function applications return a value. Determine the value
+   returned by these function applications and the type of that value
+
+#+BEGIN_SRC haskell
+(* 9) 6                                       -- a
+head [(0, "doge"), (1,"kitteh")]              -- b
+head [(0 :: Integer, "doge"), (1, "kitteh")]  -- c
+if False then True else False                 -- d
+length [1, 2, 3, 4, 5]                        -- e
+(length [1, 2, 3, 4, 5]) > (length "TACOCAT") -- f
+#+END_SRC
+
+Answer:
+
+#+BEGIN_SRC haskell
+54          :: Num a => a         -- a
+(0, "doge") :: Num a => (a, Char) -- b
+(0, "doge") :: (Integer, Char)    -- c
+False       :: Bool               -- d
+5           :: Int                -- e
+False       :: Bool               -- f
+#+END_SRC
+
+2. Given
+
+#+BEGIN_SRC haskell
+x = 5
+y = x + 5
+w = y * 10
+#+END_SRC
+
+What is the type of ~w~?
+
+Answer:
+
+#+BEGIN_SRC haskell
+w :: Num a => a
+#+END_SRC
+
+3. Given
+
+#+BEGIN_SRC haskell
+x = 5
+y = x + 5
+z y = y * 10
+#+END_SRC
+
+What is the type of ~z~?
+
+Answer:
+
+#+BEGIN_SRC haskell
+z :: Num a => a -> a
+#+END_SRC
+
+4. Given
+
+#+BEGIN_SRC haskell
+x = 5
+y = x + 5
+f = 4 / y
+#+END_SRC
+
+What is the type of ~f~?
+
+Answer:
+
+#+BEGIN_SRC haskell
+f :: Fractional a => a
+#+END_SRC
+
+5 Given
+
+#+BEGIN_SRC haskell
+x = "Julie"
+y = "<3"
+z = "Haskell"
+f = x ++ y ++ z
+#+END_SRC
+
+What is the type of ~f~?
+
+#+BEGIN_SRC haskell
+f :: [Char]
+#+END_SRC
+
+* Does it compile?
+
+For each set of expressions, figure out which expression, if any,
+causes the compiler to squawk at you and why. Fix it if you can.
+
+1.
+#+BEGIN_SRC haskell
+bigNum = (^) 5 $ 10
+wahoo = biNum $ 10
+#+END_SRC
+
+Answer:
+~wahoo~ doesn't compile because it is a Num, not a function.
+
+2.
+#+BEGIN_SRC haskell
+x = print
+y = print "whoohoo!"
+z = x "hello world"
+#+END_SRC
+
+Answer:
+This compiles just fine.
+
+3.
+#+BEGIN_SRC haskell
+a = (+)
+b = 5
+c = b 10
+d = c 200
+#+END_SRC
+
+Answer:
+This fails, again because 5 is Num, not a function.
+#+BEGIN_SRC haskell
+a = (+)
+b = 5
+c = a 10
+d = c 200
+#+END_SRC
+
+4.
+#+BEGIN_SRC haskell
+a = 12 + b
+b = 10000 * c
+#+END_SRC
+
+Answer:
+This does not compile because c hasn't been declared
+#+BEGIN_SRC haskell
+a = 12 + b
+b = 10000 * c
+c = 1
+#+END_SRC
+
+* Type variable or specific type constructor
+
+In the following type definitions, categorize each type variable as
+one of:
+  - fully polymorphic
+  - constrained polymorhpic
+  - concrete
+
+2.
+#+BEGIN_SRC haskell
+f :: zed -> Zed -> Blah
+--   (a)    (b)    (c)
+#+END_SRC
+a) fully polymorphic
+b) concrete
+c) concrete
+
+3.
+#+BEGIN_SRC haskell
+f :: Enum b => a -> b -> C
+--            (a)  (b)  (c)
+#+END_SRC
+a) fully polymorphic
+b) constrained polymorphic
+c) concrete
+
+4.
+#+BEGIN_SRC haskell
+f :: f -> g -> c
+--  (a)  (b)  (c)
+#+END_SRC
+a) fully polymorphic
+b) fully polymorphic
+c) concrete
+
+* Write a type signature
+For the following expressions add a type signature.
+
+1.
+#+BEGIN_SRC haskell
+functionH :: [a] -> a
+functionH = (x:_) = x
+#+END_SRC
+
+2.
+#+BEGIN_SRC haskell
+functionC :: Ord a => a -> a -> Bool
+functionC x y = if (x > y) then True else False
+#+END_SRC
+
+3.
+#+BEGIN_SRC haskell
+functionS :: (a, b) -> b
+functions (x, y) = y
+#+END_SRC
+
+* Given a type, write the function
+
+Given a type, write one or more functions that match the type.
+
+1.
+#+BEGIN_SRC haskell
+i :: a -> a
+i x = x
+#+END_SRC
+
+2.
+#+BEGIN_SRC haskell
+c :: a -> b -> a
+c x y = x
+#+END_SRC
+
+3. Given alpha equivalence, are c and c'' the same thing?
+#+BEGIN_SRC haskell
+c'' :: b -> a -> b
+c'' x y = x
+#+END_SRC
+YEP!
+
+4.
+#+BEGIN_SRC haskell
+c' :: a -> b -> b
+c' x y = y
+#+END_SRC
+
+5.
+#+BEGIN_SRC haskell
+r :: [a] -> [a]
+r (_:xs) = xs
+r (x:_) = [x]
+#+END_SRC
+
+6.
+#+BEGIN_SRC haskell
+co :: (b -> c) -> (a -> b) -> (a -> c)
+co f g = (\x -> (f (g x)))
+co = .
+#+END_SRC
+
+7.
+#+BEGIN_SRC haskell
+a :: (a -> c) -> a -> a
+a f x = x
+#+END_SRC
+
+8.
+#+BEGIN_SRC haskell
+a' :: (a -> b) -> a -> b
+a' f x = f x
+#+END_SRC
+
+* Fix It
+
+Fix up the broken code:
+
+1.
+#+BEGIN_SRC haskell
+module sing where
+
+fstString :: [Char] ++ [Char]
+fstString x = x ++ " in the rain"
+
+sndString :: [Char] -> Char
+sndString x = x ++ " over the rainbow"
+
+sing = if (x > y) then fstString x or sndString y
+where x = "Singin"
+      x = "Somewhere"
+#+END_SRC
+
+fixed:
+#+BEGIN_SRC haskell
+module Sing where
+
+fstString :: [Char] -> [Char]
+fstString x = x ++ " in the rain"
+
+sndString :: [Char] -> [Char]
+sndString x = x ++ " over the rainbow"
+
+sing = if (x > y) then fstString x else sndString y
+where x = "Singin"
+      y = "Somewhere"
+#+END_SRC
+
+3.
+fixed:
+#+BEGIN_SRC haskell
+-- arith3broken.hs
+module Arith3Broken where
+
+main :: IO ()
+main = do
+  print (1 + 2)
+  putStrLn "10"
+  print (negate (-1))
+  print ((+) 0 blah)
+  where blah = negate 1
+#+END_SRC
+
+* Type Kwon Do
+
+1.
+#+BEGIN_SRC haskell
+f :: Int -> String
+f = undefined
+
+g :: String -> Char
+g = undefined
+
+h :: Int -> Char
+h x -> g (f x)
+#+END_SRC
+
+2.
+#+BEGIN_SRC haskell
+data A
+data B
+data C
+
+q :: A -> B
+q = undefined
+
+w :: B -> C
+w = undefined
+
+e :: A -> C
+e x = w (q x)
+#+END_SRC
+
+3.
+#+BEGIN_SRC haskell
+data X
+data Y
+data Z
+
+xz :: X -> Z
+xz = undefined
+
+yz :: Y -> Z
+yz = undefined
+
+xform :: (X, Y) -> (Z, Z)
+xform (x, y) = (xz x, yz y)
+#+END_SRC
+
+4.
+#+BEGIN_SRC haskell
+munge :: (x -> y) -> (y -> (w, z)) -> x -> w
+munge f g x -> fst (g (f x))
+#+END_SRC

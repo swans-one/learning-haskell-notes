@@ -225,3 +225,22 @@ and
     Prelude> let myGreet x y = x ++ y
 
 * 5.8 Asserting types for declarations
+
+* 5.10 Definitions
+
+- Polymorphism :: type variables which can be more than one type
+- Principal Type :: The most generic type that still type checks
+  - A type ~a~ is a principle type for a term in an environment if all
+    other types for that term are instances of ~a~.
+- Type inference :: A faculty of a language to infer principle types
+                    without needing explicit annotations.
+- Type variable :: a way to refer to unspecified types in a type
+                   signature.
+- Typeclass :: A means of expression faculties or interfaces that
+               multiple concrete datatypes may have in common.
+- Parametricity :: A property that requires the behavior of a function
+                   will be uniform across all concrete applications of
+                   the function.
+- Ad-hock polymophism :: polymophism that applies one or more
+     typeclass constraints to a type variable. Allows different
+     behavoir for each instance (unlike parametric polymorphism)
