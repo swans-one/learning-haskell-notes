@@ -56,6 +56,7 @@ Let's talk about indentation
   - It's a "type constructor for functions"
   - _I think_:
     - It's infix, with low precedence
+    - and right associative
 - pg 161 "Currying and uncurring functions of three or more arugments
   automatically is quite possible but trickier"
   - Want to try?

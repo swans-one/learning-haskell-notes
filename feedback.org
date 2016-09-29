@@ -11,3 +11,7 @@ were more precise
 
 Pattern matching hasn't been introduced yet. I had a hard time
 understanding this example.
+* pg 167
+Question 3: "Does the behavior change when the types of a and b
+change"? Is this refering to the types in the type signature or the
+types of the values.
