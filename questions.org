@@ -71,3 +71,6 @@ Let's talk about indentation
   - Like, is it [a]?
 - pg 185. Let's talk about the difference between parametric and
   ad-hoc polymorphism. Especially in regards to these definitions.
+* Chapter 6: Typeclasses
+- pg 188 Lets talk about the expression problem
+- pg 188 What does it mean for typclasses to "dispatch on type"

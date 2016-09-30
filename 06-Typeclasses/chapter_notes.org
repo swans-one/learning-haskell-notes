@@ -1,0 +1,54 @@
+* 6.1 Typeclasses
+
+- We've already seen some things about typeclasses
+- This chapter will explain some built in typeclasses
+- Lean about type-defaulting typeclasses and typeclass inheritance
+- Look at some common but often implicit functions that create side
+  effects.
+
+* 6.2 What are typeclasses
+
+- Types and typeclasses in Haskell are kind of opposites
+  - Types :: Define how data created/constructed
+  - Typeclasses :: Define how that data/type is consumed
+
+- The expression problem
+
+- Typeclasses map to interfaces or "ad-hoc polymorphism."
+  - Called this because typeclasses's code is dispatched on type
+  - Allow us to generalize over a set of types
+
+
+* 6.3 Back to Bool
+
+- We can use ~:info Bool~ to find out more about the boolean type
+- We can Bool implements a number of typeclasses
+
+Note: Typeclasses have a hierarchi of sorts. E.g. All ~Fractional~
+numbers implement the the ~Num~ typeclass, but not all ~Num~ are
+~Fractional~.
+
+Also, E.g.:
+
+Enum <- Ord <- Eq
+
+* 6.4 Eq
+
+- In haskell equality is implemented through the typeclass called ~Eq~
+
+By looking at ~:info Eq~ we find out it's implemented like:
+
+#+BEGIN_SRC haskell
+class Eq a where
+  (==) :: a -> a -> Bool
+  (/=) :: a -> a -> Bool
+#+END_SRC
+
+It also lists some instances of ~Eq~.
+
+* 6.5 Num
+
+
+
+Chapter end:
+237 & 6.16
