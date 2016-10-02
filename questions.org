@@ -72,5 +72,31 @@ Let's talk about indentation
 - pg 185. Let's talk about the difference between parametric and
   ad-hoc polymorphism. Especially in regards to these definitions.
 * Chapter 6: Typeclasses
-- pg 188 Lets talk about the expression problem
-- pg 188 What does it mean for typclasses to "dispatch on type"
+** Pages/questions from version 0.11.2
+
+- pg 188: Lets talk about the expression problem
+- pg 188: What does it mean for typclasses to "dispatch on type"
+- General: Talk about "Implements" vs "Has instances for"
+- pg 194: "Since Real cannot override the methods of Num, this
+  typeclass inheritance is _only_ additive and the ambiguity problems
+  caused by multiple inheritance in some programming languages is
+  avoided."
+- pg 196: Why don't we need to constrain by Fractional _and_ Num?
+- General: What do the lines in ~:info Typeclass~ that look like:
+
+      {-# MINIMAL compare | (<=) #-}
+
+  mean?
+- pg 207: Talk about IO (), specifically, why main has to be IO ().
+  - Also "An IO action that returns ()"
+- pg 210: ""
+
+** Pages/questions from version 0.12.0
+- pg 179: Can we walk through a couple of these?
+  - Specifically 2, 5, 6
+  - Very specifically: 5. I don't think I got this one right.
+
+- pg 200: Can we unpack the language in the first few paragraphs of
+  6.12? Namely "instances"
+
+- I want to talk about dispatching on type as well.

@@ -1,0 +1,92 @@
+* Will they work?
+
+Take a looke at the following code examples and try to decide if they
+will work, what result they will return if they do, and why or why
+not?
+
+#+BEGIN_SRC haskell
+max (length [1, 2, 3]) (length [8, 9, 10, 11, 12]) -- 1
+compare (3 * 4) (3 * 5)                            -- 2
+compare "Julie" True                               -- 3
+(5 + 3) > (3 + 6)                                  -- 4
+#+END_SRC
+
+Answers:
+
+1. Works: 5
+2. Works: LT
+3. Fails: Cannot compare two different types
+4. Works: False
+
+
+* Eq Instances
+
+Write the Eq instance for the datatype provided
+
+1.
+
+#+BEGIN_SRC haskell
+data TisAnInteger =
+  TisAn Integer
+
+instance Eq TisAnInteger where
+  (==) (TisAn i) (TisAn i') = i == i'
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+data TwoIntegers =
+  Two Integer Integer
+
+instance Eq TwoIntegers where
+  (==) (Two a b) (Two a' b') = a == a' && b == b'
+#+END_SRC
+
+3.
+
+#+BEGIN_SRC haskell
+data StringOrInt =
+    TisAnInt Int
+  | TisAString String
+
+instance Eq StringOrInt where
+  (==) (TisAnInt a) (TisAnInt b) = a == b
+  (==) (TisAString a) (TisAString b) = a == b
+  (==) _ _ = False
+#+END_SRC
+
+4.
+
+#+BEGIN_SRC haskell
+data Pair a =
+  Pair a a
+
+instance Eq a => Eq (Pair a) where
+  (==) (Pair a b) (Pair a' b') = a == a' && b == b'
+#+END_SRC
+
+5.
+
+#+BEGIN_SRC haskell
+data Tuple a b =
+  Tuple a b
+
+instance (Eq a, Eq b) => Eq (Tuple a b) where
+  (==) (Tuple x y) (Tuple x' y') = x == x' && y == y'
+#+END_SRC
+
+6.
+
+#+BEGIN_SRC haskell
+data Which a =
+    ThisOne a
+  | ThatOne a
+
+instance (Eq a) => Eq (Which a) where
+  (==) (ThisOne x) (ThisOne x') = x == x'
+  (==) (ThatOne x) (ThatOne x') = x == x'
+  (==) _ _ = False
+#+END_SRC
+
+7.

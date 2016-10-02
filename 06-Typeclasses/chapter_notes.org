@@ -46,9 +46,292 @@ class Eq a where
 
 It also lists some instances of ~Eq~.
 
-* 6.5 Num
+* 6.5 Writing typeclass instances
 
+- To implement a typeclass we only have to implement part of the
+  minimal complete definition. For example, Eq require only (==) or
+  (/=).
 
+#+BEGIN_SRC haskell
+data Trivial = Trivial'
 
-Chapter end:
-237 & 6.16
+instance Eq Trivial where
+  Trivial' == Trivial' = True
+#+END_SRC
+
+- The keyword instance begins a delclaration of a typeclass instance.
+- After the ~where~ keyword is the actual method (functions) being
+  implmeneted
+
+A lses trivial implementation
+
+#+BEGIN_SRC haskell
+data DayOfWeek =
+  Mon | Tue | Wed | Thu | Fri | Sat | Sun
+
+data Date =
+  Date DayOfWeek Int
+
+instance Eq DayOfWeek where
+  (==) Mon Mon = True
+  (==) Tue Tue = True
+  (==) Wed Wed = True
+  (==) Thu Thu = True
+  (==) Fri Fri = True
+  (==) Sat Sat = True
+  (==) Sun Sun = True
+  (==) _ _     = False
+
+instance Eq Date where
+  (==) (Date weekday dayOfMonth)
+       (Date weekday' dayOfMonth') =
+    weekday == weekday' && dayOfMonth == dayOfMonth'
+#+END_SRC
+
+** Partial Functions
+
+- partial function :: A function that doesn't handle all possible inputs
+
+- We want to take care to not create parital functions in haskell when
+  possible.
+- We probably also want to avoid using them.
+- E.g. we want to make sure we handle the ~_ _ = False~ case above.
+
+_Note_ If we want to get warnings about this:
+
+    Prelude> :set -Wall
+    Prelude> :load problem_code.hs
+
+We'll see a warning when we load/compile the code
+
+** Sometimes we need to ask for more
+
+Sometimes our datatypes will have polymorphic parameters.
+
+#+BEGIN_SRC haskell
+data Identity a =
+  Identity a
+
+instance Eq a => Eq (Identity a) where
+  (==) (Identity v) (Identity v') = v == v'
+#+END_SRC
+
+In the above we rely on the implmentation of this type's Eq
+instance. This will also give us a type error if we try to check the
+equality of underlying types that don't implement ~Eq~.
+
+* 6.6 Num
+
+Look at
+
+    :info Num
+
+** Integral
+
+Note the line in, in ~:info Integral~
+
+#+BEGIN_SRC haskell
+class (Real a, Enum a) => Integral a where
+  -- function list
+#+END_SRC
+
+This states that for something to implmement Integral, it must also
+have instances for ~Real~ and ~Enum~.
+
+** Fractional
+
+* 6.7 Type-defaulting typeclasses
+
+- When we want a value from an expression, whatever the value is must
+  have a concrete type.
+- Often we specify a concrete type somewhere in the type signature
+  which gives us this type
+- Sometimes (often in the REPL), we only have a typeclass, like Num,
+  which means we must rely on a default type.
+
+Some defaults (As specified by the Haskell standard):
+
+#+BEGIN_SRC haskell
+default Num Integer
+default Real Integer
+default Enum Integer
+default Integral Integer
+default Fractional Double
+default RealFrac Double
+default Floating Double
+default RealFloat Double
+#+END_SRC
+
+Note: As we're doing type inference/assignment, we can always make
+types more specific, but we cannot make them more general or
+polymorphic.
+
+* 6.8 Ord
+
+- Types of things that can be put in order
+
+    :info Ord
+
+- There are a lot of instances of this typeclass
+- Ord is constrained by Eq
+
+We can practice writing some ~Ord~ instances. The simplest way is to
+derive the typeclass instance:
+
+#+BEGIN_SRC haskell
+data DayOfWeek =
+  Mon | Tue | Wed | Thu | Fri | Sat | Sun
+  deriving (Ord, Show)
+#+END_SRC
+
+This relies on the way this datatype is defined (the elements wil be
+ordered as they're written). However, if we were to implement this
+ourselves, we could do anythin we wanted.
+
+#+BEGIN_SRC haskell
+data DayOfWeek =
+  Mon | Tue | Wed | Thu | Fri | Sat | Sun
+  deriving (Eq, Show)
+
+instance Ord DayOfWeek where
+  compare Fri Fri = EQ
+  compare Fri _ = GT
+  compare _ Fri = LT
+  compare _ _ = EQ
+#+END_SRC
+
+Now, friday is greater than any other day.
+
+Interestingly, since we derived ~Eq~ above, we get behavior like:
+
+    Prelude> compare Sat Mon
+    EQ
+    Prelude> Sat == Mon
+    False
+
+- Usually you want your ~Ord~ instance to agree with your ~Eq~
+  instance.
+
+* 6.9 Enum
+
+- Types that are enumerable. That is, convertable to an int.
+- Lets you do cool things like build a list between two elements.
+
+* 6.10 Show
+
+- Create human readable strings of the type.
+- Not a serialization format, just for readability.
+
+- In GHCi, when you ask to see the result of an expression, you are
+  implicitly calling ~print~ on the result.
+
+** Printing things
+
+- Haskell introduces a means of talking to the outside world while
+  preserving functional purity
+- It does this by explicitly separating out eventful computations
+
+    Prelude> :t print
+    print :: Show a => a -> IO ()
+
+The return value of print is an ~IO ()~ result. This result is "an IO
+action that returns a value of the type ()"
+
+- ~IO ()~ is also the obligatory type of the ~main~ function in a
+  souce code file. This is because running main _only_ produces side
+  effects.
+
+- () denotes an empty tuple, known as "unit", a value and also a type,
+  that only has this one inhabitant.
+
+- We could have a type ~IO String~, which can be thought of as a means
+  of producing a string, performing side effects along the way.
+
+** Working with Show
+
+- We can define our own datatypes, and implement typeclasses.
+
+Here's a minimal implementation of a datatype and implementation of
+Show:
+
+#+BEGIN_SRC haskell
+data Mood = Blah
+
+instance Show Mood where
+  show _ = "Blah"
+#+END_SRC
+
+You can also derive show:
+
+#+BEGIN_SRC haskell
+data Mood = Blah deriving Show
+#+END_SRC
+
+Deriving can magically be done ~Eq~, ~Ord~, ~Enum~, ~Bounded~, ~Read~
+and ~Show~ for many datatypes, with some conditions. This will be
+explained more later.
+
+* 6.11 Read
+
+- Essentially the opposite of show. Takes a string and turns it into a
+  different type.
+- Also not a serialization format.
+
+- There's a probem with read. Necessarily any implementation will be a
+  partial function, which means using it can result in runtime errors.
+
+* 6.12 Intances are dispatched by type
+
+- Typeclasses are defined by the set of operations and values all
+  instances will provide.
+
+- Typeclass instances :: A unique pairing of the typeclass and type.
+
+Remember:
+  - A typeclass defines a set of functions and/or/values
+  - Types have instances of that typeclass
+  - The instances specify the ways that the type uses the functions of
+    the typeclass.
+
+Imagine we have a typeclass ~Numberish~ and two types with instances
+~Age~ and ~Year~:
+  - The class definition of ~Numberish~ doesn't define any terms or
+    actual code
+  - All the code lives inside the ~Age~ and ~Year~.
+
+So how does haskell know where to find the code?
+  - It knows because the specific arguments are of a given type
+  - If you don't fully specify a type, it will fail
+
+* 6.13 Gimme more operations
+
+- If your types are more general than our terms allow, we need to add
+  constraints.
+- Concrete types imply all of the typeclasses they provide.
+
+* 6.14 Chapter Exercises
+
+* 6.15 Chapter Definitions
+
+- typeclass inheritance :: When a typeclass has a superclass. It would
+     look like the following:
+     #+BEGIN_SRC haskell
+     class Num a => Fraction a where
+       -- methods
+     #+END_SRC
+
+- side effects :: How we refer to observable actions programs take
+                  other than compute a value.
+
+- IO :: The type for values whoe evaluation bears the possibility of
+        causing side effects.
+
+- instance :: the definition of how a typeclass should work for a
+              given type.
+
+- derived instances :: A way for obvious/common typeclasses to be
+     generated based only on how a datatype is defined.
+
+* 6.16 Typeclass inheritance, partial
+
+- An interesting diagram of some typeclass inheritance
