@@ -90,3 +90,154 @@ instance (Eq a) => Eq (Which a) where
 #+END_SRC
 
 7.
+
+* Multiple Choice
+
+_Note_: I'm only giving the answers for these questions
+
+1. (c)
+2. (b)
+3. (a)
+4. (c)
+5. (a)
+
+* Does It Typecheck?
+
+Examine the following code, looking for type and typeclass
+errors. Decide whether it will typecheck. If it doesn't typecheck
+describe why it doesn't work, and fix it if possible.
+
+1.
+
+#+BEGIN_SRC haskell
+data Person = Person Bool
+
+printPerson :: Person -> IO ()
+printPerson person = putStrLn (show person)
+#+END_SRC
+
+Answer:
+
+There are two reasons why the above does not typecheck.
+  1. ~Person~ does not implement ~Show~
+  2. The method ~show~ does not return a string, but rather ~IO ()~
+
+2.
+
+#+BEGIN_SRC haskell
+data Mood = Blah
+          | Woot
+  deriving Show
+
+settleDown x = if x == Woot
+               then Blah
+               else x
+#+END_SRC
+
+The above does not typecheck, because ~Mood~ does not implement
+~Eq~. We can fix it by deriving ~Eq~. See fixed-typecheck-02.hs
+
+3.
+
+a) ~Woot~ or ~Blah~
+b) It give an error, I'm not sure why that specific error.
+c) It fails, because ~Mood~ does not implement ~Ord~, only ~Eq~.
+
+4.
+
+#+BEGIN_SRC haskell
+type Subject = String
+type Verb = String
+type Object = String
+
+data Sentence =
+  Sentence Subject Verb Object
+  deriving (Eq, Show)
+
+s1 = Sentence "Dogs" "drool"
+s2 = Sentence "Julie" "loves" "dogs"
+#+END_SRC
+
+Answer:
+- I don't know, because this contains concepts not yet introduced.
+
+WHOA, it totally does. Apparently data constructors are functions? I
+didn't know you could partially apply data constructors.
+
+* Given a datatype declaration, what can we do?
+
+Given the following datatype definitions:
+
+#+BEGIN_SRC haskell
+data Rocks =
+  Rocks String deriving (Eq, Show)
+
+data Yeah =
+  Yeah Bool deriving (Eq, Show)
+
+data Papu =
+  Papu Rocks Yeah
+  deriving (Eq, Show)
+#+END_SRC
+
+Which of the following will typecheck? For those that don't, why not?
+
+(note, these definitions these are also available in
+what_can_we_do.hs)
+
+#+BEGIN_SRC haskell
+-- 1
+phew = Papu "chases" True
+
+-- 2
+truth = Papu (Rocks "chomskydoz")
+             (Yeah True)
+
+-- 3
+equalityForall :: Papu -> Papu -> Bool
+equalityForall p p' = p == p'
+
+-- 4
+comparePapus :: Papu -> Papu -> Bool
+comparePapus p p' = p > p'
+#+END_SRC
+
+Answers
+
+1. No, Papu's data constructor takes a ~Rocks~ and a ~Yeah~, not a
+   string and a bool
+2. Yes
+3. Yes
+4. No, Papu doesn't implement ~Ord~, just ~Eq~
+
+* Match The Types
+
+_Note_: I'm just giving the answers here again.
+
+1. No
+2. No
+3. Yes
+4. Yes
+5. Yes
+6. Yes
+7. No
+8. No
+9. Yes
+10. Yes
+11. No
+
+* Type-Kwon-Do Two: Electric Typealoo
+
+1.
+
+#+BEGIN_SRC haskell
+chk :: Eq b => (a -> b) -> a -> b -> Bool
+chk f x y = (f x) > y
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+arith :: Num b => (a -> b) -> Integer -> a -> b
+arith f x y = f y
+#+END_SRC

@@ -100,3 +100,17 @@ Let's talk about indentation
   6.12? Namely "instances"
 
 - I want to talk about dispatching on type as well.
+
+- pg 208
+  - Exercise 1, can we make it typecheck?
+  - Exercise 3.b. Can we walk through this error?
+
+- General: What's with data definitions like:
+  ~data MyThing = Thing Integer~? Will we cover these later?
+
+- 209: Exercise 4. This totally typechecks. Talk about Data
+  constructor partial application?
+
+- pg 210: Exercise 1. Why???? I would think you could be more general...
+  - This seems like a trick based on something we haven't learned yet,
+    and less about typeclasses.
