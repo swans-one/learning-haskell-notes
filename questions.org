@@ -114,3 +114,32 @@ Let's talk about indentation
 - pg 210: Exercise 1. Why???? I would think you could be more general...
   - This seems like a trick based on something we haven't learned yet,
     and less about typeclasses.
+* Chapter 7: More Functional Patterns
+- pg 223: In
+    : (\x -> x * 3) :: Integer -> Integer
+  Are the two uses of (->) the same, on the left and right side of ::?
+
+- pg 224: Exercise 1. They produce the same effect, but the method of
+  curring is different, right? Actually, I just tested this in the repl:
+
+  #+BEGIN_SRC haskell
+  -- using (++) makes it clearer
+  (\x -> \y -> \z -> x ++ y ++ z)
+  mTh x y z = x ++ y ++ z
+  #+END_SRC
+
+  I guess it just binds the leftmost arguments first. Which I guess
+  makes sense.
+
+- pg 225: Any and all data constructors!!!
+
+- pg 239: talk about explicit parenthetization of type signatures
+
+- pg 251: Question 5. I don't understand
+
+- General: Is there such thing as exponent types??
+
+- pg 261: Question 1.a) Does divMod make this simpler? I don't think I
+  got the right answer.
+
+- pg 263: Question 6: lets talk about this

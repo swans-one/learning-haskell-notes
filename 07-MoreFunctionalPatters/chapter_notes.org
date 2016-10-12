@@ -1,0 +1,247 @@
+* 7.1 Make if func-y
+
+* 7.2 Arguments and parameters
+
+- Functions are defined by the fact that they take an argument and
+  return a result.
+
+- You declare functions with parameters between the function name and
+  equals sign.
+
+** Binding variables to values
+
+- When a function is applied to a value, that value is bound to the
+  argument
+
+In addition to binding variables using function application, we can
+also use let expressions.
+
+#+BEGIN_SRC haskell
+bindExp :: Integer -> String
+bindExp x = let y = 5 in
+              "the integer was: " ++ show x
+              ++ " and y was: " ++ show y
+#+END_SRC
+
+The let expression above binds a value to ~y~ just for the scope of
+the let expression.
+
+- Bindings can shadow bindings from outer scopes.
+- Haskell is lexically scoped
+
+* 7.3 Anonymous functions
+
+We've already seen how to write anonymous functions
+
+#+BEGIN_SRC haskell
+(\x -> x * 3) :: Integer -> Integer
+#+END_SRC
+
+- These are often useful when you're passing them in as arguments to a
+  higher order function and aren't going to call them by name ever.
+
+* 7.4 Pattern matching
+
+- Pattern matching :: a method of matching values against pattersn and
+     where appropriate, binding variables to successful matches.
+
+- As we'll see, pattern matching matches on any and all data
+  constructors.
+- Patterns are matched against values or data constructors. _Not_ types.
+- Pattern matching proceeds from left to right and outside to inside
+
+Pattern matching on values:
+#+BEGIN_SRC haskell
+isItTwo :: Integer -> Bool
+isItTwo 2 = True
+isItTwo _ = False
+#+END_SRC
+
+We can do this in prelude with the block syntax:
+
+    Prelude> :{
+    *Main| let isItTwo :: Integer -> Bool
+    *Main|isItTwo 2 = True
+    *Main|isItTwo _ = False
+    *Main| :}
+
+** Handling all the cases
+
+- Order matters, earlier definitions are tried first.
+- Try to order your patterns from most specific to least specific.
+- Haskell will give you a warning if you have overlapping patterns
+- you can also turn on warnings for non-exhaustive matching with -Wall
+
+** Pattern matching against data constructors
+
+See registeredUser.hs for an example of how pattern matching can be
+used on different (nested) data constructors.
+
+- Pattern matching unpacks the parts of the data in values
+- It allows us to dispatch on different data constructors
+
+** Pattern matching tuples
+
+You can use it! The following are equivalent:
+
+#+BEGIN_SRC haskell
+f :: (a, b) -> (c, d) -> ((b, d), (a, c))
+f x y = ((snd x, snd y), (fst x, fst y))
+
+f :: (a, b) -> (c, d) -> ((b, d), (a, c))
+f (a, b) (c, d) -> ((b, d), (a, c))
+#+END_SRC
+
+This is really cool because it lets functions look a lot like their types.
+
+
+* 7.5 Case Expressions
+
+- Can be used with any datatype that has visible data constructors
+- Any time we match on a sum constructor, we must cover all cases, or
+  define a catchall
+
+#+BEGIN_SRC haskell
+if x + 1 == 1 then "AWESOME" else "wut"
+
+funcZ x =
+  case x + 1 == 1 of
+    True -> "Awesome"
+    False -> "wut"
+
+palindrome xs =
+  case xs == reverse xs of
+    True -> "yes"
+    False -> "no"
+
+palindrome' xs =
+  case y of
+    True -> "yes"
+    False -> "no"
+  where y = xs == reverse xs
+#+END_SRC
+
+
+* 7.6 Higher-order functions
+
+- Functions that accept functions as arguments
+
+    Prelude> :t flip
+
+#+BEGIN_SRC haskell
+flip :: (a -> b -> c) -> b -> a -> c
+--      [     1     ]
+#+END_SRC
+
+- (1) above is what makes this higher order. Note the parenthetization
+  in the type signature.
+
+Note how this parenthetization differs from the way you would do
+things explicitly:
+
+#+BEGIN_SRC haskell
+returnLast :: a -> b -> c -> d -> d
+returnLast _ _ _ d -> d
+
+returnLast' :: a -> (b -> (c -> (d -> d)))
+returnLast' _ _ _ d -> d
+#+END_SRC
+
+- One reason to want Higher Order Functions (HOFs) is to manipulate
+  how functions are applied to arguments.
+
+* 7.7 Guards
+
+- Guards are another control flow structure
+- Write compact functions that allow for two or more possible outcomes
+  depending on the truth of conditions.
+
+#+BEGIN_SRC haskell
+myAbs :: Integer -> Integer
+myAbs x
+  | x < 0     = (-x)
+  | otherwise = x
+#+END_SRC
+
+- In order, each lhs of the guards are tested. If true, the rhs
+  evaluates, and is returned.
+- otherwise is just another name for True
+  - A fallback case
+
+More examples:
+
+#+BEGIN_SRC haskell
+bloodNa :: Integer -> String
+bloodNa na
+  | na < 135  = "Too low"
+  | na > 145  = "Too high"
+  | otherwise = "Just Right"
+
+isRight :: (Num a, Eq a) => a -> a -> a -> String
+isRight a b c
+  | a^2 + b^2 == c^2 = "RIGHT ON"
+  | otherwise        = "Not right."
+#+END_SRC
+
+
+* 7.8 Funciton composition
+
+An operator that takes two functions and returns their composition.
+
+#+BEGIN_SRC haskell
+(.) :: (b -> c) -> (a -> b) -> a -> c
+#+END_SRC
+
+- (f . g) x = f (g x)
+
+#+BEGIN_SRC haskell
+negate . sum $ [1, 2, 3, 4, 5]
+negate (sum [1, 2, 3, 4, 5])
+#+END_SRC
+
+- Ordinary function application has precedence of 10, composition has
+  precendece of 9. So we often need the ~$~ operator or parentheses.
+
+
+* 7.9 Pointfree style
+
+- A style of composing functions without specifying their arguments
+  - The "point" is the argument, not the composition operator, as it
+    may seem.
+
+#+BEGIN_SRC haskell
+f = length . filter (== 'a')
+#+END_SRC
+
+* 7.10 Demonstrating Composition
+
+#+BEGIN_SRC haskell
+print :: Show a => a -> IO ()
+print = putStrLn . show
+#+END_SRC
+
+* 7.11 Chapter Exercises
+
+* 7.12 Chapter Definitions
+
+- Binding or Bound :: Used to talk about what value a variable
+     has. E.g. A parameter variable is _bound_ to an argument value.
+- Anonymous Function :: A function which is not bound to any
+     identifier.
+- Currying :: process of transforming a function that takes multiple
+              arugments into a series of functions which each take one
+              argument.
+- Pattern Matching :: A way of deconstructing product and sum types to
+     get at their inhabitants.
+- Bottom :: a non-value used to denote that the program cannot return
+            a value or a result. Like an infinite loop, or not
+            handling all inputs.
+- Higher Order Functions :: functions that take other functions as
+     input, or return functions, or both.
+- Composition :: the application of a function to the result of having
+                 applied another function.
+- Pointfree :: programming without mentioning arguments by name
+
+
+chapter begin: pg 215
+chapter end: 7.13 pg 271

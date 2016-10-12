@@ -1,0 +1,222 @@
+* Grab Bag
+
+1. Which (two or more) of the following are equivalent?
+
+#+BEGIN_SRC haskell
+mTh x y z = x * y * z             -- a
+mTh x y = \z -> x * y * z         -- b
+mTh x = \y -> \z -> x * y * z     -- c
+mTh = \x -> \y -> \z -> x * y * z -- d
+#+END_SRC
+
+Answer:
+
+a, b, c, d are all equivalent
+
+2. The type of ~mTh~ (above) is ~Num a => a -> a -> a -> a~. Which is
+   the type of mTh 3?
+
+Answer:
+
+d) ~Num a => a -> a -> a~
+
+3. Rewrite some parts of these functions so that they use lambdas
+   instead of function definitions (or vice versa).
+
+   (Note, I'm just writing the answers here)
+
+Answers:
+
+a)
+#+BEGIN_SRC haskell
+addOneIfOdd n = case odd n of
+  True -> f n
+  False -> n
+  where f = \n -> n + 1
+#+END_SRC
+
+b)
+#+BEGIN_SRC haskell
+addFive = \x -> \y -> (if x > y then y else x) + 5
+#+END_SRC
+
+c)
+#+BEGIN_SRC haskell
+mflip f x y = f y x
+#+END_SRC
+
+* Variety Pack
+
+1. Given the following declarations
+
+#+BEGIN_SRC haskell
+k (x, y) = x
+k1 = k ((4-1), 10)
+k2 = k ("three", (1 + 2))
+k3 = k (3, True)
+#+END_SRC
+
+a) What is the type of k?
+
+(t1, t2) -> t1
+
+b) What is the type of k2? Is it the same type as k1 or k3?
+
+Num a => a, same as k3
+
+c) Of k1, k2, k3, which will return the number 3 as the result?
+
+k1, and k3
+
+2. Fill in the definition of the following function:
+
+#+BEGIN_SRC haskell
+f :: (a, b, c) -> (d, e, f) -> ((a, d), (c, f))
+f (a, b, c) (d, e, f) =  ((a, d), (c, f))
+#+END_SRC
+
+* Case Practice
+
+Note: The answers are in case_practice.hs
+
+* Artful Dodgy
+
+Given the following, do some evaluations:
+
+#+BEGIN_SRC haskell
+dodgy x y = x + y * 10
+oneIsOne = dodgy 1
+oneIsTwo = (flip dodgy) 2
+#+END_SRC
+
+#+BEGIN_SRC haskell
+dodgy 1 1 -- 1
+-- 11
+
+dodgy 2 2 -- 2
+-- 22
+
+dodgy 1 2 -- 3
+-- 21
+
+dodgy 2 1 -- 4
+-- 12
+
+oneIsOne 1 -- 5
+-- 11
+
+oneIsOne 2 -- 6
+-- 21
+
+oneIsTwo 1 -- 7
+-- 21
+
+oneIsTwo 2 -- 8
+-- 22
+
+oneIsOne 3 -- 9
+-- 31
+
+oneIsTwo 3 -- 10
+-- 23
+
+#+END_SRC
+
+* Guard Duty
+
+Note: Just writing the answers here.
+
+1. If you put an ~otherwise~ at the top, it will always be the guard
+   that gets evaluated.
+
+2. It still typechecks, but it does not work the same. The function
+   relies on the guards being evaluated in order.
+
+3. The following function:
+
+#+BEGIN_SRC haskell
+pal xs
+  | xs == reverse xs = True
+  | otherwise        = False
+#+END_SRC
+
+(b) True when xs is a palindrome
+
+4. [a]
+
+5. [a] -> Bool
+
+6. (c)
+
+7. Num a => a
+
+8. numbers :: Num a, b => a -> b
+
+* Multiple Choice
+
+Note: just doing the answers here
+
+1. (d)
+2. (b)
+3. (d)
+4. (b)
+5. (a)
+
+* Let's write code
+
+1. The following function returns the tens digit of an integral
+   argument.
+
+#+BEGIN_SRC haskell
+tensDigit :: Integral a => a -> a
+tensDigit x = d
+  where xLast = x `div` 10
+        d     = xLast `mod` 10
+#+END_SRC
+
+a) First re-write it using ~divMod~
+
+#+BEGIN_SRC haskell
+tensDigit :: Integral a => a -> a
+tensDigit x = d
+  where (xLast, _) = x `divMod` 10
+        (_, d)     = xLast `divMod` 10
+#+END_SRC
+
+b) Yes
+
+2. Implement the function of the type ~a -> a -> Bool -> a~ once each
+   using a case expression and once with a guard.
+
+#+BEGIN_SRC haskell
+foldBool1 :: a -> a -> Bool -> a
+foodBool1 x y True = x
+foodBool1 x y False = y
+
+foldBool3 :: a -> a -> Bool -> a
+foldBool3 x y z =
+  case z of
+    True -> x
+    False -> y
+
+foldBool3 :: a -> a -> Bool -> a
+foldBool3 x y z =
+  | z         = x
+  | otherwise = y
+#+END_SRC
+
+3. Fill in the definition
+
+#+BEGIN_SRC haskell
+g :: (a -> b) -> (a, c) -> (b, c)
+g f (a, c) = (f a, c)
+#+END_SRC
+
+4. Read and understand ./arith4.hs
+
+5. Write a point free version of ~RoundTrip~
+
+#+BEGIN_SRC haskell
+roundTrip :: (Show a, Read a) => a -> a
+roundTrip = read . show
+#+END_SRC
