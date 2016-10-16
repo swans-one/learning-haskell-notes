@@ -70,7 +70,7 @@ frappe = flippy "haha"
 1. Write out the steps for reducing ~dividedBy 15 2~ to its final
    answer according to the Haskell code/
 
-2. Write a function that recursively sums all numbers from 1 to n, n
+2. Write a function that recursively sum3s all numbers from 1 to n, n
    being the argument. So that if n was 5, you'd add 1 + 2 + 3 + 4 + 5
    to get 15. The type should be ~(Eq a, Num a) => a -> a~
 
@@ -78,8 +78,8 @@ frappe = flippy "haha"
 summation :: (Eq a, Num a) => a -> a
 summation n = go n 0
   where go n count
-        | 0 count = count
-        | n count = go (n - 1) (count + n)
+         | n == 0    = count
+         | otherwise = go (n - 1) (count + n)
 #+END_SRC
 
 For additional thoughts see summation.hs
@@ -90,5 +90,32 @@ For additional thoughts see summation.hs
 
 #+BEGIN_SRC haskell
 myMul :: (Integral a) => a -> a -> a
-
+myMul x y = go x y 0
+  where
+    go x y acc
+      | y == 0    = acc
+      | otherwise = go x (y - 1) (x + acc)
 #+END_SRC
+
+* Fixing dividedBy
+
+* McCarthy 91 function
+
+The McCarthy 91 function yields x - 10 when x > 100 and 91
+otherwise. The function is recursive
+
+MC(n) = {
+   n - 10           if n > 100
+   MC(MC(N + 11))   if n <= 100
+}
+
+#+BEGIN_SRC haskell
+mc91 :: (Integral a) => a -> a
+mc91 x
+  | x > 100  = x - 10
+  | x <= 100 = (mc91 (mc91 (x + 11)))
+#+END_SRC
+
+* Numbers into words
+
+see wordnumber.hs
