@@ -1,0 +1,106 @@
+* 8.1 Recursion
+
+- Recurrsion :: Defining a function in terms of itself via self-referential
+  expressions.
+
+- Allows us to express indefinite, incremental computation
+
+- Often times we will not need to write our own recursion, but will
+  use higher order functions.
+
+* 8.2 Factorial
+
+- Classic introduction to recursion
+
+4! = 4 * 3 * 2 * 1
+
+#+BEGIN_SRC haskell
+factorial :: Integer -> Integer
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
+#+END_SRC
+
+** Another way to look at recursion
+
+- Recursion is self-referential composition
+
+#+BEGIN_SRC haskell
+three = inc . inc . inc $ 0
+#+END_SRC
+
+#+BEGIN_SRC haskell
+incTimes :: (Eq a, Num a) => a -> a -> a
+incTimes 0 n = n
+incTimes times n = 1 + (incTimes (times -1) n)
+#+END_SRC
+
+Or abstracting out the recursion
+
+#+BEGIN_SRC haskell
+applyTimes :: (Eq a, Num a) => a -> (b -> b) -> b -> b
+applyTimes 0 f b = b
+applyTimes n f b = f (applyTimes (n-1) f b)
+
+incTimes :: (Eq a, Num a) => a -> a -> a
+incTimes' times n = applyTimes times (+1) n
+#+END_SRC
+
+
+* 8.3 Bottom
+
+- ⊥, Bottom :: used to refer to computations that do not successfully
+               result in a value.
+- In logic ⊥ corresponds to false.
+
+Examples of bottom:
+  - failure to terminate
+  - raising an exception
+  - an undefined result from a partial function
+
+We can avoid partial functions by using the Maybe type
+
+#+BEGIN_SRC haskell
+data Maybe a = Nothing | Just a
+
+f :: Bool -> Maybe INt
+f False = Just 0
+f _ = Nothing
+#+END_SRC
+
+* 8.4 Fibonacci numbers
+
+#+BEGIN_SRC haskell
+fibonacci :: Integral a => a -> a
+fibonacci 0 = 0
+fibonacci 1 = 1
+fibonacci x = fibonacci (x - 1) + fibonacci (x - 2)
+#+END_SRC
+
+* 8.5 Integral division from scratch
+
+- We can think of division as repeated subtraction
+
+#+BEGIN_SRC haskell
+type Numerator = Integer
+type Denominator = Integer
+type Quotient = Integer
+
+dividedBy :: Numerator -> Denominator -> Quotient
+dividedBy num denom = go num denom 0
+  where go n   d count
+         | n < d = (count, n)
+         | otherwise = go (n - d) d (count + 1)
+#+END_SRC
+
+- A ~go~ function :: A common haskell idiom where we define a function
+     in a where clause that accepts more arguments than the top level
+     function.
+
+* 8.6 Chapter Exercises
+
+
+
+* 8.7 Definitions
+
+- recursion :: A means of computing results through repeated funciton
+               application.

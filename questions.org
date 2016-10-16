@@ -143,3 +143,16 @@ Let's talk about indentation
   got the right answer.
 
 - pg 263: Question 6: lets talk about this
+* Chapter 8: Recursion
+
+- pg 277: Recursion is self-referntial composition. What does that mean?
+
+- pg: 280: "Bottom is used in haskell to refer to computations that do
+  not successfully return a value." So bottom is not itself a value?
+  What does it mean to refer to a "computation" in this sense?
+
+- pg 292: Recursion question 2. We talk about partial functions being
+  bad, but we're writing them for exercises like this. Is that
+  something we should be concerned about?
+  - Or at least, it is "bottom" when given a negative argument, or
+    floating point argument.

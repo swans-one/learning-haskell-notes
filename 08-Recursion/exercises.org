@@ -1,0 +1,94 @@
+* Review of types
+
+1. What is the type of ~[[True, False], [True, True], [False, True]]~
+
+d) [ [Bool] ]
+
+2. Which of the following has the same type as ~[[True, False], [True,
+   True], [False, True]]~?
+
+b) [[3 == 3], [6 > 5], [3 < 4]]
+
+3. For the following function
+#+BEGIN_SRC haskell
+func :: [a] -> [a] -> [a]
+func x y = x ++ y
+#+END_SRC
+which of the following is true?
+
+d) all of the above
+
+
+4. For the ~func~ code above, which is a valid application of func to
+   both of its arguments?
+
+b) func "Hello" "World"
+
+
+* Reviewing curring
+
+Given the following definitions tell us what value results from
+further applications.
+
+#+BEGIN_SRC haskell
+cattyConny :: String -> String -> String
+cattyConny x y = x ++ " mrow " ++ y
+
+flippy = flip cattyConny
+
+appedCatty = cattyConny "woops"
+frappe = flippy "haha"
+#+END_SRC
+
+1. What is the value of ~appedCatty "whoohoo!"~? Try to determine the
+   answer for yourself then test in the REPL
+
+"woops mrow whoohoo!"
+
+2. ~frappe "1"~
+
+"1 mrow haha"
+
+3. ~frappe (appedCatty "2")~
+
+"woops mrow 2 mrow haha"
+
+4. ~appedCatty (frappe "blue")
+
+"woops mrow blue mrow haha"
+
+5. ~cattyConny (frappe "pink") (cattyConny "green" (appedCatty "blue"))~
+
+"pink mrow haha mrow green mrow woops mrow blue"
+
+6. ~cattyConny (flippy "Pugs" "are") "awesome"~
+
+"are mrow Pugs mrow awesome"
+
+* Recursion
+
+1. Write out the steps for reducing ~dividedBy 15 2~ to its final
+   answer according to the Haskell code/
+
+2. Write a function that recursively sums all numbers from 1 to n, n
+   being the argument. So that if n was 5, you'd add 1 + 2 + 3 + 4 + 5
+   to get 15. The type should be ~(Eq a, Num a) => a -> a~
+
+#+BEGIN_SRC haskell
+summation :: (Eq a, Num a) => a -> a
+summation n = go n 0
+  where go n count
+        | 0 count = count
+        | n count = go (n - 1) (count + n)
+#+END_SRC
+
+For additional thoughts see summation.hs
+
+3. Write a function that multiplies two integral numbers using
+   recursive summation. The type should be
+   ~(Integral a) => a -> a -> a~
+
+#+BEGIN_SRC haskell
+myMul :: (Integral a) => a -> a -> a
+
+#+END_SRC
