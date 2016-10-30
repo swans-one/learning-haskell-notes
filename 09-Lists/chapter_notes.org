@@ -248,3 +248,45 @@ filter pred (x:xs)
 filter (\x -> elem x "aeiou") "abracadabra"
 [ x | x <- "abracadabra", elem x "aeiou"]
 #+END_SRC
+
+* 9.11 Zipping lists
+
+- Ways of combinining two lists
+
+#+BEGIN_SRC haskell
+zip [1, 2, 3] [4, 5, 6]
+zip [1, 2] [4, 5, 6]
+
+unzip [(1, 4), (2, 5), (3, 6)]
+#+END_SRC
+
+- use ~zipWith~ to apply a function to the values in parallel
+
+#+BEGIN_SRC haskell
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+
+zipWith (+) [1, 2, 3] [10, 11, 12]
+#+END_SRC
+
+* 9.12 Chapter Exercises
+
+* 9.13 Definitions
+
+- product type :: a type made of a set of types compounded over
+                  each other. Tuples.
+- sum type :: a type who's terms are one of choices, but not multiple
+              simultaneously. | in datatype definition.
+- cons :: a verb meaning to use the cons cell data constructor
+- cons cell :: a data constructor and a product of the types ~a~ and
+               ~[a]~.
+- spine :: a way to refer to the structure that glues a collection of
+           values together, separate from the values themselves.
+
+
+Creating our own list type:
+
+#+BEGIN_SRC haskell
+data List a = Nil | Cons a (List a)
+
+Cons 1 (Cons 2 (Cons 3 Nil))
+#+END_SRC

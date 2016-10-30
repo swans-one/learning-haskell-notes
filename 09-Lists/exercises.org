@@ -200,9 +200,17 @@ map sum [[1..5], [1..5], [1..5]]          -- c
 1. Given the above, how might we write a filter function that would
    give us all the multiples of 3 out of a list from 1-30?
 
+#+BEGIN_SRC haskell
+only_3s = filter ((== 0) . (mod 3)) [1..30]
+#+END_SRC
+
 2. Recalling what we learned about function composition, how could we
-   compare the above function with the length function to tell us how
+   compose the above function with the length function to tell us how
    many multiples of 3 there are between 1 and 30?
+
+#+BEGIN_SRC haskell
+length  only_3s
+#+END_SRC
 
 3. Next we're going to work on removing all articles ('the', 'a', and
    'an') from sentences. You want to get something that works like
@@ -216,3 +224,23 @@ map sum [[1..5], [1..5], [1..5]]          -- c
    separating them at spaces. That is a standard library function
    called ~words~. You may consider starting this exercise by using
    words (or your version of course)
+
+#+BEGIN_SRC haskell
+myFilter :: [Char] -> [[Char]]
+myFilter s = [w | w <- (words s), not (elem w ["a", "an", "the"])]
+#+END_SRC
+
+* Zipping Exercises
+
+1. Write your own version of zip and ensure it behaves the same as the
+   original.
+
+2. Do what you did for zip, but now for zipWith
+
+3. Rewrite your zip in terms of the zipWith you wrote
+
+All of these are answered in zipping.hs
+
+* Chapter Exercises
+
+TODO

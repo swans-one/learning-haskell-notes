@@ -166,3 +166,5 @@ Let's talk about indentation
   - What?
 - pg 319: If a range isn't evaulated, what is it? How does it know
   where to stop?
+- pg 341: Is there any difference between the builtin list and the
+  custom definition other than syntax?
