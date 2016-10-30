@@ -156,3 +156,13 @@ Let's talk about indentation
   something we should be concerned about?
   - Or at least, it is "bottom" when given a negative argument, or
     floating point argument.
+* Chapter 9: Lists
+- pg 302: What is a spine? What is a cons cell?
+- pg 315: No really, what is a "spine"?
+- pg 317: "The length function is only strict in the spine"
+  - What does this mean?
+- pg 317: "Values in Haskell get reduced to weak head normal form by
+  default"
+  - What?
+- pg 319: If a range isn't evaulated, what is it? How does it know
+  where to stop?

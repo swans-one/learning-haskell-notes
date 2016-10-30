@@ -1,0 +1,250 @@
+* 9.1 Lists
+
+* 9.2 The list datatype
+
+The list datatype in haskell is defined like this
+
+#+BEGIN_SRC haskell
+data [] a = [] | a : []
+#+END_SRC
+
+- ~[]~ is the _type constructor_ for lists
+- ~[]~ is the _data constructor_ for empty lists
+  - This is a nullary constructor because it takes no arguments
+
+- ~:~ is a data constructor that takes two arguments
+  - called ~cons~ for construct
+
+- The list datatype is a sum type. Either:
+  - An empty list
+  - Or a list with values in it
+
+- This may look like it is constructed like a singly linked list
+  - A reasonable comparison
+  - Some behavior is different because of laziness
+  - Also has some properties of streams (like, it can be infinite)
+
+* 9.3 Pattern matching on lists
+
+- We can match on data constructors
+  - Meaning we can match on ~:~ for lists
+
+
+#+BEGIN_SRC haskell
+myHead (x : _) = x
+
+myTail (_ : xs) = xs
+#+END_SRC
+
+But this isn't a safe function, we can use ~Maybe~ to make it safe.
+
+#+BEGIN_SRC haskell
+safeTail :: [a] -> Maybe [a]
+safeTail [] = Nothing
+safeTail (x:[]) = Nothing
+safeTail (_:xs) = Just xs
+#+END_SRC
+
+* 9.4 List's syntactic sugar
+
+- Haskell makes writing lists easier:
+
+#+BEGIN_SRC haskell
+[1, 2, 3] ++ [4]
+#+END_SRC
+
+instead of
+
+#+BEGIN_SRC haskell
+(1 : 2 : 3 : []) ++ 4 : []
+#+END_SRC
+
+
+- Lists are made of "cons cells" and "spines".
+
+- cons cells :: the second data constructor ~:~
+- spine :: the connective structure that holds the cons cells together and in place
+
+* 9.5 Using ranges to construct lists
+
+- Range is a syntax for constructing lists
+
+#+BEGIN_SRC haskell
+[1..10]
+[1,2..10]
+[1,3..10]
+#+END_SRC
+
+- There are function equivalents for these range operations:
+  - ~enumFrom~
+  - ~enumFromThen~
+  - ~enumFromTo~
+  - ~enumFromThenTo~
+
+* 9.6 Extracting portions of lists
+
+- ~take~, ~drop~, ~splitAt~
+
+#+BEGIN_SRC haskell
+take 10 (enumFrom 10)
+#+END_SRC
+
+- There are higher order functions as well:
+
+#+BEGIN_SRC haskell
+takeWhile :: (a -> Bool) -> [a] -> [a]
+dropWhile :: (a -> Bool) -> [a] -> [a]
+#+END_SRC
+
+- Some examples
+
+#+BEGIN_SRC haskell
+takeWhile (<3) [1..10]
+dropwhile (<8) (enumFromTo 5 15)
+#+END_SRC
+
+* 9.7 List Comprehensions
+- Generate a new list from a list or lists
+- Like math set comprehensions (look like them too)
+- generator :: An required input to list comprehensions
+
+Examples:
+
+#+BEGIN_SRC haskell
+[x^2 | x <- [1..10]]                         -- 1
+[x^2 | x <- [1..10], rem x 2 == 0]           -- 2
+[x^y | x <- [1..5], y <- [2, 3]]             -- 3
+[x^y | x <- [1..5], y <- [2, 3], x^y < 200]  -- 4
+[(x, y) | x <- [1, 2, 3], y <- ['a', 'b']]   -- 5
+#+END_SRC
+
+1. A simple list comprehension
+2. Demonstrates how we can add predicates, after a comma
+3. We can have multiple generators
+   - Note that the rightmost will be exhausted first, towards the left
+4. We can also have a predicate with multiple generators
+5. Running this shows the order things are exhausted in
+
+** List comprehensions with Strings
+
+- Strings are lists, so comprehensions can be used with them
+
+- ~elem~ is a function that tests if a item is in a list
+
+#+BEGIN_SRC haskell
+[x | x <- "Three Letter Acronym", elem x ['A'..'Z']]
+
+acro xs = [x | x <- xs, elem x ['A'..'Z']]
+#+END_SRC
+
+
+* 9.8 Spines and nonstrict evaluation
+
+Look! It's a spine:
+
+  : <-------|
+ / \        |
+1   : <-----| This is the "spine"
+   / \      |
+  2   : <---|
+     / \
+    3   []
+
+- lists are a recursive series of cons cells.
+
+- ~1 : (2 : (3 : []))~ makes it look like 1 comes before the cons
+  cell, but it's important to note that it contains it.
+  - So, you can evaluate cons cells independently of what they contain
+  - So, you can evaluate the spine without seeing the values
+
+- Evaling a list travels down the spine, constructing travels up it
+
+- Because Haskell's evaluation is nonstrict the list isn't constructed
+  until it's consumed
+
+** Using GHCi's :sprint command
+
+- ~:sprint~ can help us see how much of a datastructure has been
+  evaluated
+
+Prelude> let x = enumFromTo 'a' 'z'
+Prelude> :sprint x
+Prelude> take 3 x
+Prelude> :sprint x
+
+- The ~length~ function is only strict in the spine
+
+proof:
+
+#+BEGIN_SRC haskell
+let x = [1, undefined, 3]
+length x
+#+END_SRC
+
+The above returns, therefore it did not try to evaluate the values.
+
+** Spines are evaluated independently of values
+
+- Values get reduced to "weak head normal form" by default
+
+- weak head normal form :: the expression is only evaluated as far as
+     is necessary to reach a data constructor
+
+- Something in weak normal form may be in Normal form, or have more
+  stuff left.
+
+examples:
+
+#+BEGIN_SRC haskell
+(1, 2)                -- WHNF & NF
+(1, 1 + 1)            -- WHNF
+\x -> x * 10          -- WHNF & NF
+"Papu" ++ "chon"      -- neither
+(1, "Papu" ++ "chon") -- WHNF
+#+END_SRC
+
+We could define a function that is only strict in the spine ourselves:
+
+#+BEGIN_SRC haskell
+mylength :: [a] -> Integer
+mylength [] = 0
+mylength (_:xs) = 1 + length xs
+#+END_SRC
+
+- Use of ~_~ is actually a langauge feature that tells the compiler
+  not to evaluate that item.
+
+* 9.9 Transforming lists of values
+
+- Instead of writing our own recursion over lists, it is often better
+  to use higher order functions.
+
+- ~map~ and ~fmap~
+
+#+BEGIN_SRC haskell
+map :: (a -> b) -> [a] -> [b]
+map _ [] = []
+map f (x:xs) = f x : map f xs
+#+END_SRC
+
+- Mantra for performance sensitive haskell:
+  - "Lazy in the spine, strict in the leaves"
+
+* 9.10 Filtering lists of values
+
+A definition for filter
+
+#+BEGIN_SRC haskell
+filter :: (a -> Bool) -> [a] -> [a]
+filter _ [] = []
+filter pred (x:xs)
+  | pred x    = x : filter pred xs
+  | otherwise = filter pred xs
+#+END_SRC
+
+- Compare this to list comprehensions for filtering lists
+
+#+BEGIN_SRC haskell
+filter (\x -> elem x "aeiou") "abracadabra"
+[ x | x <- "abracadabra", elem x "aeiou"]
+#+END_SRC
