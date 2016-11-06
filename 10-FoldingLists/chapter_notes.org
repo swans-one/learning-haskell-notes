@@ -1,0 +1,69 @@
+* 10.1 Folds
+
+- Useful for lists, and a variety of other data structures
+- Called "catamorphisms"
+  - cata = down
+  - deconstructing data
+
+We'll learn about
+
+- What folds are and how they work
+- Detail about the evaluation process
+- writing folding functions
+- intro to scans, related to folds
+
+* 10.2 Bringing you into the fold
+
+- ~foldr~ = fold right, most usefull for working with lists
+
+#+BEGIN_SRC haskell
+-- simple version
+foldr :: (a -> b -> b) -> b -> [a] -> b
+
+-- newer version
+foldr :: Foldable t => (a -> b -> b) -> b -> t a -> b
+#+END_SRC
+
+* 10.3 Recursive patterns
+
+- Think about how you would define these functions recursively
+  - ~sum~, ~length~, ~product~, ~concat~
+  - They all accumulate into a base case, 0, 0, 1, and [] respectively
+  - Each of them has a main function with a recursive pattern that
+    associates to the right.
+
+* 10.4 Fold right
+
+A definition of foldr
+
+#+BEGIN_SRC haskell
+myFoldr :: (a -> b -> b) -> b -> [a] -> b
+myFoldr f z []     = z
+myFoldr f z (x:xs) = f x (myFoldr f z xs)
+#+END_SRC
+
+Another definition that might be easier to reason about
+
+#+BEGIN_SRC haskell
+myFoldr :: (a -> b -> b) -> b -> [a] -> b
+myfoldr f z xs =
+  case xs of
+    []     -> z
+    (x:xs) -> f x (myFoldr f z xs)
+#+END_SRC
+
+* 10.5 Fold left
+
+- traverses the spine in the same direction
+  - But their folding process is left associative
+
+#+BEGIN_SRC haskell
+myFoldl :: (b -> a -> b) -> b -> [a] -> b
+myFoldl f acc []     = acc
+myFoldl f acc (x:xs) = foldl f (f acc x) xs
+#+END_SRC
+
+- scans are like folds but show us the intermediate steps
+
+end:
+pg 380 -- section 10.12

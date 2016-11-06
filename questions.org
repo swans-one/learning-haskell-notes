@@ -168,3 +168,12 @@ Let's talk about indentation
   where to stop?
 - pg 341: Is there any difference between the builtin list and the
   custom definition other than syntax?
+* Chapter 10: Folding Lists
+- pg 346: "Also, each of them has a main function with a recursive
+  pattern that associates to the right". Can we map this out?
+- pg 347: can we walk through this definition, in light of right
+  associativity.
+- pg 353: I don't understand, given the definition of fold, how the
+  examples with undefined do not end up evaluated
+- pg 355: Let's go over left associativity. What is an example when
+  you would want this?
