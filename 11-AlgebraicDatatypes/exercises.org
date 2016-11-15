@@ -1,0 +1,246 @@
+* Dog Types
+
+#+BEGIN_SRC haskell
+data PugType = PugData
+data HuskyType a = HuskyData
+data DogueDeBordeaux doge = DogueDeBordeaux doge
+
+data Doggies a =
+    Husky a
+  | Mastiff a
+  deriving (Eq, Show)
+#+END_SRC
+
+Give the datatypes defined in the above sections:
+
+1. Is ~Doggies~ a type constructor or a data constructor?
+
+       Type Constructor
+
+2. What is the kind of ~Doggies~?
+
+       * -> *
+
+3. What is the kind of ~Doggies String~?
+
+       *
+
+4. What is the type of ~Husky 10~
+
+       Num a => Doggies a
+
+5. What is the type of ~Husky (10 :: Integer)?
+
+       Doggies Integer
+
+6. What is the type of ~Mastiff "Scooby Doo"~?
+
+       Doggies [Char]
+
+7. Is ~DogeDeBordeaux~ a type constructor or a data constructor?
+
+       Either/Both
+
+8. What is the type of ~DogeDeBordeaux~?
+
+       doge -> DogeDeBordeaux doge
+
+9. What is the type of ~DogeDeBordeaux "doggie!"~
+
+       DogeDeBordeaux [Char]
+
+* Vehicles
+
+see vehicles.hs for code
+
+1. What is the type of myCar
+
+       Vehicle
+
+2. Define the following functions
+
+       see vehicles.hs
+
+3. Now we're going to write a function to tell us the manufacturere of
+   a piece of data
+
+       see vehicles.hs
+
+4. Given that we're returning the ~Manufacturer~, what will happen if
+   you use this on ~Plane~ data?
+
+       We'll get ~bottom~
+
+5. All right. Let's say you've decided to add the size of the plane as
+   an argument to the ~Plane~ constructor. Add that to your datatypes
+   in the appropriate places and change your data and functions
+   appropriately.
+
+       see vehicles.hs
+* Cardinality
+
+While we haven't explicitly describe the rules for cacluating the
+cardinality of datatypes yet, you might already have an idea of how to
+do it for simple datatypes with nullary constructors. Try not to
+overthink these exercises -- follow your intuition based on what you
+know:
+
+#+BEGIN_SRC haskell
+data PugType = PugData
+
+data Airline =
+    PapuAir
+  | CatapultsR'Us
+  | TakeYourChanceUnited
+#+END_SRC
+
+1. Cardinality of ~PugType~
+
+        1
+
+2. Cardinality of ~Airline~
+
+        3
+
+3. Give what we know about ~Int8~ what's the cardinality of Int16?
+
+       65536
+
+4. Use the REPL and ~maxBound~ and ~minBound~ to examine ~Int~ and ~Integer~
+
+       Int: 2 ^ 64
+       Integer: infinite
+
+5. Extra credit (impress your friends!): What's the connection between
+   the 8 in Int8 and the types cardinality of 256:
+
+        256 = 2 ^ 8
+
+* For Example
+
+Note, I'm just writing the answers here. See for_example.hs for code
+
+1. The type of ~MakeExample~ is ~Example~, asking for the type of
+   ~Example~ results in a "not in scope" error
+
+2. You get info about it, and can see it derives ~Show~
+
+3. You get a function ~Int -> Example~
+
+* Logic Goats
+
+Note: all answers are in logic_goats.hs
+
+* Pity the Bool
+
+1. Given the datatype
+
+#+BEGIN_SRC haskell
+data BigSmall =
+    Big Bool
+  | Small Bool
+  deriving (Eq, Show)
+#+END_SRC
+
+What is the cardinality of datatype?
+
+Answer: 4
+
+2. Given a datatype
+
+#+BEGIN_SRC haskell
+import Data.Int
+
+data NumberOrBool =
+    Numba Int8
+  | BollyBool Bool
+  deriving (Eq, Show)
+#+END_SRC
+
+What is the cardinality of ~NumberOrBool~? What happens if you try to
+create a ~Numba~ with a numeric literal larger than 127? And smaller
+than (-128)?
+
+Answers:
+  - 256 + 2 = 258
+  - It overflows (and warns you that it happened)
+  - It reverse overflows (and warns you that it happened)
+
+* How does your garden grow?
+
+1. Given the type
+
+#+BEGIN_SRC haskell
+data FlowerType = Gardenia
+                | Daisy
+                | Rose
+                | Lilac
+                deriving Show
+
+type Gardener = String
+
+data Garden =
+  Garden Gardener FlowerType
+  deriving Show
+#+END_SRC
+
+What is the normal form of ~Garden~
+
+Answer:
+
+#+BEGIN_SRC haskell
+data Garden =
+  Gardenia Gardener
+  Daisy Gardener
+  Rose Gardener
+  Lilac Gardener
+  deriving Show
+#+END_SRC
+
+* Programmers
+
+See programmers.hs for code
+
+* The Quad
+
+Determine how many unique inhabitants each type has.
+
+#+BEGIN_SRC haskell
+-- setup
+data Quad = One | Two | Three | Four deriving (Eq, Show)
+
+
+eQuad :: Either Quad Quad -- 1
+-- Answer: 4 + 4 = 8
+
+prodQuad :: (Quad, Quad) -- 2
+-- Answer: 4 * 4 = 16
+
+funcQuad :: Quad -> Quad -- 3
+-- Answer: 4 ^ 4 = 256
+
+prodTBool (Bool, Bool, Bool) -- 4
+-- Answer: 2 * 2 * 2 = 8
+
+gTwo :: Bool -> Bool -> Bool -- 5
+-- Answer: 2 ^ 2 ^ 2 = 16
+
+fTwo :: Bool -> Quad -> Quad -- 6
+-- Answer: 4 ^ (2 * 4) = 65536
+
+#+END_SRC
+
+* Write map for Binary Tree
+
+Given the definition of ~BinaryTree~, write a map function for the
+data structure.
+
+For solution/code/tests see bin_tree.hs
+
+* Convert Binary Trees to lists
+
+Write functions to convert Binary Tree values to lists.
+
+for solution/code/tests see bin_tree.hs
+
+* Write foldr for BinaryTree

@@ -1,0 +1,379 @@
+* 11.1 Algebraic datatypes
+- a type :: enumeration of constructors that have zero or more
+            arguments.
+
+- Haskell offers:
+  - sum types
+  - product types
+  - product types with record syntax
+  - type aliases
+  - newtype
+
+* 11.2 Data declarations review
+
+#+BEGIN_SRC haskell
+data Bool = False | True
+data [] a = [ ] | a : [a]
+#+END_SRC
+
+In the above:
+  - ~data~ is a keyword to signal a data declaration
+  - equals sign divides type constructor form its data constructors
+  - Type constructors can take arguments
+
+When we talk about a data declaration, we are talking about the
+definition of the entire type.
+
+* 11.3 Data and type constructors
+
+- Two types of constructors:
+  - Type constructors
+  - Data constructors
+
+- Types are static and resolve at compile time
+
+- Types that take no arguments are constants
+
+* 11.4 Type construtors and kinds
+
+- kinds are the "types of types"
+- Represent kinds in Haskell with "*"
+  - ~*~ == fully applied kind
+  - ~* -> *~ waiting to be applied
+
+- Query a type constructor with ~:k~
+
+* 11.5 Data constructors and values
+
+#+BEGIN_SRC haskell
+data PugType = PugData
+data HuskyType a = HuskyData
+data DogueDeBordeaux doge = DogueDeBordeaux doge
+#+END_SRC
+
+- Type constructors can be constants, i.e. takes no arguments
+- Data constructors can be constants, or waiting for values.
+
+- In the declaration for ~HuskyType~, the type constructor takes an
+  argument, but the data constructor does not use it
+  - This is called a "phantom"
+  - Or "has no witness"
+
+Note:
+
+:t DogeDeBordeaux
+DogeDeBordeaux :: doge -> DogeDeBordeaux doge
+
+#+BEGIN_SRC haskell
+-- This works, because they agree
+myDoge :: DogeDeBordeaux Int
+myDoge = DogeDeBordeaux 10
+#+END_SRC
+
+* 11.6 What's a type and what's data?
+
+- types resolve at compile time
+- data about types does not persist to runtime
+
+- It is very common to have ~deriving~ clauses on datatypes you
+  define. Often derive Eq and Show
+
+* 11.7 Data constructor arities
+
+- arity :: the number of arguments a function or constructor takes.
+- nullary :: a function or constructor that takes no arguments
+- unary :: a function or constructor that takes one arguments
+
+- data constructors that take more than one argument are call "products"
+- Products are like tuples, which we saw earlier
+
+- Tuples are the canonical product type
+  - called "anonymous products"
+
+* 11.8 What makes these datatypes algebraic?
+
+- we can describe the patterns of argument structures using two basic
+  operations "sum" and "product".
+
+- cardinality :: the number of possible values a type defines
+
+- Cardinality examples:
+  - cardinality of ~Bool~ is 2
+  - cardinality of ~Int8~ is 256
+
+#+BEGIN_SRC haskell
+import Data.Int
+minBound :: Int8
+maxBound :: Int8
+#+END_SRC
+
+- The cardinality of nullary data constructors is 1
+
+- Datatypes that only contain a unary constructor always have the same
+  cardinality as the type the contain
+
+- for cardinality, unary constructors are the identity function
+
+* 11.9 newtype
+
+- newtype :: A way to define a type that can only ever have single
+             unary data constructor.
+  - use the ~newtype~ keyword
+  - different from type declarations marked with the ~data~ keyword
+  - different from type synonyms marked with the ~type~ keyword
+
+- The cardinality of newtype is the same as the type it contains
+
+- Constraints:
+  - Cannot be a product type
+  - Cannot be a sum type
+
+- Advantages:
+  - no runtime overhead
+
+- The difference between a ~newtype~ and the type it contains is gone
+  by the time the compiler generates the code.
+
+#+BEGIN_SRC haskell
+newtype Goats =
+  Goats Int deriving (Eq, Show)
+
+newtype Cows =
+  Cows Int deriving (Eq, Show)
+
+tooManyGoats :: Goats -> Bool
+tooManyGoats (Goats n) = n > 42
+#+END_SRC
+
+With the above code, try calling ~tooManyGoats~ on some ~Cow~s.
+
+- Similarities to type synonyms:
+  - The distinction between the underlying type is gone at runtime
+  - Help a human reading code understand stuff
+  - Aid in typechecking
+
+- Differences from type synonyms:
+  - You can defined typeclass instances for ~newtype~s that differ
+    from the instances for the underlying type. You can't for type
+    synonyms.
+
+#+BEGIN_SRC haskell
+class TooMany a where
+  tooMany :: a -> Bool
+
+instance TooMany Int where
+  tooMany n = n > 42
+
+instance TooMany Goats where
+  tooMany (Goats n) = n > 100
+
+tooMany (42 :: Int)
+#+END_SRC
+
+** Deriving user defined typeclasses for newtypes
+
+- Need to provide a language pragma called ~GeneralizedNewtypeDeriving~
+- language pragma :: special instructions to the compiler that turn on
+     features beyond the standard.
+
+see too_many_goats.hs
+
+* 11.10 Sum types
+
+- To know the cardinality of sum types, we _add_ the cardinalities of
+  thier data constructors.
+
+* 11.11 Product types
+
+- A product type's cardinality is the _multiplication_ of the
+  cardinalities of its inhabitants.
+
+- A sum type expresses _or_, a product type expresses _and_.
+- A product is like a struct in C.
+
+#+BEGIN_SRC haskell
+data QuantumBool =
+  QuantumTrue | QuantumFalse | QuantumBoth
+  deriving (Eq, Show)
+
+data TwoQs =
+  MkTwoQs QuantumBool QuantumBool
+  deriving (Eq, Show)
+#+END_SRC
+
+- ~QuantumBool~ has cardinality 3
+- TwoQs has cardinality of 9
+
+- Note, no special syntax denoting product types
+  - The data constructor simply takes two type arguments
+
+- the cardinality of a datatype roughly equates to how difficult it is
+  to reason about
+
+** Record syntax
+
+- Records are product types with additional syntax to provide
+  convenient accessors to fields within the record.
+
+Start from a simple product type:
+
+#+BEGIN_SRC haskell
+data Person = MkPerson String Int deriving (Eq, Show)
+
+jm = MkPerson "julie" 108
+ca = MkPerson "chris" 16
+
+namae :: Person -> String
+namae (MkPerson s _) = s
+#+END_SRC
+
+A simpler way to define both this product type, and the accessors is
+with record syntax:
+
+#+BEGIN_SRC haskell
+data Person =
+  Person { name :: String
+         , age :: Int }
+         deriving (Eq, Show)
+#+END_SRC
+
+Then, in the repl, try:
+
+    : t: name
+    : t: age
+
+You can easily define people:
+
+    : let papu = Person "Papu" 6
+    : age papu
+
+* 11.12 Normal form
+
+- The algebra behind datatypes is useful for:
+  - understanding cardinality
+  - existing algebraic rules apply
+
+- The distributive property applies
+  - ~a * (b + c) -> (a * b) + (a * c)~
+  - We can always make the transformation above, with types
+  - The rigth hand side is "Normal form"
+
+- normal form :: In the context of a type declaration means the type
+                 is a _sum of products_.
+
+
+* 11.13 Constructing and deconstructing values
+
+- Two things to do with a value
+  - Generate or construct it
+  - Match on it and consume it
+
+#+BEGIN_SRC haskell
+data OperatingSystem =
+    GnuPlusLinux
+  | OpenBSD
+  | Mac
+  | Windows
+  deriving (Eq, Show)
+
+data ProgrammingLanguage =
+    Haskell
+  | Agda
+  | Idris
+  | PureScript
+  deriving (Eq, Show)
+
+data Programmer =
+  Programmer { os :: OperatingSystem
+             , lang :: ProgrammingLanguage }
+  deriving (Eq, Show)
+#+END_SRC
+
+** Accidental bottoms from records
+
+- definining only a single field on a record type works but produces a
+  warning.
+  - However, ~Show~ing (or generally using) it will be a problem.
+    - That is, will be bottom
+
+Don't do something like this!
+
+#+BEGIN_SRC haskell
+Programmer { os = Windows }
+#+END_SRC
+
+But you can do this:
+
+#+BEGIN_SRC haskell
+Programmer Windows
+#+END_SRC
+
+To get a partial application of the normal data constructor.
+
+** Deconstructing values
+
+- Any datatype that has values can be deconstructed
+
+** Accidental bottoms from records
+
+- If you're using record syntax, don't include it directly in a sum
+  type. Instead, break it out into it's own type with its own
+  accessors, then include that in the sum type
+
+* 11.14 Function type is exponential
+
+- In the arithmetic of calculating inhabitants of types function type
+  is the exponent
+
+- Given a function ~a -> b~ we can calculate the inhabitants with the
+  formula ~b^a~
+
+Here, inhabitants refers to the possible implementations of the
+function.
+
+
+* 11.15 Higher-kinded datatypes
+
+- Kinds are the types of constructors, encoding particularly the number
+  of arguments they take. The default kind is ~*~.
+  - There are a few kinds, and they use the same ~->~ and ~::~ syntax
+    as types.
+
+- Types that take a parameter to be fully applied have kind ~* -> *~,
+  called "higher kinded"
+
+- In haskell we do not conventionally put constraints on datatypes.
+  - Instead, this will be constrained by consuming function type
+    signatures.
+
+* 11.16 Lists are polymorphic
+
+- Can contain values of any type.
+- When we give an operator a non-alphanumeric name, it is infix by
+  default.
+
+- Any operator that starts with a colon ~:~ must be an infix type or
+  data constructor. All infix data construtors must start with a colon.
+
+* 11.17 Binary Tree
+
+#+BEGIN_SRC haskell
+data BinaryTree a =
+    Leaf
+  | Node (BinaryTree a) a (BinaryTree a)
+  deriving (Eq, Ord, Show)
+
+insert' :: Ord a => a -> BinaryTree a -> BinaryTree a
+insert' b Leaf = Node Leaf b Leaf
+insert' b (Node left a right)
+  | b == a = Node left a right
+  | b < a = Node (insert' b left) a right
+  | b > a = Node left a (insert' b right)
+#+END_SRC
+
+* 11.18 Chapter Exercises
+
+* 11.19 Definitions
+
+- datatype :: how we declare and create data for our functions to
+              recieve input.

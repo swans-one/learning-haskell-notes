@@ -177,3 +177,36 @@ Let's talk about indentation
   examples with undefined do not end up evaluated
 - pg 355: Let's go over left associativity. What is an example when
   you would want this?
+
+* Chapter 11: Algebraic datatypes
+- pg 386: Are there "kinds of kinds"? Sorts?
+- pg 386: what does it mean for a kind to be "fully applied"?
+- ** Are the only "kinds" fully applied vs waiting for application?
+  - rust has "lifetimes" see http://smallcultfollowing.com/babysteps/blog/2016/11/04/associated-type-constructors-part-3-what-higher-kinded-types-might-look-like/#time-to-get-a-bit-more-formal
+- pg 388: Any uses for "phantom" types?
+- pg 390: "types resolve at compile time" no introspection
+  capabilities at all?
+- ** pg 397: Can we talk about cardinality/types/sets here?
+  - is (Int, Int) higher cardinality than (Int)?
+  - In math it wouldn't be
+- pg 398: what is that min/max bound syntax??
+- ** Can we make a list of what an algebra requires
+  - identity function?
+  - sum?
+  - product?
+- pg 403: what would the definition with a type synonym look
+- When would you ever use type synonyms over ~newtype~?
+- pg 404: exercise (1), what? Can we go over this?
+  - Actually, I kinda get this, ~(Int, String)~ is a single type though?
+- pg 404: exercise (3) can we go over this?
+  - illegal datatype context
+  - see http://stackoverflow.com/questions/18934882/haskell-line-of-code-not-compiling-illegal-datatype-context
+- pg 409: "the cardinality of a datatype roughly equates to how difficult it is
+  to reason about" -- discuss
+- ** Can we draw out all the ways to define new types? And talk about them?
+- ** pg 412: Why describe something as "Normal form" in this context?
+- pg 412: I don't understand how this second Author definition works
+- pg 413: Did I get this answer right?
+- pg 423: Exercise Programmers I used list comprehensions, what did others use?
+- pg 428: Exponential == enumerating all possible implementations of a function
+- pg 444: We could write foldr for binary trees
