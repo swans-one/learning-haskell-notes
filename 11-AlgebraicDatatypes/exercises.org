@@ -244,3 +244,44 @@ Write functions to convert Binary Tree values to lists.
 for solution/code/tests see bin_tree.hs
 
 * Write foldr for BinaryTree
+
+for solution/code/tests see bin_tree.hs
+
+* Chapter Exercises
+
+** Multiple Choice
+
+Note, of the multiple choices, I'm only recording what I believe to be
+the correct answer here.
+
+1. Given the following datatype
+
+#+BEGIN_SRC haskell
+data Weekday = Monday | Tuesday | Wednesday | Thursday | Friday
+#+END_SRC
+
+(a) Weekday is a type with five data constructors
+
+2. And with the same datatype definition in mind, what is the type of
+   the following function ~f~?
+
+#+BEGIN_SRC haskell
+f Friday = "Miller Time"
+#+END_SRC
+
+(c) ~f :: Weekday -> String~
+
+3. Types defined with the data keyword
+
+(b) must begin with a capital letter
+
+4. The function ~g xs = xs !! (length xs -1 )~
+
+(c) delivers the final element of ~xs~
+
+** Ciphers
+
+We'll be writing a Vigenere cipher, a substitution cipher, using a
+series of Caesar ciphers, determined by a keyword.
+
+See ciphers.hs for a solution
