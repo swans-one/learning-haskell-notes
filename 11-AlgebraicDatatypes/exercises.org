@@ -284,4 +284,73 @@ f Friday = "Miller Time"
 We'll be writing a Vigenere cipher, a substitution cipher, using a
 series of Caesar ciphers, determined by a keyword.
 
-See ciphers.hs for a solution
+See ciphers.hs for a solution, and ciphers2.hs for a different
+solution that tries to encode the encoding/decoding logic into simple
+operations on a single type.
+
+I'm not sure which I like more. When writing the original ciphers, I
+felt like I was getting lost in the logic of converting to and from
+characters. I wanted to do a conversion to a type that encoded the
+operation of "cipherifying" more clearly, so that the operations would
+seems more straightforward.
+
+This ended up adding a fair amount of code, but possbily makes it
+clearer where there are errors.
+
+I am proud of the "point-free" style funcitons I wrote in the original
+ciphers. When I write these I feel like I'm encoding some real higher
+order operation, which is cool.
+
+I do wonder about the library creation aspect of it. When writing
+these higher order operations, I have a feeling that I'm revealing
+some "truth" about the problem, which is exciting, but perhaps leads
+me down a route of unnecessary abstraction. It's very intersting.
+
+This is the first real, undirected haskell program that I've
+written. I'm excitted to learn more.
+
+** As-patterns
+
+Use as-patterns in implementing the following functions:
+
+1. This should return ~True~ if and only if all the values in the
+   first list appear in the second list, though they need not be
+   contiguous
+
+#+BEGIN_SRC haskell
+isSubsequenceOf :: (Eq a) => [a] -> [a] -> Bool
+isSubsequenceOf [] _ = True
+isSubsequenceOf _ [] = False
+isSubsequenceOf sub@(x:xs) seq@(y:ys)
+  | x == y = isSubsequenceOf xs seq
+  | isSubsequenceOf sub ys = isSubsequenceOf xs seq
+  | otherwise = False
+#+END_SRC
+
+2. Split a sentence into words, then tuple each word with the
+   capitalized form of each
+
+#+BEGIN_SRC haskell
+capitalizeWords :: String -> [(String, String)]
+capitalizeWords = (map capitalizePair) . words
+  where capitalizePair w@(c:cs) = (w, (toUpper c):cs)
+#+END_SRC
+
+** Language exercises
+
+1. Write a function that capitalizes a words
+
+#+BEGIN_SRC haskell
+capitalizeWord :: String -> String
+capitalizeWord (c:cs) = (toUpper c):cs
+#+END_SRC
+
+2. Write a function that capitalizes sentences in a
+   paragraph. Recognize when a new sentence has begun by checking for
+   periods.
+
+see capitalizeParagraph.hs for a solution
+
+** Phone exercise
+
+see phone.hs for a solution
