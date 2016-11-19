@@ -353,4 +353,10 @@ see capitalizeParagraph.hs for a solution
 
 ** Phone exercise
 
+This exercise has us modeling writing text with the digits of a phone.
+
 see phone.hs for a solution
+
+** Hutton's Razor
+
+see hutton.hs for a solution
