@@ -1,0 +1,151 @@
+* 12.1 Signaling Adversity
+
+Sometimes it's not convenient or possible for every value in a
+datatype to make sense for your programs
+
+We use an explicit datatype to signal when some combination of inputs
+doesn't make sense.
+
+We'll cover:
+  - ~Nothing~ or ~Just~, ~Maybe~
+  - ~Either~ left or right, but not both
+  - higher-kindedness
+  - anamorphisms, but not animorphs
+
+* 12.2 How I learned to stop worrying and love Nothing
+
+The definition of ~Maybe~:
+
+#+BEGIN_SRC haskell
+data Maybe a = Nothing | Just a
+#+END_SRC
+
+And a simple use of it:
+
+#+BEGIN_SRC haskell
+ifEvenAdd2 :: Integer -> Maybe Integer
+ifEvenAdd2 n = if even n then Just (n + 2) else Nothing
+#+END_SRC
+
+** Using maybe for smarter constructors
+
+We can create alternate constructors that enforce constraints. He we
+don't want empty names or negative ages:
+
+#+BEGIN_SRC haskell
+type Name = String
+type Age = Integer
+
+data Person = Person Name Age deriving Show
+
+mkPerson :: Name -> Age -> Maybe Person
+mkPerson name age
+  | name /= "" && age >= 0 = Just $ Person name age
+  | otherwise = Nothing
+#+END_SRC
+
+This is sometimes called a "smart constructor"
+
+* 12.3 Bleating either
+
+The ~Either~ type lets us express _why_ we didn't get a successful
+result back from our constructor.
+
+The definition of ~Either~:
+
+#+BEGIN_SRC haskell
+data Either a b = Left a | Right b
+#+END_SRC
+
+And how we can use it to make our smart constructor more helpful
+
+#+BEGIN_SRC haskell
+data PersonInvalid = NameEmpty
+                   | AgeTooLow
+                   deriving (Eq, Show)
+
+mkPerson :: Name -> Age -> Either PersonInvalid Person
+mkPerson name age
+  | name /= "" && age >= 0 = Right $ Person name age
+  | name == "" = Left NameEmpty
+  | otherwise  = Left AgeTooLow
+#+END_SRC
+
+We use ~Left~ as our invalid or error constructor for a couple reasons
+  - It's convention
+  - Functor will not map over the left argument because it has been
+    applied away.
+
+Note, in the example above, if both age and name are wrong, we get a
+~NameEmpty~ response.
+
+Wouldn't it be better to get a list of responses?
+
+#+BEGIN_SRC haskell
+type ValidatePerson a = Either [PersonInvalid] a
+#+END_SRC
+
+* 12.4 Kinds, a thousand stars in your types
+
+- Kinds are types one level up.
+- They're used to describe the types of type constructors
+
+- higher kinded types :: types that take more types as arguments
+- type constant :: types that take no arguments, and are already types
+- type constructor :: types which must have arguments applied to
+     become a type
+
+- ~Maybe~ and ~Either~ are types with type constructors
+- ~Int~ is a type constant
+
+- You can tell a type constructor when its kind is like ~* -> *~
+- A type constant's kind is just ~*~
+
+What happens if you do the following:
+
+#+BEGIN_SRC haskell
+Maybe Maybe
+#+END_SRC
+
+You get a type error! (kind error?)
+
+#+BEGIN_EXAMPLE
+<interactive>:1:7: error:
+    * Expecting one more argument to `Maybe'
+      Expected a type, but `Maybe' has kind `* -> *'
+    * In the first argument of `Maybe', namely `Maybe'
+      In the type `Maybe Maybe'
+#+END_EXAMPLE
+
+This is a really cool explanation. Maybe expects a type, but got a
+higher kinded type, and lets you know exactly what the problem is.
+
+** Lifted and unlifted types
+
+Not all types have kind ~*~. ~*~ is the kind of lifted types, ~#~ is
+the kind of unlifted types.
+
+- lifted type :: Any type that can be inhabited by bottom. It is
+                 represented by a pointer.
+- Unlifted type :: A type that cannot be inhabitted by bottom. This
+                   means it has a direct representation in memory.
+
+** Data Constructors are functions
+
+We previously noted the difference between data constructors and data
+constants. Data constructors take arguments, and behave like
+functions.
+
+Other ways they behave like functions:
+  - They're curried
+  - They can be passed around (eg, to ~map~, ~fmap~)
+  - Their arguments are typechecked
+
+* 12.5 Chapter Exercises
+
+see exercises.org
+
+* 12.6 Definitions
+
+- higher kinded type :: any type whos kind has a function arrow, and
+     can be described as a type constructor rather than a constant.

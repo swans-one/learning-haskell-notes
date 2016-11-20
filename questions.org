@@ -210,3 +210,8 @@ Let's talk about indentation
 - pg 423: Exercise Programmers I used list comprehensions, what did others use?
 - pg 428: Exponential == enumerating all possible implementations of a function
 - pg 444: We could write foldr for binary trees
+* Chapter 12: Signalling Adversity
+- pg 459: I don't understand the functor thing. Can we talk about what
+  it means "Functor will not map over the left type argument because
+  it has been applied away"?
+- pg 464: Lifted vs unlifted. What is an example of an unlifted type in haskell?
