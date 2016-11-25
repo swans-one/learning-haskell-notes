@@ -1,0 +1,158 @@
+* 13.1 Modules
+
+- Haskell programs are organized into modules
+- Modules contain:
+  - datatypes
+  - type synonyms
+  - typeclasses
+  - typeclass instances
+  - top level values
+- Allow you to import other modules
+- Let you export values for other modules
+
+We'll be learning
+
+- Setting up a project in Haskell
+- Using Cabal, the package manager
+- Building projects with Stack
+- Conventions around haskell project organization
+- Building a small interactive game
+
+* 13.2 Making packages with Stack
+
+- Cabal :: Common Architecture for Building Applications and Libraries
+- Package :: A program you're building, including all of its modules
+             and dependencies
+- Dependencies :: Interlinked elements of that program
+- Stack :: A cross-platform program for developing Haskell projects
+
+Stack is built on top of cabal, so we'll use ~.cabal~ files. It also
+uses a set of LTS packages from Stackage that are guaranteed to work
+together.
+
+* 13.2 Working with a basic project
+
+We'll be starting from a hello world project outline which can be
+found at: [[https://github.com/haskellbook/hello]].
+
+What's in the sample project:
+
+- At the root there is:
+  - a ~Setup.hs~
+  - a ~hello.cabal~
+  - a ~stack.yml~
+- In the ~src~ directory there is:
+  - a ~Main.hs~
+
+Running ~stack build~ builds the project. Then you can run ~stack
+ghci~ and in the repl ~:l Main~ to load the library.
+
+We also built a binary, which is stored somewhere under
+~/home/erik/.stack/~. We can execute it by invoking it directly, or
+with ~stack exec -- hello~
+
+** Executable Stanzas in Cabal Files
+
+The ~hello~ executable was created because we have the following
+section in our ~.cabal~ file:
+
+#+BEGIN_SRC cabal
+executable hello
+  hs-source-dirs:   src
+  main-is:          Main.hs
+  default-language: Haskell2010
+  build-depends:    base >= 4.7 && < 5
+#+END_SRC
+
+Notes on the ~main-is~ directive:
+  - it will look for a source file matching this name in all of the
+    ~hs-source-dirs~ directories.
+  - there must be a module in this file with the same name as the
+    filename (i.e. ~Main~)
+  - The file must contain a function called ~main~
+
+* 13.4 Making our project a library
+
+We're going to add a library stanza to ~hello.cabal~
+
+#+BEGIN_SRC cabal
+library
+  hs-source-dirs:   src
+  exposed-modules:  Hello
+  build-depends:    base >= 4.7 && < 5
+  default-language: Haskell2010
+#+END_SRC
+
+We're also going to create the file ~src/Hello.hs~ to contain the code
+for this module.
+
+We're also going to change our ~Main~ module to use this library
+function. This compiles with ~stack build~ and runs with ~stack exec~
+just fine.
+
+We could also separate out our ~Main.hs~ into a separate directory,
+~exe~. This would fail initially because our executable no longer has
+access to the code in the ~src~ directory. However, we can add our
+library as a dependency:
+
+#+BEGIN_SRC cabal
+executable hello
+  hs-source-dirs:      exe
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , hello
+#+END_SRC
+
+* 13.5 Module exports
+
+By default when you don't specify any exports in a module, every
+top-level binding is exported.
+
+We can explicitly export values like so:
+
+#+BEGIN_SRC haskell
+module Hello
+  ( sayHello
+  , helloConstant
+  )
+where
+#+END_SRC
+
+** Exposing modules
+
+If we create another module ~DogsRule~ in ~src/DogsRule.hs~, and we
+want to import and use it in ~exe/Main.hs~, we'll need to add it to
+our library:
+
+#+BEGIN_SRC cabal
+library
+  hs-source-dirs:      src
+  exposed-modules:     Hello
+                     , DogsRule
+  build-depends:       base >= 4.7 && < 5
+  default-language:    Haskell2010
+#+END_SRC
+
+
+* 13.6 More on importing modules
+
+- Importing is used to bring more functions into scope
+- Are top level directives
+- Have scope throughout the current module
+- Can be shadowed by local bindings
+
+We can look at what's available in a module from the repl
+
+    : browse: Data.Bool
+
+* 13.7 Making our program interactive
+* 13.8 do syntax and IO
+* 13.9 Hangman game
+* 13.10 Step One: Importing modules
+* 13.11 Step Two: Generating a word list
+* 13.12 Step Three: Making a puzzle
+* 13.13 Adding a newtype
+* 13.14 Chapter exercises
+
+end pg 522
