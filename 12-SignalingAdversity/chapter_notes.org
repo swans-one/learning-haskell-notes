@@ -145,6 +145,9 @@ Other ways they behave like functions:
 
 see exercises.org
 
+- anamorphism :: The opposite of a catamorphism, an anamorphism builds
+                 up a data structure.
+
 * 12.6 Definitions
 
 - higher kinded type :: any type whos kind has a function arrow, and

@@ -1,0 +1,125 @@
+* Determine the kinds
+
+1. Given the below, what is the kind of a
+
+#+BEGIN_SRC haskell
+id :: a -> a
+#+END_SRC
+
+Answer:
+
+Since it's used at the type level, it must be a type, so ~*~
+
+2. Given the below, what are the kinds of a and f
+
+#+BEGIN_SRC haskell
+r :: a -> f a
+#+END_SRC
+
+Answer:
+
+a is kind ~*~ and f is kind ~* -> *~
+
+* String processing
+
+1. Write a recursive function named replaceThe which takes a
+   text/string, breaks it into words and replaces each instance of
+   "the" with "a". It's intended only to replace exactly the word "the".
+
+#+BEGIN_SRC haskell
+notThe :: String -> Maybe String
+notThe s
+  | s == "the" = Nothing
+  | otherwise  = Just s
+
+replaceThe :: String -> String
+replaceThe = unwords . (map replaceNothing) . (map notThe) . words
+  where replaceNothing Nothing = "a"
+        replaceNothing (Just s) = s
+#+END_SRC
+
+2. Write a recursive funciton that takes a text/string, breaks it into
+   words and counds the number of instances of "the" followed by a
+   vowel-inital word.
+
+3. Return the number of letters that are vowels in a word.
+
+#+BEGIN_SRC haskell
+countVowels :: String -> Int
+countVowels = length . (filter isVowel)
+
+isVowel = (flip elem "aeiou")
+#+END_SRC
+
+* Validate the word
+
+Use the ~Maybe~ type to write a function that counts the number of
+vowels in a string and the number of consonants. If the number
+of vowels exceeds the number of consonants, the function returns
+Nothing. In many human languages, vowels rarely exceed the number
+of consonants so when they do, it indicates the input isn’t a real word
+(that is, a valid input to your dataset):
+
+#+BEGIN_SRC haskell
+newtype Word' = Word' String deriving (Eq, Show)
+
+vowels = "aeiou"
+
+mkWord :: String -> Maybe Word'
+mkWord = undefined
+#+END_SRC
+
+* It's only Natural
+
+Write functions to convert between natural numbers and integers
+
+see naturals.hs for solution
+
+* Small library for Maybe
+
+* Small libary for Either
+
+* Unfolds
+
+Unfolds are the opposite of folds, in that they build up
+datastructures. They can be used to build finite or infinite
+datastructures.
+
+An example:
+
+#+BEGIN_SRC haskell
+take 10 $ iterate (+1) 0
+#+END_SRC
+
+#+BEGIN_EXAMPLE
+:t unfoldr
+(b -> Maybe (a, b)) -> b -> [a]
+#+END_EXAMPLE
+
+* Write your own iterate and unfoldr
+
+Note, I'm only including the answers here
+
+1.
+
+#+BEGIN_SRC haskell
+myIterate :: (a -> a) -> a -> [a]
+myIterate f start = (f start) : (myIterate f (f start))
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+myUnfoldr f base =
+  case f base of
+    Nothing -> []
+    Just (item, newbase) -> item : (myUnfoldr f newbase)
+#+END_SRC
+
+3.
+
+#+BEGIN_SRC haskell
+betterIterate :: (a -> a) -> a -> [a]
+betterIterate f base = myUnfoldr (\ i -> Just (i, f i)) base
+#+END_SRC

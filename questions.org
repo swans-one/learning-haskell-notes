@@ -215,3 +215,5 @@ Let's talk about indentation
   it means "Functor will not map over the left type argument because
   it has been applied away"?
 - pg 464: Lifted vs unlifted. What is an example of an unlifted type in haskell?
+- pg 471: determine the kinds (1) and (2), what are the answers?
+- pg 478: Is my better iterate better?
