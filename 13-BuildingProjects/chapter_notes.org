@@ -144,10 +144,70 @@ library
 
 We can look at what's available in a module from the repl
 
-    : browse: Data.Bool
+    : :browse Data.Bool
+
+We can, from ghci, import a specific member of a module:
+
+    : > import Data.Bool (not)
+
+** Qualified imports
+
+- Makes it clear where an import came from
+- Lets you prevent name collisions
+
+Here's how to do it:
+
+    : > import qualified Data.Bool
+    : > :t Data.Bool.not
+
+You can also rename the path during a qualified import
+
+    : > import qualified Data.Bool as B
+
+** Setting the prelude prompt
+
+Import modules enlarges the prompt. To set it to something else use
+~:set~
+
+    : > :set prompt "ghci> "
+
+Then the modues will no longer show up, but will still be available.
 
 * 13.7 Making our program interactive
+
+We're going to make our program ask for your name, then greet you by
+name.
+
+This requires us to modify our main script to accept some input and
+pass it to our ~sayHello~ function. Our main file now uses do/bind
+syntax, and looks like this:
+
+#+BEGIN_SRC haskell
+main :: IO ()
+main = do
+  name <- getLine
+  sayHello name
+  dogs
+#+END_SRC
+
+Why this works the way it does will be explained during the chapter on
+IO/Monads.
+
 * 13.8 do syntax and IO
+
+~do~ blocks are convenient syntactic sugar that allow for sequencing
+actions. They are not strictly necessary, but make the code easier to
+read in many cases. Do syntax lets us sequence "Monadic actions"
+
+The ~main~ executable in a Haskell program must always have the type
+~IO ()~, which implements the ~Monad~ typeclass. This is why they so
+often use ~do~ notation.
+
+The symantics of ~<-~ pronouced "bind" lets us assign variables to be
+used by other functions in the do block. It specifically binds the ~a~
+of an ~m a~ value to the variable, where ~m~ is some monadic
+structure.
+
 * 13.9 Hangman game
 * 13.10 Step One: Importing modules
 * 13.11 Step Two: Generating a word list
