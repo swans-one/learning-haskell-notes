@@ -209,9 +209,27 @@ of an ~m a~ value to the variable, where ~m~ is some monadic
 structure.
 
 * 13.9 Hangman game
+
+We'll start a new project using the stack command:
+
+    : stack new hangman simple
+
+We're then going to fill in our hangman.cabal file, and start writing
+our code. I'm not going to explain the code here, but it will exist in
+the ~./hangman~ directory, relative to these chapter notes.
+
 * 13.10 Step One: Importing modules
+
+See ~./hangman/src/Main.hs~
+
 * 13.11 Step Two: Generating a word list
+
+See ~./hangman/src/Main.hs~
+
 * 13.12 Step Three: Making a puzzle
+
+See ~./hangman/src/Main.hs~
+
 * 13.13 Adding a newtype
 * 13.14 Chapter exercises
 
