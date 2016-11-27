@@ -1,0 +1,10 @@
+* 14.1 Testing
+* 14.2 A quick tour of testing for the uninitiated
+* 14.3 Conventional testing
+* 14.4 Enter QuickCheck
+* 14.5 Morse Code
+* 14.6 Kicking around QuickCheck
+* 14.7 Chapter Excercises
+* 14.8 Definitions
+
+end 567
