@@ -1,6 +1,45 @@
 * 14.1 Testing
+
+We'll be covering two testing libraries for Haskell, including how and
+when to use them. This chapter will cover.
+
+- The whats and whys of testing
+- using the testing libraries Hspec and QuickCheck
+- a bit of fun with Morse code
+
 * 14.2 A quick tour of testing for the uninitiated
+
+We expect the compiler to tell us if our code is well formed. However
+it is still possible to write well-typed code that doesn't perform as
+expected.
+
+Tests allow you to state an expectation and verify the result of an
+operation meets the expectation.
+
+We'll say there are two broad types of testing:
+
+- unit testing :: test the smallest atomic units of software
+                  independent of one another.
+- property testing :: tests the formal properties of programs without
+     requiring formal proofs.
+
+With unit testing you make assertions about individual inputs and
+outputs. With property testing you make universally quantified
+functions, to be checked against randomly generated inputs.
+
+- QuickCheck :: A haskell library to intelligently run property tests,
+                including generating input to cover common edge cases.
+
+Property testing is only useful when there are assertable truth-valued
+properties of the software, which is not always the case.
+
 * 14.3 Conventional testing
+
+We've set up a project in ~./TestingPackage~ (relative to this chapter
+notes file) that we'll be using to write some tests.
+
+Hspec documentation can be found at [[http://hspec.github.io]].
+
 * 14.4 Enter QuickCheck
 * 14.5 Morse Code
 * 14.6 Kicking around QuickCheck
