@@ -40,7 +40,114 @@ notes file) that we'll be using to write some tests.
 
 Hspec documentation can be found at [[http://hspec.github.io]].
 
+Hspec tests look like:
+
+#+BEGIN_SRC haskell
+main = hspec $ do
+  describe "Addition" $ do
+    it "1 + 1 is greater than 1" $ do
+      (1 + 1) > 1 `shouldBe` True
+#+END_SRC
+
+That is, they look a lot like old style Rspec tests. For more
+complicated examples, refer to the documentation.
+
 * 14.4 Enter QuickCheck
+
+QuickCheck is the first library that offered "property checking".
+
+These tests can be used in the same framework as hspec tests. A simple
+example that tests that adding 1 to x is always greater than x:
+
+#+BEGIN_SRC haskell
+main = hspec $ do
+  describe "Addition" $ do
+    it "1 + x is always greater than x" $ do
+      property $ \x -> x + 1 > (x :: Int)
+#+END_SRC
+
+** Arbitrary instances
+
+QuickCheck relies on a typeclass called ~Arbitrary~ and a newtype
+called ~Gen~ for generating its random data. There is also a value,
+~arbitrary~ which is of type ~Gen~.
+
+    : > :t arbitrary
+    : arbitrary :: Arbitrary a => Gen a
+
+We can use ~sample~ and ~sample'~ to print and return values. We use
+it like this:
+
+    : sample (arbitrary :: Gen Int)
+    : sample' (arbitrary :: Gen Double)
+
+We can build our own data for generating ~Gen~ values
+
+#+BEGIN_SRC haskell
+trivialInt :: Gen Int
+trivialInt = return 1
+#+END_SRC
+
+We may remember ~return~ from previous chapters, where it was used to
+put things inside the ~IO~ monad. It can be used to put things inside
+any monad though, so here we use it to put the 1 inside ~Gen~.
+
+We can use the ~elements~ and ~choose~ functions to make more
+interesting generators:
+
+#+BEGIN_SRC haskell
+oneThroughThree :: GenInt
+oneThroughThree = elements [1, 2, 3]
+
+genBool :: Gen Bool
+genBool = choose (False, True)
+
+genChar :: Gen Char
+genChar = elements ['a'..'z']
+#+END_SRC
+
+We can also do more complex things
+
+#+BEGIN_SRC haskell
+genTuple :: (Arbitrary a, Arbitrary b) => Gen (a, b)
+genTuple = do
+  a <- arbitrary
+  b <- arbitrary
+  return (a, b)
+#+END_SRC
+
+Which lets us (somehow) do:
+
+    : > sample (genTuple :: Gen (Int, Float))
+
+Or for other types:
+
+#+BEGIN_SRC haskell
+genEither :: (Arbitrary a, Arbitrary b) => Gen (Either a b)
+genEither = do
+  a <- arbitrary
+  b <- arbitrary
+  elements [Left a, Right b]
+#+END_SRC
+
+Which can then be used as follows:
+
+    : > sample (genEither :: Gen (Either String Int))
+
+For all of the above, we can create anything arbitrarily, Lists,
+characters, string, etc, so long as they have an instance of the
+~Arbitrary~ typeclass. See ~:info Arbitrary~ for a list.
+
+** Using QuickCheck without Hspec
+
+#+BEGIN_SRC haskell
+prop_additionGreater :: Int -> Bool
+prop_additionGreater x = x + 1 > x
+
+runQc :: IO ()
+runQc = quickcheck prop_additionGreater
+#+END_SRC
+
 * 14.5 Morse Code
 * 14.6 Kicking around QuickCheck
 * 14.7 Chapter Excercises

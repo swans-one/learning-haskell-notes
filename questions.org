@@ -217,3 +217,16 @@ Let's talk about indentation
 - pg 464: Lifted vs unlifted. What is an example of an unlifted type in haskell?
 - pg 471: determine the kinds (1) and (2), what are the answers?
 - pg 478: Is my better iterate better?
+* Chapter 13: Building Projects
+- Can you use stack offline? Like, if I already have a version of
+  haskell installed, does it really need to download something?
+* Chapter 14: Testing
+- pg 534: "If we had not asserted the type of x in the property test,
+  the compiler would not have known what concrete type to use"
+  - Why does the compiler need to know this?
+- pg 535: "When you use the arbitrary value, you have to specify the
+  type to dispatch the right typeclass instance, as types and
+  typeclasses instance form unique pairings"
+  - What does this mean?
+- pg 536: How the fuck does this arbitrary typecasting shit work???
+  - It does say it's MAGIC, but like, wow
