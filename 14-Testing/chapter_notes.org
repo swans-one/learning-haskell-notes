@@ -149,8 +149,174 @@ runQc = quickcheck prop_additionGreater
 #+END_SRC
 
 * 14.5 Morse Code
+
+We'll set up a library the contains a mapping of characters to morse
+code, and some functions to translate between the two.
+
+We'll also set up an executable with some code that takes care of
+doing translation.
+
+Finally, in the test directory, we'll include a test module, with a
+corresponding declaration in morse.cabal, which will run our tests.
+
+All of this code can be found in the Morse project directory adjecent
+to these chapter notes.
+
+** Notes on stack
+
+We can load a specific module/thing from our cabal file with stack
+ghci. For example if we wanted to load the tests module:
+
+    : stack ghci morse:Morse-test
+
+Where ~Morse-test~ is one of the sections defined in our
+~morse.cabal~.
+
+Additionally, if we have a ~test-suite~ directive defined in our cabal
+file, we can run the test suite with
+
+    : stack test
+
 * 14.6 Kicking around QuickCheck
+
+In order to make QuickCheck work for us, we need to be able to write
+instances of the ~Arbitrary~ typeclass for our datatypes.
+
+An example of a trivial implementation:
+
+#+BEGIN_SRC haskell
+import Test.QuickCheck
+
+data Trivial = Trivial deriving (Eq, Show)
+
+trivialGen :: Gen Trivial
+trivialGen = return Trivial
+
+instance Arbitrary Trivial where
+  arbitrary = trivialGen
+#+END_SRC
+
+A slightly more complex example:
+
+#+BEGIN_SRC haskell
+data Identity a = Identity a deriving (Eq, Show)
+
+identityGen :: Arbitrary a => Gen (Identity a)
+identityGen = do
+  a <- arbitrary
+  return (Identity a)
+
+instance Arbitrary a => Arbitrary (Identity a) where
+  arbitrary = identityGen
+
+identityGenInt :: Gen (Identity Int)
+identityGenInt = identityGen
+#+END_SRC
+
+Given these examples we can run some stuff:
+
+#+BEGIN_SRC haskell
+-- Get some (Identity Int) values:
+sample identityGenInt
+
+-- Get some (Identity Char) values:
+sample (identityGen :: Gen (Identity Float))
+#+END_SRC
+
+** Arbitrary Products
+
+Defining product types is a fairly straightforward extension:
+
+#+BEGIN_SRC haskell
+data Pair a b = Pair a b deriving (Eq, Show)
+
+pairGen :: (Arbitrary a, Arbitrary b) => Gen (Pair a b)
+pairGen = do
+  a <- arbitrary
+  b <- arbitrary
+  return (Pair a b)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Pair a b) where
+  arbitrary = pairGen
+
+pairGenIntString :: Gen (Pair Int String)
+pairGenIntString = pairGen
+#+END_SRC
+
+Which lets us do
+
+#+BEGIN_SRC haskell
+sample pairGenIntString
+sample (pairGen :: Gen (Pair Int Float))
+#+END_SRC
+
+** Greater than the sum of its parts
+
+We can use ~Test.QuickCheck.Gen.oneof~ to choose between options in
+sum types.
+
+#+BEGIN_SRC haskell
+import Test.QuickCheck.Gen (oneof)
+
+data Sum a b = First a | Second b
+  deriving (Eq, Show)
+
+sumGenEqual :: (Arbitrary a, Arbitrary b) => Gen (Sum a b)
+sumGenEqual = do
+  a <- arbitrary
+  b <- arbitrary
+  oneof [return $ First a, return $ Second b]
+#+END_SRC
+
+But we can also weight their frequencies differently with ~frequency~:
+
+#+BEGIN_SRC haskell
+instance Arbitrary a => Arbitrary (Maybe a) where
+  arbitrary = frequency [(1, return Nothing), (3, liftM Just arbitrary)]
+#+END_SRC
+
+The above produces ~Just a~ values three times more often than
+~Nothing~ values.
+
+** CoArbitrary
+
+- coarbitrary :: counterpart to Arbitrary that enable generating
+                 functions fitting a particular type.
+
+- Coarbitrary lets you vary a ~Gen~
+
+#+BEGIN_SRC haskell
+{-# LANGUAGE DeriveGeneric #-}
+
+module CoArbitrary where
+
+import GHC.Generics
+import Test.QuickCheck
+
+data Bool' = True' | False' deriving (Generic)
+
+instance CoArbitrary Bool'
+
+trueGen :: Gen Int
+trueGen = coarbitrary True' arbitrary
+
+falseGen :: Gen Int
+falseGen = coarbitrary False' arbitrary
+#+END_SRC
+
 * 14.7 Chapter Excercises
+
+see exercises.org
+
 * 14.8 Definitions
+
+- unit testing :: a testing method where you test the smallest parts
+                  of an application possible.
+
+- property testing :: a testing method where a subset of a large input
+     space is validated against a law the code should abide by.
+
+- idempotence :: a property of operations or fucntions where multiple
+                 applications return the same result.
 
 end 567

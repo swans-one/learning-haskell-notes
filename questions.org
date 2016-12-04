@@ -230,3 +230,6 @@ Let's talk about indentation
   - What does this mean?
 - pg 536: How the fuck does this arbitrary typecasting shit work???
   - It does say it's MAGIC, but like, wow
+- pg 552: Can we talk about the types of properties and whatnot?
+- pg 554: Can we go through these ~Arbitrary~ typeclass implementations
+- pg 561: How do you organize these tests?
