@@ -1,0 +1,46 @@
+* Validating Numbers into words
+
+see wordNumberTest.hs
+
+* Using QuickCheck
+
+For the following pieces of code, write QuickCheck tests:
+
+
+1.
+
+#+BEGIN_SRC haskell
+-- Code:
+half x = x / 2
+
+halfIdentity = (*2) . half
+
+-- QuickCheck tests
+quickCheck $ property (\x -> x == halfIdentity (x :: Float))
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+-- Code:
+import Data.List (sort)
+
+listOrdered :: (Ord a) => [a] -> Bool
+listOrdered xs =
+  snd $ foldr go (Nothing, True) xs
+  where go _ status@(_, False) = status
+        go y (Nothing, t) = (Just y, t)
+        go y (Just x, t) = (Just y, x >= y)
+
+-- QuickCheck tests
+quickCheck $ property (\x -> listOrdered ((sort x) :: [Int]))
+#+END_SRC
+
+3. Now we'll test the associative and commutative properties of
+   addition:
+
+#+BEGIN_SRC haskell
+-- Code:
+
+-- QuickCheck tests
+#+END_SRC
