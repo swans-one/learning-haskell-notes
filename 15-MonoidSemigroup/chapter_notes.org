@@ -1,0 +1,245 @@
+* 15.1 Monoids and semigroups
+
+- Haskell community looks for abstract patterns
+  - With well defined, lawful representations inmathematics
+
+This chapter will include discussions of:
+
+- Algebras
+- Laws
+- Monoids
+- Semigroups
+
+* 15.2 What we talk about when we talk about algebras
+
+- Algebra (Mathematics) :: The study of mathematical symbols and the
+     rules governing their manipulation.
+  - differentiated from arithmetic by its use of abstractions such as
+    variables.
+
+- An Algebra :: some operations and the set they operate over.
+
+In algebra, we care less about the values, and more about the rules of
+their use.
+
+In Haskell, algebras can be implemented with typeclasses.
+  - The /typeclass/ defines the operations.
+  - The set being operated on is the /type/ the operations are
+    for. (Remember, types are like sets).
+
+In Haskell, one of the algebras we work with is ~Monoid~.
+
+* 15.3 Monoid
+
+- Monoid :: A binary associative operation with an identity.
+
+* 15.4 How Monoid is defined in Haskell
+
+- Monoid is defined as a typeclass
+- We think of types as /having/ an instance of a typeclass.
+
+The ~Monoid~ typeclass is defined:
+
+#+BEGIN_SRC haskell
+class Monoid m where
+  mempty :: m
+  mappend :: m -> m -> m
+  mconcat :: [m] -> m
+  mconcat = foldr mappend mempty
+#+END_SRC
+
+In the above
+
+- mempty is the identity value
+- mappend is the binary associative operator
+
+* 15.5 Examples of using Monoid
+
+Monoids already exist all over the place. We can list a bunch of
+examples.
+
+** List
+
+We have ~mappend~ defined:
+
+    : ghci> mappend [1, 2, 3] [4, 5, 6]
+    : [1, 2, 3, 4, 5, 6]
+
+And ~mempty~
+
+    : ghci> (mempty :: [Int])
+    : []
+
+Seeing the above, it's clear how the defintion of ~Monoid~ for lists
+should work.
+
+#+BEGIN_SRC haskell
+instance Monoid [a] where
+  mempty = []
+  mappend = (++)
+#+END_SRC
+
+* 15.6 Why integer doesn't have a Monoid
+
+- The type ~Integer~ doesn't have a monoid instance
+- Neither do any numeric types
+- Even though they have monoidal operations
+
+The reason is because either addition or multiplication could be used
+as the monoid. This would make the definition/behavior of ~mappend~
+and ~mempty~ unclear.
+
+** Sum and Product
+
+To avoid having to make a choice, the ~Monoid~ library defines the
+~Sum~ and ~Product~ newtypes around the numeric types. These newtypes
+use addition and multiplication for their monoid instances
+respectively.
+
+- *Remember* ~newtype~ defintions are fundamentally the underlying
+  type, but allow for differing typeclass implementations
+
+We can see this in action:
+
+    : ghci> import Data.Monoid
+    : ghci> mappend (Sum 1) (Sum 5)
+    : Sum {getSum = 6}
+    : ghci> mappend (Product 2.5) (Product 2.0)
+    : Product {getProduct = 5.0}
+
+Note that both integral and floating point work. The ~Product~ and
+~Sum~ newtypes apply to all types with ~Num~ instances.
+
+There's an infix version of ~mappend~:
+
+    : ghci> "One " <> "Two " <> "Three"
+    : "One Two Three"
+
+It makes sense for there to be an infix function considering the
+operator is an associative binary operator.
+
+* 15.7 Why bother?
+
+- Monoids are really common
+- Useful abstraction
+- Principled laws let you know when you can combine monoidal
+  operations safely.
+
+Some examples of useful things that follow monoidal rules
+
+- An api that incrementally processes a large dataset
+- guarantees needed to roll up aggregations in a parallel concurrent
+  processing framework
+
+- Abelian Monoid :: A monoid where the commutative property holds for
+                    the binary operator.
+  - Commutativity can be useful since it lets intermediate results be
+    computed in any order
+
+* 15.8 Laws
+
+Why we should care about mathematical laws:
+  - "proofs are programs and programs are proofs"
+  - Gives us predictable composition of programs
+
+Here are our monad laws (remember ~<>~ is an alias for ~mappend~):
+
+#+BEGIN_SRC haskell
+let
+  left_identity  = mempty <> x == x
+  right_identity = x <> mempty == x
+  associativity  = x <> (y <> z) == (x <> y) <> z
+  mconcat        = foldr (<>) mempty
+#+END_SRC
+
+In the above, the laws state that all the inequalities should evaluate
+to true.
+
+The important point is that you have these guarantees even if you
+don't know what Monoid you'll be working with.
+
+* 15.9 Different instance, same representation
+
+Sometimes monoidal opperations are less about combining the values and
+more about finding a summary value for a set.
+
+** Examples
+*** Bool
+~Bool~ has two monoidal interfaces:
+
+1. The ~All~ newtype for conjuntion (~&&~, ~True~)
+2. The ~Any~ newtype for disjunction (~||~, ~False~)
+
+*** Maybe
+
+~Maybe~ can have more than two different ~Monoids~.
+
+- The most obvious can be represented by ~First~ and ~Last~.
+  - like boolean disjunction
+  - But, they have extra info beyond true/false
+    - Which ~Just~ value do we choose to return if we see one (first
+      or last)
+
+* 15.10 Reusing algebras by asking for algebras
+
+We're going to write a monoid for ~Maybe~ other than ~First~ or
+~Last~. This is going to be based off the fact that we can require the
+type parameter to have an instance of ~Monoid~ itself.
+
+See exercises.org "Optional Monoid" for my solution.
+
+** Associativity
+
+remember associativity means:
+
+    : (a + b) + c == a + (b + c)
+
+Whereas commutativity means:
+
+    : a + b == b + a
+
+So, for example ~(++)~ is associative, but not commutative, ~(+)~ is
+both, and ~(-)~ is neither.
+
+We can prove that ~(++)~ does not commute:
+
+    : ghci> (++) [1,2,3] [4,5,6] == (flip (++)) [1,2,3] [4,5,6]
+    : False
+
+*Remember*: A monoid's binary operator is only required to obey
+associativity, and may or may not obey commutativity.
+
+** Identity
+
+- An identity value turns the binary operation into the identity
+  function
+- It doesn't make sense to talk about, e.g. ~0~ and ~1~ as "identity
+  values" outside of the context of the ~+~ and ~*~ operators.
+
+This is the other law for Monoid. The binary operator must be
+associative and have an identity value.
+
+** Orphan instances
+
+- orphan instance :: When an instance is defined for a (datatype,
+     typeclass) pair, but not in the same file as either the datatype
+     or typeclass.
+  - That is, you don't own/control the typeclass or the datatype
+
+Avoid orphan instances at all costs:
+
+- If you own the datatype, put the typeclass instance with it.
+- If you own the typeclass, put the data declarations with it.
+- Otherwise, if you don't control either, you should use ~newtype~ to
+  make a type you do control!
+
+You really don't want anyone to be able to import types without their
+typeclass instances or vice versa.
+
+* 15.11 Madness
+* 15.12 Better living through QuickCheck
+* 15.13 Semigroup
+* 15.14 Chpater exercises
+* 15.15 Definitions
+
+chapter end pg 611

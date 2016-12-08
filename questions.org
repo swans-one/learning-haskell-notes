@@ -233,3 +233,10 @@ Let's talk about indentation
 - pg 552: Can we talk about the types of properties and whatnot?
 - pg 554: Can we go through these ~Arbitrary~ typeclass implementations
 - pg 561: How do you organize these tests?
+* Chapter 15: Monoid, Semigroup
+- Does it make sense to defined a "best" monoid instance for the
+  actual type, and newtypes for the less good ones?
+- pg: 585: Let's go over the solution for the ~Optional~ monad
+- An example of a binary operator without an identity:
+  - first, last
+  - More?

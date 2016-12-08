@@ -1,0 +1,24 @@
+* Optional Monoid
+
+Write the ~Monoid~ instance for our ~Maybe~ type, renamed to
+~Optional~.
+
+#+BEGIN_SRC haskell
+data Optional a =
+    Nada
+  | Only a
+  deriving (Eq, Show)
+
+instance Monoid a => Monoid (Optional a) where
+  mempty = Nada
+  mappend Nada _ = Nada
+  mappend _ Nada = Nada
+  mappend (Only l) (Only r) = Only (mappend l r)
+#+END_SRC
+
+Tests:
+
+#+BEGIN_SRC haskell
+Only (Sum 1) `mappend` Only (Sum 1) -- Only (Sum {getSum = 2})
+Only (Sum 1) `mappend` Nada -- Only (Sum {getSum = 1})
+#+END_SRC
