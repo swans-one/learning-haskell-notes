@@ -29,4 +29,6 @@ Only (Sum 1) `mappend` Nada -- Only (Sum {getSum = 1})
 Given a datatype implement a semigroup instance, add semigroup
 constraints to type variables where needed.
 
+Validate all instances with QuickCheck.
+
 See semigroup_instances.hs for solutions

@@ -236,7 +236,7 @@ Let's talk about indentation
 * Chapter 15: Monoid, Semigroup
 - Does it make sense to defined a "best" monoid instance for the
   actual type, and newtypes for the less good ones?
-- pg: 585: Let's go over the solution for the ~Optional~ monad
+- pg: 585: Let's go over the solution for the ~Optional~ monoid
 - An example of a binary operator without an identity:
   - first, last
   - More?
@@ -249,3 +249,6 @@ instance Monoid a => Monoid (NonEmpty a) where
   mempty = mempty :| []
   mappend (d1 :| xs) (d2 :| ys) = (mappend  d1 d2) :| (xs ++ ys)
 #+END_SRC
+
+- pg 606 How do we have a newtype with two type variables? I thought
+  that wasn't possible.
