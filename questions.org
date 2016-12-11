@@ -240,3 +240,12 @@ Let's talk about indentation
 - An example of a binary operator without an identity:
   - first, last
   - More?
+- pg 592: What was the point of "Madness" at all???
+- pg 593: How does this quickcheck thing work?
+- pg 601: Couldn't you write a Monoid for NonEmpty:
+
+#+BEGIN_SRC haskell
+instance Monoid a => Monoid (NonEmpty a) where
+  mempty = mempty :| []
+  mappend (d1 :| xs) (d2 :| ys) = (mappend  d1 d2) :| (xs ++ ys)
+#+END_SRC

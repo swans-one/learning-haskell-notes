@@ -237,9 +237,145 @@ You really don't want anyone to be able to import types without their
 typeclass instances or vice versa.
 
 * 15.11 Madness
+
+We're going to be making a mad-libs thing.
+
+#+BEGIN_SRC haskell
+import Data.Monoid
+
+type Verb = String
+type Adjective = String
+type Adverb = String
+type Noun = String
+type Exclamation = String
+
+madlibbin' :: Exclamation -> Adverb -> Noun -> Adjective -> String
+madlibbin' e adv noun adj =
+  e <> "! he said " <>
+  adv <> " as he jumped into his car " <>
+  noun <> " and drove off with his " <>
+  adj <> " wife"
+#+END_SRC
+
+We can refactor this to use mconcat
+
+#+BEGIN_SRC haskell
+madlibbin2' :: Exclamation -> Adverb -> Noun -> Adjective -> String
+madlibbin2' e adv noun adj =
+  mconcat [
+    e, "! he said ",
+    adv, " as he jumped into his car ",
+    noun, " and drove off with his ",
+    adj, " wife"
+  ]
+#+END_SRC
+
 * 15.12 Better living through QuickCheck
+
+QuickCheck can provide us a way to quickly check if laws are being
+obeyed.
+
+** Validating associativity with QuickCheck
+
+Given we want to test the propery of associativity, we could write
+down a function that given a function, and some arguments, returns a
+boolean when associativity holds for that function argument combo:
+
+#+BEGIN_SRC haskell
+-- asc, i.e. associativity
+asc :: Eq a => (a -> a -> a) -> a -> a -> a -> Bool
+asc (<>) a b c = a <> (b <> c) == (a <> b) <> c
+#+END_SRC
+
+But how do we quickcheck it?
+
+#+BEGIN_SRC haskell
+import Data.Monoid
+import Test.QuickCheck
+
+monoidAssoc :: (Eq m, Monoid m) => m -> m -> m -> Bool
+monoidAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
+#+END_SRC
+
+Then we can test this
+
+    : quickCheck (monoidAssoc :: String -> String -> String -> Bool)
+
+You can also use ~verboseCheck~ to see all the values that were tested.
+
+** QuickChecking left and right identity
+
+#+BEGIN_SRC haskell
+monoidLeftIdentity :: (Eq m, Monoid m) => m -> Bool
+monoidLeftIdentity a = (mempty <> a) == a
+
+monoidRightIdentity :: (Eq m, Monoid m) => m -> Bool
+monoidRightIdentity a = (a <> mempty) == a
+#+END_SRC
+
+    : quickCheck (monoidLeftIdentity :: String -> Bool)
+    : quickCheck (monoidRightIdentity :: String -> Bool)
+
+** Let's make quickcheck fail
+
+We're going to try to implement ~Monoid~ for a Bool-like type, with
+~mempty~ as false, and mappend as always false.
+
+see ~./bullMappend.hs~ for the source
+
+Why does it fail? The identities don't follow the laws!
+
 * 15.13 Semigroup
-* 15.14 Chpater exercises
+
+- Semigroup :: A binar associative function
+
+- A semigroup is a moniod without an identity.
+
+Our definition of semigroup is:
+
+#+BEGIN_SRC haskell
+class Semigroup a where
+  (<>) :: a -> a -> a
+#+END_SRC
+
+Which should obey the following law:
+
+    : (a <> b) <> c == a <> (b <> c)
+
+** NonEmpty
+
+We can create a useful datatype, which is a non-empty list type. It
+must always have at least one value. It's defined:
+
+#+BEGIN_SRC haskell
+data NonEmpty a = a :| [a]
+  deriving (Eq, Ord, Show)
+#+END_SRC
+
+*Remember:* Data constructors with onl non-alphanumeric symbols that
+begin with a colon are infix by default.
+
+Interestingly we can't write a Monoid for ~NonEmpty~ because it has no
+identity value, by design (I question this, see ~../questions.org~).
+
+** Strength can be a weakness
+
+- strenth of an algebra :: The number of operations it provides, and
+     therefore the number of things you can do with an instance of the
+     algebra, without knowing more about the underlying type.
+
+For example, ~Monoid~ is stronger than ~Semigroup~.
+
+Sometimes we can't have stronger algebras for useful datatypes though.
+
+What is weaker than semigroup? A magma.
+
+- magma :: A binary operator (not necessarily associative).
+
+* 15.14 Chapter exercises
+
+See exercises.org
+
 * 15.15 Definitions
 
 chapter end pg 611

@@ -22,3 +22,11 @@ Tests:
 Only (Sum 1) `mappend` Only (Sum 1) -- Only (Sum {getSum = 2})
 Only (Sum 1) `mappend` Nada -- Only (Sum {getSum = 1})
 #+END_SRC
+
+
+* Semigroup exercises
+
+Given a datatype implement a semigroup instance, add semigroup
+constraints to type variables where needed.
+
+See semigroup_instances.hs for solutions
