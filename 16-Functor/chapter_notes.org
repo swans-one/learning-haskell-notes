@@ -1,0 +1,291 @@
+* 16.1 Functor
+
+In the previous chapter we saw how to take an algebra and turn it into
+a typeclass. This chapter will focus on a similar topic, but for a
+more powerful algebra, functors.
+
+We will:
+  - abstract out a common pattern
+  - make certain it follows some laws
+  - give it a name
+  - wonder how we lived without it
+
+Functors are combinators, they take input and produce output of
+similar structure. They are structure preserving maps.
+
+This chapter will include:
+  - The return of higher kinded types
+  - fmaps galore, and not just on lists
+  - words about typeclasses and constructor classes
+
+* 16.2 What's a functor?
+
+A functor is a way to apply a function over or around some structure
+that we don't want to alter. That is we want to apply the function to
+the value that is "inside" some structure and leave the structure
+alone.
+
+Functor is implemented in Haskell with a typeclass:
+
+#+BEGIN_SRC haskell
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+#+END_SRC
+
+In the above typeclass definition, note:
+ - The type argument ~f~ refers to the type we'll implement functor for.
+ - There is only one operation provided by ~Functor~.
+ - The ~f~ type also takes a single type argument.
+ - The return value ~f b~ is the same ~f~ as in the input ~f a~, with
+   only the "internal" types ~a~ and ~b~ being potentially, but not
+   necessarily different.
+
+* 16.3 There's a whole lot of fmap going round
+
+We've seen ~fmap~ implemented for lists, where it does the same thing
+as ~map~. But there are lots of types that implement ~Functor~ which
+don't work with ~map~. For example, the following doesn't work:
+
+    : ghci> map (+1) (Just 1)
+
+But the following do
+
+    : ghci> fmap (+1) (Just 1)
+    : ghci> fmap (10 /) (4, 5)
+    : ghci> fmap (++ ", Esq.") (Right "Chris Allen")
+
+* 16.4 Let's talk about /f/, baby
+
+The ~f~ in the typeclass definition must remain the same f
+throughout the entire definition.
+
+~f~ must have kind ~* -> *~, that is, it is a higher kinded type, and
+it's awaiting application to a type constant.
+
+** Shining star come into view
+
+Every argument to the type constructor of ~->~ must be of kind ~*~. We
+can see this:
+
+    : ghci> :k (->)
+
+Here's an example of an impossible typeclass:
+
+#+BEGIN_SRC haskell
+class Impossible v where
+  impossibleKind :: v -> v a
+#+END_SRC
+
+Here, we're trying to use the same ~v~ with zero type arguments, and
+then one type argument, which will throw an error.
+
+Just like haskell has type inference, it also has kind inference,
+which is how it can detect and throw this error.
+
+** A shining star for you to see
+
+Note, that we can get a kind error as well trying to define an
+instance of ~Functor~ for a type that takes no parameters. That is,
+the following will fail:
+
+#+BEGIN_SRC haskell
+data FixMePls = FixMe | Pls deriving (Eq, Show)
+
+instance Functor FixMePls where
+  fmap = error "it doesn't matter, it won't compile"
+#+END_SRC
+
+The above gives an error like  ~The first argument of 'Functor' should
+have kind '* -> *'~
+
+Further, if we do follow this reasoning, we get a type that looks
+like:
+
+    : (FixMePls -> FixMePls) -> FixMePls -> FixMePls
+
+Which, if we generalize, looks like:
+
+    : (a -> b) -> a -> b
+
+Which is just apply!
+
+#+BEGIN_SRC haskell
+($) :: (a -> b) -> a -> b
+#+END_SRC
+
+** Functor is function application
+
+In fact, ~fmap~ is a specific sort of function application, notice the
+similarity in type between ~fmap~ and ~$~:
+
+#+BEGIN_SRC haskell
+($) :: (a -> b) -> a -> b
+fmap :: Functor f => (a -> b) -> f a -> f b
+#+END_SRC
+
+Also, ~fmap~ has an infix version. Check out this similarity!
+
+#+BEGIN_SRC haskell
+(<$>) :: Functor f => (a -> b) -> f a -> f b
+#+END_SRC
+
+** A shining star for you to see what your f can truly be
+
+Let's adjust our broken datatype/functor implementation:
+
+#+BEGIN_SRC haskell
+data FixMePls a = FixMe | Pls a deriving (Show, Eq)
+
+instance Functor FixMePls where
+  fmap _ FixMe = FixMe
+  fmap f (Pls a) = Pls (f a)
+#+END_SRC
+
+In the above, note that the ~f~ used as a term level argument is not
+conceptually similar to the ~f~ used to denote a type with a ~Functor~
+instance.
+
+Also note that we do not implement the code like this:
+
+#+BEGIN_SRC haskell
+instance Functor (FixMePls a) where
+   fmap = undefined -- ...
+#+END_SRC
+
+The reason being that the ~f~ in the definition of the ~Functor~
+typeclass is expected to be of kind ~* -> *~ and ~FixMePls a~ is of
+kind ~*~.
+
+** Typeclasses and constructor classes
+
+Originally in haskell, typeclasses could only be defined on type
+constants (types of kind ~*~). However, the language was extended to
+work with types of higher kind, with "constructor classes".
+
+* 16.5 Functor Laws
+
+Two ~Functor~ laws:
+  1. Identity
+  2. Composition
+
+** Identity
+
+    : fmap id == id
+
+Fmapping with the identity function must be the same as simply
+applying the identity function.
+
+** Composition
+
+    : fmap (f . g) == fmap f . fmap g
+
+If we compose two functions ~f~ and ~g~ then fmap with the
+composition, this should be the same as composing ~fmap f~ and ~fmap
+g~.
+
+Try it:
+
+    : ghci> (fmap (+1) . fmap (*2) $ [1..5]) == (fmap ((+1) . (*2)) [1..5])
+
+** Structure Preservation
+
+The essential rule for both of these laws is that functors must be
+structure preserving.
+
+* 16.6 The Good, the Bad, and the Ugly
+
+We're going to figure out what implementations are law abiding by
+walking through some examples.
+
+** Violating Identity
+
+Consider the following datatype, which takes a single type parameter,
+but only one data construct we could ~fmap~ over.
+
+#+BEGIN_SRC haskell
+data WhoCares a = ItDoesnt | Matter a | WhatThisIsCalled deriving (Eq, Show)
+#+END_SRC
+
+Here's a Functor implementation that abides by functor laws:
+
+#+BEGIN_SRC haskell
+instance Functor WhoCares where
+  fmap _ ItDoesnt = ItDoesnt
+  fmap _ WhatThisIsCalled = WhatThisIsCalled
+  fmap f (Matter a) = Matter (f a)
+#+END_SRC
+
+Here's one that violates the identity law:
+
+#+BEGIN_SRC haskell
+instance Functor WhoCares where
+  fmap _ ItDoesnt = WhatThisIsCalled
+  fmap _ WhatThisIsCalled = ItDoesnt
+  fmap f (Matter a) = Matter (f a)
+#+END_SRC
+
+** Violating Composition
+
+#+BEGIN_SRC haskell
+data CountingBad a = Heisenberg Int a deriving(Eq, Show)
+
+instance Functor CountingBad where
+  fmap f (Heisenberg n a) = Heisenberge (n+1) (f a)
+#+END_SRC
+
+This violates the composition law (and also the identity law), because
+applying the functions separately will increment the integer component
+twice, while composing them first will increment it once.
+
+In this case, the integer is part of the "structure" of the type we're
+trying to implement functor for, and it's not being preserved.
+
+- Anything that is not the final type argument of our ~f~ in ~Functor~
+  is part of the structure.
+
+
+* 16.7 Commonly used functors
+
+First, we'll define a useful helper function, which will take any
+argument and return ~'p'~:
+
+#+BEGIN_SRC haskell
+replaceWithP = const 'p'
+#+END_SRC
+
+The ~Maybe~ functor implementation:
+
+    : ghci> fmap replaceWithP (Just 10)
+    : Just 'p'
+
+The ~[]~ functor implementation:
+
+    : ghci> fmap replaceWithP [1, 2, 3, 4]
+    : ['p', 'p', 'p', 'p']
+    : ghci> fmap replaceWithP "Ave"
+    : "ppp"
+
+The functor implmentation for a 2-tuple:
+
+    : ghci> fmap replaceWithP (10, 20)
+    : (10, 'p')
+
+The functor implementation for functions:
+
+    : ghci> let tossEmOne = fmap (+1) negate
+    : ghci> tossEmOne 10
+    : -9
+
+* 16.8 Transforming the unapplied type argument
+* 16.9 QuickChecking Functor instances
+* 16.10 Exercises: Instances of Func
+* 16.11 Ignoring possibilities
+* 16.12 A somewhat surprising functor
+* 16.13 More structure, more functors
+* 16.14 IO Functor
+* 16.15 What if we want to do something different?
+* 16.16 Functors are unique to a datatype
+* 16.17 Chapter exercises
+* 16.18 Definitions
+
+chapter end: pg 668

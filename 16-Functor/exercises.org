@@ -1,0 +1,20 @@
+* Be Kind
+
+Given a type signature, determine the kinds of each type variable:
+
+#+BEGIN_SRC haskell
+-- 1: what is the kind of a
+g :: a -> a
+
+-- 2 What are the kinds of b and T?
+f :: a -> b a -> T (b a)
+
+-- 3 What's the kind of c?
+h :: c a b -> c b a
+#+END_SRC
+
+Answers:
+
+1. ~*~
+2. ~* -> *~ and ~* -> *~
+3. ~* -> * -> *~

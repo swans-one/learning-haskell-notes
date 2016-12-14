@@ -252,3 +252,17 @@ instance Monoid a => Monoid (NonEmpty a) where
 
 - pg 606 How do we have a newtype with two type variables? I thought
   that wasn't possible.
+* Chapter 16: Functors
+- pg 617: "querying the kind of the function type constructor" holy
+  shit! Is ~->~ just a regular type constructor??
+- pg 620: Why is T capitalized here?
+- Mention that the idea of "kind inference" is pretty cool (see pg 620)
+- pg 621: This parallel between function application and fmaps is
+  neat! And the mnemonic for the similarity between ~$~ and ~<$>~
+- *General* I'm just not sure what "lifting" means. Is there a
+  mnemonic for remembering/understanding this?
+  - "lifting a function", like lifting it into the structure?
+- Is it possible for a functor implementation to violate the
+  composition law without violating the identity law?
+  - Assume we have violated composition...
+- pg 632: Can we go over how ~(fmap . fmap)~ works?
