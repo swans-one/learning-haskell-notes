@@ -265,4 +265,6 @@ instance Monoid a => Monoid (NonEmpty a) where
 - Is it possible for a functor implementation to violate the
   composition law without violating the identity law?
   - Assume we have violated composition...
+- *??* What's the deal with fmapping over functions?
+  - use question 3 on pg 641 as an example
 - pg 632: Can we go over how ~(fmap . fmap)~ works?

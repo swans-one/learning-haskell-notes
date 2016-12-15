@@ -276,6 +276,15 @@ The functor implementation for functions:
     : ghci> tossEmOne 10
     : -9
 
+** The functors are stacked and that's a fact
+
+
+    : let lms = [Just "Ave", Nothing, Just "woohoo"]
+    : let replaceWithP = const 'p'
+    : (fmap . fmap) replaceWithP lms
+    : (fmap . fmap . fmap) replaceWithP lms
+
+
 * 16.8 Transforming the unapplied type argument
 * 16.9 QuickChecking Functor instances
 * 16.10 Exercises: Instances of Func
