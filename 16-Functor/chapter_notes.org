@@ -414,11 +414,128 @@ incEither m = fmap (+1) m
 Note that, again, this could just be ~liftedInc~.
 
 * 16.12 A somewhat surprising functor
+
+- A datatype named ~Constant~:
+
+#+BEGIN_SRC haskell
+newtype Constant a b = Constant
+  { getConstant :: a }
+  deriving (Eq, Show)
+#+END_SRC
+
+- Note that ~b~ is a phantom type. It has no corresponding witness at
+  the value/term level.
+
+It's functor implementation looks like this:
+
+#+BEGIN_SRC haskell
+instance Functor (Constant m) where
+  fmap _ (Constant v) = Constant v
+#+END_SRC
+
+With this, whatever is put in the constant does not changed when
+fmapped over. It is a valid functor instance though.
+
 * 16.13 More structure, more functors
+
+#+BEGIN_SRC haskell
+data Wrap f a = Wrap (f a) deriving (Eq, Show)
+
+instance Functor f => Functor (Wrap f) where
+  fmap f (Wrap fa) = Wrap (f <$> fa)
+#+END_SRC
+
+    : ghci> fmap (+1) (Wrap (Just 1))
+
 * 16.14 IO Functor
+
+- abstract datatype :: A type with no constructors that you're
+     permitted to pattern match on.
+
+- ~IO~ is an abstract datatype.
+  - Therfore the typclasses of ~IO~ are the only way to work with IO
+    data.
+
+~Functor~ is one of the typeclasses the IO has an implementation
+for. This lets us do things like:
+
+#+BEGIN_SRC haskell
+getInt :: IO Int
+getInt = fmap read getLine
+#+END_SRC
+
+here, fmap lifts ~read~ over the ~IO~ type.
+
 * 16.15 What if we want to do something different?
+
+Functors transform just contents, not structure. What if we want to
+change structure, not contents?
+
+- natural transformation :: A transformation that changes structure,
+     without changing the type arguments to that type constructor
+
+The type signature of a natural transformation would look something
+like:
+
+#+BEGIN_SRC haskell
+nat :: (f -> g) -> f a -> g a
+nat = undefined
+#+END_SRC
+
+There's a problem though. All arguments to functions must be values,
+not higher kinded types. However, in the type signature above, ~(f ->
+g)~ is a function that takes a higher kinded type as an argument. Try
+it, it will fail to typecheck.
+
+With a language extension, we can do this:
+
+#+BEGIN_SRC haskell
+{-# LANGUAGE RankNTypes #-}
+
+type Nat f g = forall a. f a -> g a
+#+END_SRC
+
+This says, for all types ~a~, Nat is a function that doesn't know
+anything about that argument (therefore, we can only do ~id~ with it),
+and can only change the outer structure.
+
+see ~naturalTransformations.hs~ for some sample code that uses this
+type.
+
 * 16.16 Functors are unique to a datatype
+
+- Monoid instances are not necessarily unique for a given datatype
+  - But we use ~newtype~ to avoid confusion
+- There can only be one instance for Functor
+  - In part because arguments to type constructrs are applied in order
+    of definition
+
+If we had type holes (or something like it) in haskell, you could do:
+
+#+BEGIN_SRC haskell
+instance Functor (Tuple ? b) where
+  fmap f (Tuple a b) = Tuple (f a) b
+#+END_SRC
+
+But you can't do that in haskell.
+
 * 16.17 Chapter exercises
+
+See ~exercises.org~ for exercises and solutions.
+
 * 16.18 Definitions
+
+- Higher-kinded polymorphism :: polymorphism with a type variable
+     abstracting over types of a higher kind.
+  - ~Functor~ is an example because the f paramter to functor is ~* -> *~
+
+- Functor :: a mapping between categories.
+  - Often used for, but not exclusive to, lifting normal functions
+    over containery types into the underlying values.
+
+- lifting :: Either: We lift a function into a context. Or: We lift a
+             function over some layer of structure to apply it.
+  - However, lifting is just a metaphore. Don't get too hung up on
+    it. Follow the types.
 
 chapter end: pg 668

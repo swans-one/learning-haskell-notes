@@ -287,3 +287,7 @@ blah :: (Num a, Num b) => a -> b
 
 - pg 652: Ahhh, here's the reason why you can't apply the function to
   ~Left~! It's not just convention
+
+- pg 658: We're using RankNTypes language extention. I don't need to
+  know exactly what it does, or how it works, but I'm wondering if we
+  know what the "Rank" of a type is.
