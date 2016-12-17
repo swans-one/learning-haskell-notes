@@ -268,3 +268,22 @@ instance Monoid a => Monoid (NonEmpty a) where
 - *??* What's the deal with fmapping over functions?
   - use question 3 on pg 641 as an example
 - pg 632: Can we go over how ~(fmap . fmap)~ works?
+- pg 646: What is the difference between the two quickChecks here:
+
+#+BEGIN_SRC haskell
+main :: IO ()
+main = do
+  quickCheck $ property (\x -> (x :: Int) + 1 == x + 1)
+  quickCheck (\x -> x + 1 == (x :: Int) + 1)
+#+END_SRC
+
+They seem to work the same?
+
+- *General* Is there a shorter way of writing:
+
+#+BEGIN_SRC haskell
+blah :: (Num a, Num b) => a -> b
+#+END_SRC
+
+- pg 652: Ahhh, here's the reason why you can't apply the function to
+  ~Left~! It's not just convention

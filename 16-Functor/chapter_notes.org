@@ -286,9 +286,133 @@ The functor implementation for functions:
 
 
 * 16.8 Transforming the unapplied type argument
+
+- We've noticed fmapping over a tuple leaves the first argument
+  untouched. Same with ~Either~
+
+Imagine we have a couple types:
+
+#+BEGIN_SRC haskell
+data Two a b = Two a b deriving (Eq, Show)
+data Or a b = First a | Second b deriving (Eq, Show)
+#+END_SRC
+
+Both of these types are of kind ~* -> * -> *~, But the ~f~ in a
+Functor instance is required to be of kind ~* -> *~. That means the
+following don't work:
+
+#+BEGIN_SRC haskell
+instance Functor Two where
+  fmap = undefined
+
+instance Functor Or where
+  fmap = undefined
+#+END_SRC
+
+They fail during kind checking.
+
+Solution:
+  - partially apply type constructors to a type variable
+
+#+BEGIN_SRC haskell
+instance Functor (Two a) where
+  fmap f (Two a b) = Two $ a (f b)
+
+instance Functor (Or a) where
+  fmap _ (First a) = First a
+  fmap f (Second b) = Second (f b)
+#+END_SRC
+
+Note, in the above, we don't transform the partially applied terms,
+since they're now part of the structure we're keeping constant.
+
 * 16.9 QuickChecking Functor instances
+
+- Functor Laws:
+
+#+BEGIN_SRC haskell
+let identity    = fmap id == id
+let composition = fmap (p . q) = (fmap p) . (fmap q)
+#+END_SRC
+
+And we can write quickcheck properties:
+
+#+BEGIN_SRC haskell
+functorIdentity :: (Functor f, Eq (f a)) => f a -> Bool
+functorIdentity functor = fmap id functor == functor
+
+functorCompose :: (Eq (f c), Functor f) =>
+                    (a -> b) -> (b -> c) -> (f a) -> Bool
+functorCompose f g x = (fmap g (fmap f x)) == (fmap (g . f) x)
+#+END_SRC
+
+If we provide some concrete instances, we can check these:
+
+    : quickCheck $ \x -> functorIdentity (x :: [Int])
+    : quickCheck $ \x -> functorCompose (+1) (*2) (x :: [Int])
+
+** Making QuickCheck generate functions too.
+
+In the ~Test.QuickCheck.Function~ module is a ~Fun~ data constructor
+that can be used to create randomized functions.
+
+We can revise our ~functorCompose~:
+
+#+BEGIN_SRC haskell
+import Test.QuickCheck
+import Test.QuickCheck.Function
+
+functorCompose' :: (Eq (f c), Functor f) =>
+                     f a -> Fun a b -> Fun b c -> Bool
+functorCompose' x (Fun _ f) (Fun _ g) =
+  (fmap (g . f) x) == (fmap g . fmap f $ x)
+
+type IntToInt = Fun Int Int
+type IntFC = [Int] -> IntToInt -> IntToInt -> Bool
+#+END_SRC
+
+Then quickcheck with it:
+
+    : quickCheck (functorCompose' :: IntFC)
+
 * 16.10 Exercises: Instances of Func
+
+See ~exercises.org~.
+
 * 16.11 Ignoring possibilities
+
+- Functor can be handy when you want to ignore the ~Left~, ~Nothing~
+  or similar instances.
+
+#+BEGIN_SRC haskell
+incMaybe :: Num a => Maybe a -> Maybe a
+incMaybe m = fmap (+1) m
+
+showMaybe :: Show a => Maybe a -> Maybe String
+showMaybe s = fmap show s
+#+END_SRC
+
+We could even make these more generic
+
+#+BEGIN_SRC haskell
+liftedInc :: (Functor f, Num b) => f b -> f b
+liftedInc = fmap (+1)
+
+liftedShow :: (Functor f, Show b) => f b -> f String
+liftedShow = fmap show
+#+END_SRC
+
+** Either
+
+- ~Either~ can be used when you want to keep track fo what went wrong.
+
+#+BEGIN_SRC haskell
+incEither :: Num a => Either e a -> Either e a
+incEither m = fmap (+1) m
+#+END_SRC
+
+Note that, again, this could just be ~liftedInc~.
+
 * 16.12 A somewhat surprising functor
 * 16.13 More structure, more functors
 * 16.14 IO Functor

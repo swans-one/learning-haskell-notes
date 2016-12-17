@@ -43,3 +43,48 @@ e = let ioi = readIO "1" :: IO Integer
         changed = (read ("123"++) . show ioi)
     in (*3) changed
 #+END_SRC
+
+* Instances of Func
+
+Implement ~Functor~ instances for the following datatypes. Use the
+QuickCheck properties we just showed you to validate them.
+
+
+Answers:
+
+See instancesOfFunc.hs
+
+* Possibility
+
+Write a Functor instance for a dataype identital to ~Maybe~.
+
+#+BEGIN_SRC haskell
+data Possibly a =
+    LolNope
+  | Yeppers a
+  deriving (Eq, Show)
+
+instance Functor Possibly where
+  fmap _ LolNope = LolNope
+  fmap f (Yeppers x) = Yeppers $ f x
+#+END_SRC
+
+* Short Exercise
+
+1. Write a ~Functor~ instace for a datatype identical to ~Either~.
+
+#+BEGIN_SRC haskell
+data Sum a b = First a | Second b deriving (Eq, Show)
+
+instance Functor (Sum a) where
+  fmap _ (First x) = First x
+  fmap f (Second y) = Second $ f y
+#+END_SRC
+
+2. Why is a ~Functor~ instance that applies the function only to
+   ~First~, Either's Left, impossible?
+
+An instance of ~Functor~ must have kind ~* -> *~. Since ~Sum~ has kind
+~* -> * -> *~, we must partially apply ~Sum~ to a type variable to get
+a type of kind ~* -> *~. This partial application will always be over
+~First~ or ~Left~, fixing them as part of the structure of the type.
