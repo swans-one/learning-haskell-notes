@@ -286,8 +286,15 @@ blah :: (Num a, Num b) => a -> b
 #+END_SRC
 
 - pg 652: Ahhh, here's the reason why you can't apply the function to
-  ~Left~! It's not just convention
+  ~Left~! It's not just convention. (See exercise "Short Exercise 2"
+  solution.)
 
 - pg 658: We're using RankNTypes language extention. I don't need to
   know exactly what it does, or how it works, but I'm wondering if we
   know what the "Rank" of a type is.
+
+- Chapter Exercises
+  - "Quant": Why was this so hard to Hspec test? Can
+     we look at my tests.
+  - Can we work through how the ~Flip~ implementation works?
+  -
