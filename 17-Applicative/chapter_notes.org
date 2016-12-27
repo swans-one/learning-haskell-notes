@@ -1,0 +1,202 @@
+* 17.1 Applicative
+
+We've seen two algebras converted to typeclass, ~Monoid~ and
+~Functor~. We'll do one more here, ~Applicative~. Applicative is a
+monoidal functor.
+
+In the chapter, we'll:
+- define and explore the Applicative typeclass and its core operations
+- demonstrate why applicatives are monoidal functors
+- talk about laws and instances
+- do a lot of lifting
+- give some Validations
+
+
+* 17.2 Defining Applicative
+
+#+BEGIN_SRC haskell
+class Functor f => Applicative f where
+  pure :: a -> f a
+  (<*>) :: f (a -> b) -> f a -> f b
+#+END_SRC
+
+Every type that has an ~Applicative~ instance must also have a
+~Functor~ instance.
+
+~ pure~ :: a function used to embed something into a
+  functorial/applicative structure.
+  - Like a minimum bit of structure or "structural identity."
+- ~<*>~ :: an infix operator for doing mappings in structure
+  - Also called 'apply', 'ap', or 'tie-fighter'
+
+There are also a number of convenience functions in the
+~Control.Applicative~ library. Here are some type signatures:
+
+#+BEGIN_SRC haskell
+liftA :: Applicative f => (a -> b) -> f a -> f b
+
+liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
+
+liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
+#+END_SRC
+
+* 17.3 Functor vs Applicative
+
+~fmap~ vs ~<*>~:
+
+#+BEGIN_SRC haskell
+fmap ::    (a -> b) -> f a -> f b
+(<*>) :: f (a -> b) -> f a -> f b
+#+END_SRC
+
+For some reason, the ~f~ in front of our function increases our
+power. (But this is not explained).
+
+* 17.4 Applicative Functors are Monoidal Functors
+
+Let's look at the types of some functions:
+
+#+BEGIN_SRC haskell
+($)   ::   (a -> b) ->   a ->   b
+(<$>) ::   (a -> b) -> f a -> f b
+(<*>) :: f (a -> b) -> f a -> f b
+#+END_SRC
+
+In the above:
+- ~$~ doesn't do much, but is a nice proxy for function application
+- ~<$>~ is like ~$~, but now we're lifting over some structure
+- ~<*>~ is like ~<$>~, but now our function is also embeded in the
+  structure
+
+** How is ~<*>~ Monoidal? Some notes.
+
+In ~<*> :: f (a -> b) -> f a -> f b~, ~<*>~ takes two arguments, an ~f
+(a -> b)~ and ~f a~. While the structure surrounding these is of the
+same type, ~f~, the structure itself may be different. That is, we
+could have a list of functions, and a list of ints as the two
+arguments. Because these two arguments can have different structure,
+it's not as simple as fmapping a single function over some structure,
+we need a way to combine the structures, or deal with the structures
+while applying the function.
+
+What can combine these structures? If ~f~ has a ~Monoid~ instance, we
+can combine them with ~mappend~.
+
+We're bolting a ~Monoid~ onto a ~Functor~ to be able to deal with
+functions embedded in an additional structure.
+
+Example:
+
+#+BEGIN_SRC haskell
+let res = [(*2), (*3)] <*> [4, 5]
+let is_true = res == [8, 10, 12, 15]
+#+END_SRC
+
+In the above, we're enriching ~(Int -> Int)~ with list-ness.
+
+** Show me the monoids
+
+Let's use tuples as an example of something with an applicative
+instance.
+
+    : ghci> :i (,)
+    : ...
+    : instance Monoid a => Applicative ((,) a)
+    : ...
+
+*Remember*: The functor for tuples leaves the first element in the
+tuple alone. Note that for the Applicative instance, however, we
+require a ~Monoid~ instance for the first element.
+
+Using the applicative instance/interface, we can do the following.
+
+    : ghci> ("Woo", (+1)) <*> (" Hoo", 0)
+    : ("Woo Hoo!", 1)
+
+Note, in the above, that the first argument of these tuples has been
+~mappended~ together, which clarifies why a ~Monoid~ instance was
+needed for the first element.
+
+** Tuple monoid and applicative side by side
+
+#+BEGIN_SRC haskell
+instance (Monoid a, Monoid b) => Monoid (a, b) where
+  mempty = (mempty, mempty)
+  (a, b) `mappend` (a', b') = (a `mappend` b, b `mappend` b')
+
+instance Monoid a => Applicative ((,) a) where
+  pure x = (mempty, x)
+  (u, f) <*> (v, x) = (u `mappend` v, f x)
+#+END_SRC
+
+** Maybe Monoid and Applicative
+
+#+BEGIN_SRC haskell
+instance Monoid a => Monoid (Maybe a) where
+  mempty = Nothing
+  mappend m Nothing = m
+  mappend Nothing m = m
+  mappend (Just a) (Just a') = Just (mappend a a')
+
+instance Applicative Maybe where
+  pure = Just
+  Nothing <*> _     = Nothing
+  _ <*> Nothing     = Nothing
+  Just f <*> Just a = Just (f a)
+#+END_SRC
+
+*Note*: Even though Applicatives are Monoidal functors, types with
+monoid and applicative instances are not guaranteed to work exactly
+the same (in part because a type could potentially have different
+monoid instances).
+
+Still, in the above, we can see the implicit monoid in the Applicative
+definition.
+
+* 17.5 Applicative in Use
+
+We'll see ~List~, ~Maybe~ and some new types.
+
+** List Applicative
+
+Previously, with the list functor, we were mapping single function
+over a plurality of values. Now we're mapping a plurality of functions
+over a plurality of values.
+
+    : ghci> [(+1), (*2)] <*> [2, 4]
+    : [3, 5, 4, 8]
+
+We can see how the functions get applied to the list more easily here,
+using fmap (~<$>~) to create a list of functions:
+
+    : ghci> ((,) <$> [1, 2]) <*> [3, 4]
+    : [(1, 3), (1, 4), (2, 3), (2, 4)]
+
+Instead of ~<$>~, we could use ~liftA2~:
+
+    : ghci> liftA2 (,) [1, 2] [3, 4]
+    : [(1, 3), (1, 4), (2, 3), (2, 4)]
+
+The above is a good demonstration / mneumonic for how to use
+~liftA2~. This could also be said to look like a cartesian product of
+the functions and values.
+
+Another example using ~lookup~:
+
+    : ghci> liftA2 (++) (lookup 2 [(1, "hi"), (2, "hello")]) (lookup 1 [(1, " there")])
+    : Just "hello there"
+
+Note, that in the above, if either of the lookups had failed, we would
+have simply gotten a ~Nothing~ result for the whole operation.
+
+More examples:
+
+- ~(++) <$> getLine <*> getLine~
+- ~(,) <$> getLine <*> getLine~
+
+
+* 17.6 Applicative Laws
+* 17.6 You knew this was coming
+* 17.8 ZipList Monoid
+* 17.9 Chapter Exercises
+* 17.10 Definitions

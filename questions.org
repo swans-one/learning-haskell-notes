@@ -298,3 +298,12 @@ blah :: (Num a, Num b) => a -> b
      we look at my tests.
   - Can we work through how the ~Flip~ implementation works?
   -
+* Chapter 17: Applicative
+- pg 671: Why would you ever use ~liftA~ over ~fmap~?
+- pg 672: "But the increase in power it introduces is profound."
+  Should this be obvious?
+- pg 676: "use :i on (,)" This is nuts, ~(,)~ is just a regular old
+  data constructor.
+  - I think it's very interesting how few "primitive" data structures
+    there are in haskell.
+- pg 684: first two lines are cool examples of how this could be useful.
