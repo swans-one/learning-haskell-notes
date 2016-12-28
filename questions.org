@@ -307,3 +307,6 @@ blah :: (Num a, Num b) => a -> b
   - I think it's very interesting how few "primitive" data structures
     there are in haskell.
 - pg 684: first two lines are cool examples of how this could be useful.
+- pg 685, question 4. What's the intended value for sum. Should it be
+  summing the elements of the tuple? Is it not because tuple
+  implements foldable in a weird way?
