@@ -52,3 +52,49 @@ y = lookup 2 $ zip xs ys
 summed :: Maybe Integer
 summed = fmap sum $ fmap (,) x <*> y
 #+END_SRC
+
+* Identity Instance
+
+Write an ~Applicative~ instance for ~Identity~.
+
+#+BEGIN_SRC haskell
+newtype Identity a = Identity a deriving (Eq, Ord, Show)
+
+instance Functor Identity where
+  fmap f (Identity x) = Identity $ f x
+
+instance Applicative Identity where
+  pure = Identity
+  (<*>) (Identity f) (Identity x) = Identity $ f x
+#+END_SRC
+
+* Constant Instance
+
+Write an ~Applicative~ instance for ~Constant~
+
+#+BEGIN_SRC haskell
+newtype Constant a b =
+  Constant { getConstant :: a }
+  deriving (Eq, Ord, Show)
+
+instance Functor (Constant a) where
+  fmap f (Constant x) = (Constant x)
+
+instance Monoid a => Applicative (Constant a) where
+  pure _ = Constant mempty
+  (<*>) (Constant x) (Constant y) = Constant (mappend x y)
+#+END_SRC
+
+* Fixer Upper
+
+Given the function and values provided, use ~(<$>)~ from ~Functor~ and
+~(<*>)~ and ~pure~ from the ~Applicative~ typeclass to fill in missing
+bits of the broken code to make it work.
+
+#+BEGIN_SRC haskell
+-- 1
+const <$> Just "Hello" <*> pure "World"
+
+-- 2
+(,,,) <$> (Just 90) <*> Just 10 <*> Just "Tierness" <*> pure [1, 2, 3]
+#+END_SRC

@@ -194,6 +194,113 @@ More examples:
 - ~(++) <$> getLine <*> getLine~
 - ~(,) <$> getLine <*> getLine~
 
+** Identity
+
+We'll use the ~Identity~ type to introduce structure without changing
+semantics of operations.
+
+#+BEGIN_SRC haskell
+newtype Identity a = Identity a deriving (Eq, Ord, Show)
+#+END_SRC
+
+See "Identity Instance" in ~exercises.org~ for the implementation of
+the applicative instance.
+
+** Constant
+
+#+BEGIN_SRC haskell
+newtype Constant a b =
+  Constant { getConstant :: a }
+  deriving (Eq, Ord, Show)
+#+END_SRC
+
+The ~Constant~ type can be used to discard a single value. Using it
+could look like:
+
+    : ghci> Constant (Sum 1) <*> Constant (Sum 2)
+    : Constant {getConstant = Sum {getSum = 3}}
+    : ghci> Constant undefined <*> Constant (Sum 2)
+    : Constant (Sum {getSum = *** Exception: Prelude.undefined})
+    : pure 1 :: Constant String Int
+    : Constant {getConstant = ""}
+
+For the implmentation of its applicative instance see "Constant
+Instance" in ~exercises.org~.
+
+** Using the ~Maybe~ Applicative
+
+Like fmapping with ~Maybe~ instances, but we also allow for the
+function to not exist.
+
+Here's an example where it makes sense to have an applicative instance
+for ~Maybe~.
+
+#+BEGIN_SRC haskell
+validateLength :: Int -> String -> Maybe String
+validateLength maxLen s = if (length s) > maxLen then Nothing else Just s
+
+newtype Name = Name String deriving (Eq, Show)
+newtype Address = Address String deriving (Eq, Show)
+
+mkName :: String -> Maybe Name
+mkName s = fmap Name $ validateLength 25 s
+
+mkAddress :: String -> Maybe Address
+mkAddress a = fmap Address $ validateLength 100 a
+#+END_SRC
+
+In the above we've successfully fmapped some data constructors over
+~Maybe String~s. When we have the larger structure of ~Person~ below,
+we'll need more than ~fmap~ to easily apply partially applied data constructor.
+
+#+BEGIN_SRC haskell
+data Person = Person Name Address deriving (Eq, Show)
+
+mkPerson :: String -> String -> Maybe Person
+mkPerson n a = Person <$> mkName n <*> mkAddress a
+#+END_SRC
+
+Note, in the above ~(Person <$> mkName n)~ returns something with type
+~Maybe (Address -> Person)~. Because this function is inside a ~Maybe~
+we'll need ~Applicative~ to easily apply it to another argument to get
+something of type ~Maybe Person~.
+
+** Before we moooooove on
+
+#+BEGIN_SRC haskell
+import Control.Applicative
+
+data Cow = Cow {
+      name   :: String
+    , age    :: Int
+    , weight :: Int
+  } deriving (Eq, Show)
+
+noEmpty :: String -> Maybe String
+noEmpty "" = Nothing
+noEmpty str = Just str
+
+noNegative :: Int -> MaybeInt
+noNegative n
+  | n >= 0 = Just n
+  | otherwise = Nothing
+
+cowFromString :: String -> Int -> Int -> Maybe Cow
+cowFromString name' age' weigth' =
+  Cow <$> noEmpty name'
+      <*> noNegative age'
+      <*> noNegative weigth'
+#+END_SRC
+
+Or, if we want to be really hip:
+
+#+BEGIN_SRC haskell
+cowFromString' :: String -> Int -> Int -> Maybe Cow
+cowFromString' name' age' weight' =
+  liftA3 Cow (noEmpty name')
+             (noNegative age')
+             (noNegative weight')
+#+END_SRC
 
 * 17.6 Applicative Laws
 * 17.6 You knew this was coming
