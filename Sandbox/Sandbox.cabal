@@ -1,0 +1,20 @@
+name:                Sandbox
+version:             0.1.0.0
+synopsis:            A place to put practice/notes for learning haskell
+description:         Please see README.md
+homepage:            https://github.com/swans-one/
+license:             BSD3
+license-file:        LICENSE
+author:              Erik Swanson
+maintainer:          theerikswanson@gmail.com
+copyright:           2017 Erik Swanson
+category:            Text
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable Sandbox
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
