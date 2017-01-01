@@ -11,7 +11,6 @@ In the chapter, we'll:
 - do a lot of lifting
 - give some Validations
 
-
 * 17.2 Defining Applicative
 
 #+BEGIN_SRC haskell
@@ -303,7 +302,34 @@ cowFromString' name' age' weight' =
 #+END_SRC
 
 * 17.6 Applicative Laws
-* 17.6 You knew this was coming
+
+- Identity :: ~pure id <*> v == v~ should be true.
+- Composition :: ~pure (.) <*> u <*> v <*> w == u <*> (v <*> w)~
+                 should be true.
+- Homomorphism :: A structure preserving map between two algebraic
+                  structures. ~pure f <*> pure x = pure (f x)~.
+- Interchange :: u <*> pure y = pure ($ y) <*> u
+
+Examples:
+
+#+BEGIN_SRC haskell
+let identity = (pure id <*> Just "Hi") == (Just "Hi")
+let composition =
+      let l = pure (.) <*> [(+1)] <*> [(+2)] <*> [1, 2, 3]
+          r = [(+1)] <*> ([(+2)] <*> [1, 2, 3])
+      in (l == r)
+let homomorphism = (pure (+1) <*> pure 1) == (pure ((+1) 1) :: Maybe Int)
+let interchange = (Just (+2) <*> pure 2) == (pure ($ 2) <*> Just (+2))
+#+END_SRC
+
+* 17.6 You knew this was coming (QuickCheck)
+
+Quick checking the Applicative laws. We'll be using a package called
+~checkers~.
+
+Code for this section will be in ~Sandbox/src/applicativeCheck.hs~,
+from this project's root.
+
 * 17.8 ZipList Monoid
 * 17.9 Chapter Exercises
 * 17.10 Definitions

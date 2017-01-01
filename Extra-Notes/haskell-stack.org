@@ -1,0 +1,38 @@
+* General Notes and Resources
+
+** Links
+
+- [[https://docs.haskellstack.org/en/stable/GUIDE/][Official Documentation User Guide]]
+
+** Getting Help
+
+Command line documentation can be found with:
+
+    : stack help
+
+* Creating a new project
+
+    : stack new <project-name> <template-name>
+
+This will create a directory with the given name, and fill it with a
+base set of files.
+
+A template specifies what files to create, and what to populate them
+with. Good choices for a project are ~simple~ and ~new-template~.
+
+* Adding dependencies
+
+In the cabal file for your project, there are sections for
+~executable~s, ~library~s, and ~test~s. Each of these sections can
+have a ~build-depends~ section, where you can list your
+dependencies. It could look like this:
+
+#+BEGIN_SRC cabal
+library
+  hs-source-dirs:     src
+  default-language:   Haskell2010
+  build-depends:      base >= 4.7 && < 5
+                    , QuickCheck
+                    , hspec
+                    , checkers
+#+END_SRC
