@@ -310,3 +310,18 @@ blah :: (Num a, Num b) => a -> b
 - pg 685, question 4. What's the intended value for sum. Should it be
   summing the elements of the tuple? Is it not because tuple
   implements foldable in a weird way?
+- pg 701-706: *??* Can we write something that violates each of these
+  laws? Identity, Composition, Homomorphism, Interchange. Specifically
+  Homomorphism and Interchange.
+- pg 709: I'm not sure I got anything out of this section. How does
+  this all work? What is it all for?
+- pg 711: How does this arbitrary stuff work? I don't follow the
+  fmapping, but I can make the following do something:
+
+#+BEGIN_SRC
+:l src/zipListMonoid
+
+sample (arbitrary :: Gen (ZipList Int))
+#+END_SRC
+
+- pg 712: I'm really proud of my Arbitrary instance for ~List'~

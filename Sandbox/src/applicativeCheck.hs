@@ -18,3 +18,4 @@ instance EqProp Bull where (=-=) = eq
 
 main :: IO ()
 main = quickBatch (monoid Twoo)
+-- quickBatch $ applicative [("b", "w", 1)]

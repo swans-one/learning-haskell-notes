@@ -331,5 +331,12 @@ Code for this section will be in ~Sandbox/src/applicativeCheck.hs~,
 from this project's root.
 
 * 17.8 ZipList Monoid
+
+We'll be defining a monoid instance for List that behaves as follows:
+
+    : [x, y, z] <> [i, j, k] == [x <> i, y <> j, z <> k]
+
+The definition will be in ~Sandbox/src/zipList.hs~.
+
 * 17.9 Chapter Exercises
 * 17.10 Definitions

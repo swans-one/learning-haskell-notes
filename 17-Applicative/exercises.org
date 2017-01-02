@@ -98,3 +98,12 @@ const <$> Just "Hello" <*> pure "World"
 -- 2
 (,,,) <$> (Just 90) <*> Just 10 <*> Just "Tierness" <*> pure [1, 2, 3]
 #+END_SRC
+
+* List Applicative Exercise
+
+Implement the List Applicative. Writing a minimally complete
+Applicative instance calls for writing the definitions of both ~pure~
+and ~<*>~. Use the Checkers library to validate your ~Applicative~
+instance.
+
+See ~Sandbox/src/exercises/17-list-applicative.hs
