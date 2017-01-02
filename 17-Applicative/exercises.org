@@ -107,3 +107,25 @@ and ~<*>~. Use the Checkers library to validate your ~Applicative~
 instance.
 
 See ~Sandbox/src/exercises/17-list-applicative.hs
+
+* ZipList Applicative Exercise
+
+Implement the ZipList Applicative. Use the ~checkers~ library to
+validate your Applicative instance. We're going to provide the
+~EqProp~ instance and explain the weirdness in a moment.
+
+** TODO Actually complete this exercise
+
+Will be located at ~Sandbox/src/exercises/17-ZipList-applicative.hs
+
+* Variations on Either
+
+~Validation~ has the same representation as ~Either~. It's ~Functor~
+instance will behave the same, but the ~Applicative~ will be
+different. Write the instance and use the ~checkers~ library to check
+it.
+** TODO Actually complete this exercise
+
+Will be located at ~Sandbox/src/exercises/17-Validation-applicative.hs
+
+* Chapter Exercises

@@ -338,5 +338,37 @@ We'll be defining a monoid instance for List that behaves as follows:
 
 The definition will be in ~Sandbox/src/zipList.hs~.
 
+** Either and Validation Applicative
+
+*Remember*: An ~Applicative~ is a monoidal functor.
+
+Often what's interesting about a ~Applicative~ instance is where the
+"Monoidal" bit comes from.
+
+*Remember*: A type can only have one possible valid ~Functor~
+instance, but could have multiple valid ~Applicative~ instances, like
+they can have multiple valid ~Monoid~ instances.
+
+For example, with ~Either~ all the following are obvious:
+
+    : ghci> Right (+1) <*> Right 1
+    : Right 2
+    : ghci> Left ":(" <*> Right 1
+    : Left ":("
+    : ghci> Right (+1) <*> Left ":("
+    : Left ":("
+
+But what would the following have to behave this way?:
+
+    : ghci> Left ":(" <*> Left "sad face"
+    : Left ":("
+
 * 17.9 Chapter Exercises
+
 * 17.10 Definitions
+
+- Applicative :: a typeclass in haskell that can be thought of as
+                 characterizing monoidal functors in Haskell. A way to
+                 functorially apply a function which is embedded in
+                 structure of the same type as the value you're
+                 mapping it over.
