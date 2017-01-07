@@ -129,3 +129,66 @@ it.
 Will be located at ~Sandbox/src/exercises/17-Validation-applicative.hs
 
 * Chapter Exercises
+
+** Specializing method types
+
+Given a type that has an instance of Applicative, specialize the types
+of the methods.
+
+1. ~[]~
+
+#+BEGIN_SRC haskell
+pure :: a -> [a]
+(<*>) :: [(a -> b)] -> [a] -> [b]
+#+END_SRC
+
+2. ~IO~
+
+#+BEGIN_SRC haskell
+pure :: a -> IO a
+(<*>) :: IO (a -> b) -> IO a -> IO b
+#+END_SRC
+
+3. ~(,) a~
+
+#+BEGIN_SRC haskell
+pure :: a -> (a, a)
+(<*>) :: (a, (a -> b)) -> (a, a) -> (a, b)
+#+END_SRC
+
+4. ~(->) e~
+
+#+BEGIN_SRC haskell
+pure :: a -> (e -> a)
+(<*>) :: (e -> (a -> b)) -> (e -> a) -> (e -> b)
+#+END_SRC
+
+
+** Writing Applicative Instances
+
+Write applicative instances for the following datatypes. Use
+~checkers~ to validate.
+
+These will all be implemented in
+~Sandbox/src/exercises/17-chapter-exercises.hs~.
+
+** Combinations
+
+Remember the vowels and stops chapter exercise in folds? Write the
+function to generate the possible combinations of three input lists
+using ~liftA3~ from ~Control.Applicative~.
+
+That is, list all possible combinations of stop-vowel-stop.
+
+#+BEGIN_SRC haskell
+import Control.Applicative (liftA3)
+
+stops :: String
+stops = "pbtdkg"
+
+vowels :: String
+vowels = "aeiou"
+
+combos :: [a] -> [b] -> [c] -> [(a, b, c)]
+combos = liftA3 (,,) stops vowels stops
+#+END_SRC

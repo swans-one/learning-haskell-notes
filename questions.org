@@ -325,3 +325,19 @@ sample (arbitrary :: Gen (ZipList Int))
 #+END_SRC
 
 - pg 712: I'm really proud of my Arbitrary instance for ~List'~
+
+- pg 720: Why does the following fail interchange:
+
+#+BEGIN_SRC haskell
+instance Applicative Pair where
+  pure x = Pair x x
+  (<*>) (Pair f g) (Pair x y) = Pair (f x) (g y)
+#+END_SRC
+
+- pg 704: Why does the following fail all the stuff?
+
+#+BEGIN_SRC haskell
+instance Monoid a => Applicative (Two a) where
+  pure = Two mempty
+  (<*>) (Two i g) (Two x y) = Two i (g y)
+#+END_SRC
