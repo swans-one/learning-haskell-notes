@@ -331,7 +331,7 @@ sample (arbitrary :: Gen (ZipList Int))
 #+BEGIN_SRC haskell
 instance Applicative Pair where
   pure x = Pair x x
-  (<*>) (Pair f g) (Pair x y) = Pair (f x) (g y)
+  (<*>) (Pair f g) (Pair x y) = Pair (f x) (f y)
 #+END_SRC
 
 - pg 704: Why does the following fail all the stuff?
