@@ -322,7 +322,7 @@ let homomorphism = (pure (+1) <*> pure 1) == (pure ((+1) 1) :: Maybe Int)
 let interchange = (Just (+2) <*> pure 2) == (pure ($ 2) <*> Just (+2))
 #+END_SRC
 
-* 17.6 You knew this was coming (QuickCheck)
+* 17.7 You knew this was coming (QuickCheck)
 
 Quick checking the Applicative laws. We'll be using a package called
 ~checkers~.
