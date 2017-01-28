@@ -341,3 +341,43 @@ instance Monoid a => Applicative (Two a) where
   pure = Two mempty
   (<*>) (Two i g) (Two x y) = Two i (g y)
 #+END_SRC
+* Chapter 18: Monads
+- pg 724: ~fmap f xs = xs >>= return . f~ I'd like to work out how
+  this works.
+- How does this work?
+
+#+BEGIN_SRC haskell
+blah :: [Int]
+blah = do
+  x <- [1, 2, 3]
+  y <- [2, 4, 5]
+  (\x y -> [x, y]) x y
+#+END_SRC
+
+- Why are these different:
+
+#+BEGIN_SRC haskell
+blah' :: [Int]
+blah' = do
+  x <- [1, 2, 3]
+  y <- [2, 4, 5]
+  (\x -> [x, x]) x
+
+blah'' :: [Int]
+blah'' = do
+  x <- [1, 2, 3]
+  (\x -> [x, x]) x
+#+END_SRC
+
+- *** pg 765: It talks about creating structure and joining it
+  together. How does that work? This is re-occuring throughout the
+  chapter.
+
+Answer:
+
+"Generating structure" here refers to the second argument of ~>>=~. If
+you have a function already, which returns stuff in a monad, you need
+a special operation to combine this with an existing monad. That's
+what ~>>=~ gives you.
+
+- pg 765: Why is ~=<<~ introduced here for the first time?

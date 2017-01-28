@@ -1,0 +1,38 @@
+* The answer is the exercise
+
+Write ~bind~ in terms of ~fmap~ and ~join~.
+
+#+BEGIN_SRC haskell
+bind :: Monad m => (a -> m b) -> m a -> m b
+bind f x = join $ fmap f x
+
+let test1 = bind (\x -> Just x) (Just 3)
+let test2 = bind (\x -> [1, x, 1, x]) [2, 3]
+#+END_SRC
+
+* Either Monad
+
+Implement the either monad.
+
+#+BEGIN_SRC haskell
+data Sum a b =
+    First a
+  | Second b
+  deriving (Eq, Show)
+
+instance Functor (Sum a) where
+  fmap f (Second x) = Second (f x)
+  fmap f (First e) = First e
+
+instance Applicative (Sum a) where
+  pure = Second
+  (Second f) <*> (Second x) = Second $ f x
+  (First e) <*> _ = First e
+  _ <*> (First e) = First e
+
+
+instance Monad (Sum a) where
+  return = pure
+  (Second x) >>= f = f x
+  (First e) >>= _ = First e
+#+END_SRC

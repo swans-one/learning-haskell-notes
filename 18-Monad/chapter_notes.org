@@ -1,0 +1,283 @@
+* 18.1 Monad
+
+Monads are Applicative Functors. But have something that makes them
+more powerful than either. In this chapter we'll
+
+- Define ~Monad~, its operations and laws
+- Look at several examples of monads in practice
+- Write the ~Monad~ instances for various types
+- Address some misinformation about monads
+
+* 18.2 Sorry -- Monad is not a burrito
+
+So what is a monad:
+- Something with the following typeclass
+- that follows certain laws.
+- An applicative Functor
+
+#+BEGIN_SRC haskell
+class Applicative m => Monad m where
+(>>=) :: m a -> (a -> m b) -> m b
+(>>) :: m a -> m b -> m b
+return :: a -> m a
+#+END_SRC
+
+** `Applicative m`
+
+Since Monad is stronger than Applicative (which is stronger than Functor),
+we can implement each in terms of Monad. For example:
+
+#+BEGIN_SRC haskell
+fmap f x = xs >>= return . f
+#+END_SRC
+
+** Core Operations:
+
+- ~return~ :: This is just like pure.
+- ~(>>)~ :: Often called the "sequence operator", sequences two
+            actions while discarding any resulting value
+- ~(>>=)~ :: Called "bind", and constains the Monad special sauce.
+
+** The novel part of Monad
+
+When using Monads, we use the bind function. Sometimes directly with
+~>>=~, often indirectly through ~do~ syntax.
+
+Compare these operations:
+
+#+BEGIN_SRC haskell
+fmap :: Functor f     =>   (a -> b) -> f a        -> f b
+<*>  :: Applicative f => f (a -> b) -> f a        -> f b
+>>=  :: Monad f       => f a        -> (a -> f b) -> f b
+#+END_SRC
+
+Note that ~>>=~ is a lot like ~fmap~ or ~<*>~, but with some arguments
+reversed.
+
+Monad is a generalization of concat. We can use the bind operator to
+get:
+
+#+BEGIN_SRC haskell
+import Control.Monad (join)
+
+join :: Monad m => m (m a) -> m a
+#+END_SRC
+
+** What Monad is not
+
+Often ~Monad~ is addressed from the perspective of the ~IO
+Monad~. While ~IO~ does have a monad instance, and is very common, we
+need a broader understanding of monads.
+
+Monad is not:
+
+- Impure :: Monadic functions are pure functions.
+- An embedded language for imperative programming :: Often used for
+     sequencing actions, but it's not the only way.
+- A value :: Like Monoids and Functors, they describe a set of
+             operations.
+- About strictness :: ~bind~ and ~return~ are nonstrict.
+
+The ~Monad~ typeclass is generalized structure manipulation with some
+laws to make it sensible.
+
+** Monad also lifts
+
+The ~Monad~ class also includes a set of ~lift~ functions that are the
+same as the ones seen in ~Applicative~. See:
+
+#+BEGIN_SRC haskell
+liftA :: Applicative f => (a  -> b) -> f a  -> f b
+liftM :: Monad m       => (a1 -> r) -> m a1 -> m r
+
+liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
+liftM2 :: Monad m       => (a -> b -> c) -> m a -> m b -> m c
+#+END_SRC
+
+These ~liftM~ functions were written before Applicative was
+discovered, and are maintained for backwards compatability.
+
+* 18.3 Do syntax and monads
+
+Here's a couple examples desugared:
+
+These examples are the same:
+
+#+BEGIN_SRC haskell
+sequencing :: IO ()
+sequencing = do
+  putStrLn "blah"
+  putStrLn "another thing"
+
+sequencing' :: IO ()
+sequencing' =
+     putStrLn "blah"
+  >> putStrLn "another thing"
+#+END_SRC
+
+These examples are the same:
+
+#+BEGIN_SRC haskell
+binding :: IO ()
+binding = do
+  name <- getLine
+  putStrLn name
+
+binding' :: IO ()
+binding' = getLine >>= putStrLn
+#+END_SRC
+
+blah :: [Int]
+blah = do
+  x <- [1, 2, 3]
+  (\x -> [x, x]) x
+
+** When fmap alone isn't enough
+
+Note that the following doesn't do anything:
+
+    : putStrLn <$> getLine
+
+The reason, is due to the types of ~putStrLn~, ~<$>~ and ~getLine~,
+the result of this computation is ~IO (IO ())~. The inner ~IO ()~ is
+the one that performs the ~putStrLn~, which will not be evaluated
+because of lazy evaluation.
+
+We can force both to be evaluated by merging the ~IO~ contexts with
+~join~:
+
+    : join $ putStrLn <$> getLine
+
+It's interesting here, that the order of these operations is
+determined by the nesting of the contexts.
+
+* 18.4 Examples of Monad use
+
+** Lists
+
+#+BEGIN_SRC haskell
+twiceWhenEven :: [Integer] -> [Integer]
+twiceWhenEven xs = do
+  x <- xs
+  if even x
+    then [x*x, x*x]
+    else []
+#+END_SRC
+
+** Maybe
+
+#+BEGIN_SRC haskell
+data Cow = Cow {
+    name   :: String
+  , age    :: Int
+  , weight :: Int
+  } deriving (Eq, Show)
+
+noEmpty :: String -> Maybe String
+noEmpty "" = Nothing
+nothing str = Just Str
+
+noNegative :: Int -> Maybe Int
+noNegative n | n >= 0 = Just n
+             | otherwise = Nothing
+
+weightCheck :: Cow -> Maybe Cow
+weightCheck c = c | weight c >= 499 = Nothing
+                  | otherwise = Just c
+
+mkSphericalCow' :: String -> Int -> Int -> Maybe Cow
+mkSphericalCow' name' age' weight' = do
+  nammy <- noEmpty name'
+  agey <- noNegative age'
+  weighty <- noNegative weight'
+  weightCheck (Cow nammy agey weighty)
+#+END_SRC
+
+
+I just made this up, but it lets you get the value for 2 in the list,
+only if 1 is there as well:
+
+#+BEGIN_SRC haskell
+conditionalLookups :: [(Int, b)] -> Maybe b
+conditionalLookups xs =
+     lookup 1 xs
+  >> lookup 2 xs
+#+END_SRC
+
+** Either
+
+Note that ~Either~ always short-circuits on the first thing to have
+failed. It _must_ because in the ~Monad~, later values can depend on
+previous ones.
+
+* 18.5 Monad laws
+
+The ~Monad~ typeclass has laws, just as the other typeclasses do. To
+write your own instance, you only have to define a ~>>=~ operation.
+
+** Identity laws
+
+~Monad~ has two identity laws:
+
+#+BEGIN_SRC haskell
+-- right identity
+m >>= return == m
+
+--left identity
+return x >>= f == f x
+#+END_SRC
+
+These are saying that ~return~ should be neutral, and not perform any
+computation.
+
+** Associativity
+
+
+#+BEGIN_SRC haskell
+(m >>= f) >>= g == m >>= (\x -> f x >>= g)
+#+END_SRC
+
+This behaves a lot like our other laws of associativity, but must
+be structured differently, to account for types.
+
+** Doing that thing again
+
+Using checkers to quickcheck this code.
+
+    : quickBatch $ monad [(1, 2, 3)]
+
+** Bad Monads and their denizens
+
+We're going to write a bad ~Monad~ that will look like it's an
+Identity with an integer thrown in which gets incremented each fmap or
+bind.
+
+See ~Sandbox/src/chpt-18-notes/badMonoid.hs~ for a broken monad
+implementation, with quickprop assertions that show why it's broken,
+and see ~Sandbox/src/chpt-18-notes/fixedMonoid.hs~ for a fixed
+implementation.
+
+* 18.6 Application and composition
+
+We can use /Kleisli composition/, which looks a lot like normal
+composition:
+
+#+BEGIN_SRC haskell
+import Control.Monad
+
+(>=>) :: Monad m => (a -> m b) -> (b -> m c) -> a -> m c
+flip (.) ::      =>  (a -> b)  ->  (b -> c)  -> a ->  c
+#+END_SRC
+
+* 18.7 Chapter Exercises
+* 18.8 Definitions
+
+- monad :: a typeclass reifying an abstraction commonly used in
+           Haskell. Functorally applying a function with produces more
+           structure, and then reducing that nested structure.
+- monadic function :: A function which generates more structure after
+     having been lifted over monadic structure.
+- bind :: In this context refers to using ~>>=~ to lift a monadic
+          function over some structure.
+
+end pg 766
