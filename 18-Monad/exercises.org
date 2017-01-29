@@ -36,3 +36,10 @@ instance Monad (Sum a) where
   (Second x) >>= f = f x
   (First e) >>= _ = First e
 #+END_SRC
+
+* Chapter Exercises
+
+Write Monad instances for the following types. Use the QuickCheck
+properties we showed you to validate your instances.
+
+See ~Sandbox/src/exercies/18-chapter-exercises.hs~ for the code.

@@ -270,6 +270,9 @@ flip (.) ::      =>  (a -> b)  ->  (b -> c)  -> a ->  c
 #+END_SRC
 
 * 18.7 Chapter Exercises
+
+See ~exercises.org~
+
 * 18.8 Definitions
 
 - monad :: a typeclass reifying an abstraction commonly used in
