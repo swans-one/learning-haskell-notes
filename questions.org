@@ -381,3 +381,9 @@ a special operation to combine this with an existing monad. That's
 what ~>>=~ gives you.
 
 - pg 765: Why is ~=<<~ introduced here for the first time?
+
+- pg 765: Exercise 3. Can we go over this?
+
+- pg 765: Exercise 4. I did it with do syntax, and bind. I really like
+  how my do syntax answer came out, but can we make my bind answer
+  better?

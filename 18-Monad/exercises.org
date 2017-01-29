@@ -43,3 +43,59 @@ Write Monad instances for the following types. Use the QuickCheck
 properties we showed you to validate your instances.
 
 See ~Sandbox/src/exercies/18-chapter-exercises.hs~ for the code.
+
+** Writing functions
+
+Write the following functions using the methods provided by ~Monad~
+and ~Functor~.
+
+1.
+
+#+BEGIN_SRC haskell
+j :: Monad m => m (m a) -> m a
+j x = x >>= id
+
+-- With the following behavior
+
+test1 = j [[1, 2], [], [3]]
+result1 = test1 == [1, 2, 3]
+
+test2 = j (Just (Just 1))
+result2 = test2 == Just 1
+
+test3 = j (Just Nothing)
+result3 = test3 == Nothing
+
+test4 = j Nothing
+result4 = test4 == Nothing
+#+END_SRC
+
+
+2.
+
+#+BEGIN_SRC haskell
+l1 :: Monad m => (a -> b) -> m a -> m b
+l1 f = fmap f
+#+END_SRC
+
+3.
+
+#+BEGIN_SRC haskell
+l2 :: Monad m => (a -> b -> c) -> m a -> m b -> m c
+l2 f x y = (f <$> x) >>= (<$> y)
+#+END_SRC
+
+4.
+
+#+BEGIN_SRC haskell
+meh :: Monad m => [a] -> (a -> m b) -> m [b]
+meh [] _ = return []
+meh (x:xs) f = do
+  tail <- meh xs f
+  head <- f x
+  return $ head:tail
+
+meh' :: Monad m => [a] -> (a -> m b) -> m [b]
+meh' [] _ = return []
+meh' (x:xs) f = (f x) >>= (\x -> (x:) <$> (meh' xs f))
+#+END_SRC
