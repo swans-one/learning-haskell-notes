@@ -1,0 +1,44 @@
+* 20.1 Foldable
+
+We've seen this in a bunch of type signatures. Like lists, but lists
+aren't the only foldables.
+
+- list fold :: A way to reduce values in a list to one summary value
+               by recursively applying some function.
+  - That summary value may be a new list
+  - The folding function will always be dependent on some Monoid
+    instance.
+
+This chapter will cover
+
+- The ~Foldable~ class and its core operations.
+- The monoidal nature of folding.
+- Standard opeartions derived from folding.
+
+* 20.2 The Foldable class
+
+- Foldable :: "A class of data structures that can be folded to a
+              summary value".
+
+The begining of the foldable class looks like this:
+
+#+BEGIN_SRC haskell
+class Foldable t where
+  {-# MINIMAL foldMap | foldr #-}
+  -- ...
+#+END_SRC
+
+Notes on the above:
+
+- To implement foldable you must specify either ~foldMap~ or ~foldr~.
+- ~t~ must be higher kinded. I.e. ~(t :: * -> *)~
+
+* 20.3 Revenge of the monoids
+
+
+
+* 20.4 Demonstrating Foldable instances
+* 20.5 Some basic derived operations
+* 20.6 Chpater Exercieses
+
+ch end 810
