@@ -351,7 +351,7 @@ blah :: [Int]
 blah = do
   x <- [1, 2, 3]
   y <- [2, 4, 5]
-  (\x y -> [x, y]) x y
+  [x, y]
 #+END_SRC
 
 - Why are these different:
@@ -387,3 +387,10 @@ what ~>>=~ gives you.
 - pg 765: Exercise 4. I did it with do syntax, and bind. I really like
   how my do syntax answer came out, but can we make my bind answer
   better?
+
+*
+* Chapter 19: Applying Structure
+
+- pg 777 Here, and earlier, we see the use of functions as having
+  Monoid instances, Applicative instances, functor instances. Can we
+  talk about what it means to fmap over functions, etc?

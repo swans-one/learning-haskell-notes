@@ -95,6 +95,8 @@ meh (x:xs) f = do
   head <- f x
   return $ head:tail
 
+
+
 meh' :: Monad m => [a] -> (a -> m b) -> m [b]
 meh' [] _ = return []
 meh' (x:xs) f = (f x) >>= (\x -> (x:) <$> (meh' xs f))

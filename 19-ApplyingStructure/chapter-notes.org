@@ -1,0 +1,65 @@
+* 19.1 Applied structure
+
+We'll be going through a bunch of code snippets that show the use of
+some of the structure / typeclasses we've seen in the previous few
+chapters.
+
+We won't see all of the context required to run these, however.
+
+* 19.2 Monoid
+
+** Templating content in Scotty
+
+- Soctty :: A haskell webframework
+
+The Scotty tutorial uses ~mconcat~ to add some strings together:
+
+    : import Data.Monoid (mconcat)
+    :
+    : let beam = something...
+    : mconcat ["<h1>Scotty, ", beam, " me up!</h1>"]
+
+** Concatenating key configurations
+
+- XMonad :: a windowing system for X11 written in Haskell.
+
+There is a~keys~ function, which returns keymaps. By defining your own
+keys function, you can ~mappend~ it with the default keys function,
+and it will mappend the results together, overriding the defaults.
+
+* 19.3 Functor
+
+** Lifting over IO
+
+#+BEGIN_SRC haskell
+import Data.Time.Clock
+
+offsetCurrentTime :: NominalDiffTime -> IO UTCTime
+offsetCurrentTime offset =
+  fmap (addUtcTime (offset * 24 * 3600)) $ getCurrentTime
+#+END_SRC
+
+* 19.4 Applicative
+
+** hgrev
+
+#+BEGIN_SRC haskell
+jsonSwitch :: Parser (a -> a)
+jsonSwitch =
+  infoOption $(hgRevStateTH jsonFormat)
+  $ long "json"
+  <> short 'J'
+  <> help "Display JSON version information"
+
+parserInfo :: ParserInfo (a -> a)
+parserinfo = info (helper <*> verSwitch <* jsonSwitch) fullDesc
+#+END_SRC
+
+* 19.5 Monad
+
+Because IO is a monad, examples of monads are everywhere.
+
+* 19.6 An end-to-end example: URL shortener
+* 19.7 That's a wrap!
+
+end pg 795
