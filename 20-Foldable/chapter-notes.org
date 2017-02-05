@@ -35,10 +35,90 @@ Notes on the above:
 
 * 20.3 Revenge of the monoids
 
+- Folding necessarily implies a binary associateve opeartion with an
+  identity.
+
+#+BEGIN_SRC haskell
+class Foldable (t :: * -> *) where
+  fold :: Data.Monoid.Monoid m => t m -> m
+  foldMap :: Data.Monoid.Monoid m => (a -> m) -> t a -> m
+#+END_SRC
+
+Trying them out:
+
+    : λ> Data.Foldable.fold ["a", "b", "c"]
+    : "abc"
+    : λ> Data.Foldable.fold [1, 2, 3] :: Sum Int
+    : Sum {getSum = 6}
+    : λ> foldMap (\x -> [x]) [1, 2, 3]
+    : [1, 2, 3]
+    : λ> foldMap Product [1, 2, 3, 4]
+    : Product {getProduct = 24}
 
 
 * 20.4 Demonstrating Foldable instances
+
+All you need to implement Foldable is one of ~foldr~ or ~foldMap~.
+
+Notes on types:
+
+#+BEGIN_SRC haskell
+foldMap :: Monoid m => (a -> m) -> t a -> m
+foldr :: (a -> b -> b) -> b -> t a -> b
+foldl :: (b -> a -> b) -> b -> t a -> b
+#+END_SRC
+
+** Identity
+
+#+BEGIN_SRC haskell
+data Identity a = Identity a
+
+instance Foldable Identity where
+  foldr f z (Identity x) = f x z
+  foldl f z (Identity x) = f z x
+  foldMap f (Identity x) = f x
+#+END_SRC
+
+** Maybe
+
+#+BEGIN_SRC haskell
+data Optional a = Yep a | Nada
+
+instance Foldable Optional where
+  foldr _ z Nada = z
+  foldr f z (Yep x) = f x z
+
+  foldl _ z Nada = z
+  foldl f z (Yep x) = f z x
+
+  foldMap _ Nada = mempty
+  foldMap f (Yep a) = f a
+#+END_SRC
+
+Note, that if you use this without a ~Monoid~ it will yell at
+you. For example:
+
+    : λ> foldMap (+1) Nada
+    : -- some error message
+
+But this works:
+
+    : λ> foldMap (+1) Nada :: Sum Int
+    : Sum {getSum = 0}
+
 * 20.5 Some basic derived operations
-* 20.6 Chpater Exercieses
+
+#+BEGIN_SRC haskell
+toList :: t a -> [a]
+null :: t a -> Bool
+length :: t a -> Int
+elem :: Eq a => a -> t a -> Bool
+maximum :: Ord a => t a -> a
+minimum :: Ord a => t a -> a
+sum :: (Foldable t, Num a) => t a -> a
+product :: (Foldable t, Num a) => t a -> a
+#+END_SRC
+
+* 20.6 Chapter Exercieses
 
 ch end 810
