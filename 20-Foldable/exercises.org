@@ -47,6 +47,52 @@ fold :: (Foldable t, Monoid m) => t m -> m
 fold = foldMap id
 
 foldMap :: (Foldable t, Monoid m) => (a -> m) -> t a -> m
-
+foldMap = foldr mappend mempty
 
 #+END_SRC
+
+* Chapter Exercises
+
+Write Foldable instances for the following datatypes.
+
+1.
+
+#+BEGIN_SRC haskell
+data Constant a b = Constant a deriving Show
+
+instance Foldable (Constant a) where
+   foldr _ z _ = z
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+data Two a b = Two a b deriving Show
+
+instance Foldable (Two a) where
+    foldr f z (Two x y) = (f y z)
+#+END_SRC
+
+** Thinking Cap
+
+Write a filter function for ~Foldable~ types using ~foldMap~.
+
+#+BEGIN_SRC haskell
+filterF :: (Applicative f, Foldable t, Monoid (f a))
+        => (a -> Bool) -> t a -> f a
+filterF = undefined
+#+END_SRC
+
+I'm not sure how to approach this. I have a couple thoughts, and a
+couple questions.
+
+Questions first:
+  - In the type constraint for the output, I'm allowed/expected to
+    return some Monoid. However, am I supposed to return a particular
+    Monoid?
+
+Thoughts
+  - Jesse said he got this working, but had to give it an expected
+    type. Does that mean it's using mempty somewhere
+  - I probably have to use ~pure~ from Applicative to get my
+    applicative instance out of nowhere. Also from the type signature?
