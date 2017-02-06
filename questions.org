@@ -394,3 +394,6 @@ what ~>>=~ gives you.
 - pg 777 Here, and earlier, we see the use of functions as having
   Monoid instances, Applicative instances, functor instances. Can we
   talk about what it means to fmap over functions, etc?
+* Chapter 20:
+- Is there a better way to write the `elem` lambda?
+- Is there a better way to do the minimum / maximum other than guards?

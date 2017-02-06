@@ -1,0 +1,52 @@
+* Library Functions
+
+Implement the functions in terms of ~foldMap~ or ~foldr~ from
+Foldable, then try them out with multiple types that have ~Foldable~
+instances.
+
+#+BEGIN_SRC haskell
+import Data.Monoid (Sum(..), Product(..), Any(..))
+
+sum :: (Foldable t, Num a) => t a -> a
+sum = getSum . (foldMap Sum)
+
+product :: (Foldable t, Num a) => t a -> a
+product = getProduct . (foldMap Product)
+
+elem :: (Foldable t, Eq a) => a -> t a -> Bool
+elem x = foldr (\y z -> x==y || z) False
+
+elem :: (Foldable t, Eq a) => a -> t a -> Bool
+elem x = foldr ((||) . (==x)) False
+
+elem :: (Foldable t, Eq a) => a -> t a -> Bool
+elem x = getAny . (foldMap (Any . (== x)))
+
+minimum :: (Foldable t, Ord a) => t a -> Maybe a
+minimum xs
+  | (foldr (\x y -> False) True xs) = Nothing
+  | otherwise = foldr maybeMin Nothing xs
+  where maybeMin x Nothing  = Just x
+        maybeMin x (Just y) = Just (min x y)
+
+maximum :: (Foldable t, Ord a) => t a -> Maybe a
+maximum xs
+  | (foldr (\x y -> False) True xs) = Nothing
+  | otherwise = foldr (\x y -> max (Just x) y) Nothing xs
+
+null :: (Foldable t) => t a -> Bool
+null = foldr (\x y -> False) True
+
+length :: (Foldable t) => t a -> Int
+length = foldr (\x y -> y + 1) 0
+
+toList :: (Foldable t) => t a -> [a]
+toList = foldr (:) []
+
+fold :: (Foldable t, Monoid m) => t m -> m
+fold = foldMap id
+
+foldMap :: (Foldable t, Monoid m) => (a -> m) -> t a -> m
+
+
+#+END_SRC

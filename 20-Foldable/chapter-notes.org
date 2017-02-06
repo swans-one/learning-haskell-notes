@@ -71,7 +71,7 @@ foldl :: (b -> a -> b) -> b -> t a -> b
 ** Identity
 
 #+BEGIN_SRC haskell
-data Identity a = Identity a
+data Identity a = Identity a deriving (Eq, Show, Ord)
 
 instance Foldable Identity where
   foldr f z (Identity x) = f x z
@@ -82,7 +82,7 @@ instance Foldable Identity where
 ** Maybe
 
 #+BEGIN_SRC haskell
-data Optional a = Yep a | Nada
+data Optional a = Yep a | Nada deriving (Eq, Show, Ord)
 
 instance Foldable Optional where
   foldr _ z Nada = z
