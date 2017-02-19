@@ -403,3 +403,7 @@ what ~>>=~ gives you.
 - General: Can we review the Applicative/Monad dependency?
 - pg 820: ~(x .) . y~ as a general pattern for getting a new funciton
   that takes two arguments?
+- Really, why applicative? And not functor?
+- pg 830: How to quickcheck ~S (n a) a~
+- Why do we need any of the constraints here at all?
+- pg 830: QuickChecking ~Tree~
