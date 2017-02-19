@@ -1,0 +1,180 @@
+* 21.1 Traversable
+
+- ~Traversable~
+  - Has Applicative, Functor, and Foldable as superclasses.
+  - Lets you transform elements, producing applicative effects along
+    the way, and lift the applicative structure outside of the
+    traversable.
+
+- This chapter will
+  - Explain the ~Traversable~ typeclass
+  - Explore examples of traversable in practical use
+  - tidy up some code in this typeclass
+  - write some traversable instances
+
+* 21.2 The Traversable typeclass definition
+
+#+BEGIN_SRC haskell
+class (Functor t, Foldable t) => Traversable t where
+  traverse :: Applicative f => (a -> f b) -> t a -> f (t b)
+  traverse f = sequenceA . fmap f
+
+  sequenceA :: Applicative f => t (f a) -> f (t a)
+  sequenceA = traverse id
+#+END_SRC
+
+As can be seen above, a minimal implementation of ~Traversable~
+implements either ~traverse~ or ~sequenceA~.
+
+* 21.3 ~sequenceaA~
+
+We can see from the type signature that it flips the traversable and
+functor structure:
+
+    : λ> sequenceA [Just 1, Just 2, Just 3]
+    : Just [1, 2, 3]
+    : λ> fmap sum $ sequenceA [Just 1, Just 2, Just 3]
+    : Just 6
+    : λ> fmap product $ sequenceA [Just 2, Just 3, Nothing]
+    : Nothing
+
+* 21.4 ~traverse~
+
+Note the similarity between the types of ~=<<~ and ~fmap~
+
+#+BEGIN_SRC haskell
+fmap     :: (a ->   b) -> f a -> f b
+(=<<)    :: (a -> m b) -> m a -> m b
+traverse :: (a -> f b) -> t a -> f (t b)
+#+END_SRC
+
+With ~traverse~, we're mapping a function over some ~t a~ structure,
+but this function creates its own structure. We then flip the
+traversable and functor structure.
+
+Breaking down the implmementation:
+
+#+BEGIN_SRC haskell
+traverse f = sequenceA . fmap f
+#+END_SRC
+
+    : λ> fmap Just [1, 2, 3]
+    : [Just 1, Just 2, Just 3]
+
+Think of ~Just~ in the above as our function that creates functor
+structure. Then
+
+    : λ> sequnceA $ fmap Just [1, 2, 3]
+    : Just [1, 2, 3]
+
+is actually the same as:
+
+    : λ> sequnceA . fmap Just $ [1, 2, 3]
+    : Just [1, 2, 3]
+
+** ~mapM~ is just ~traverse~
+
+Before there was ~traverse~:
+
+#+BEGIN_SRC haskell
+mapM :: Monad m => (a -> m b) -> [a] -> m [b]
+#+END_SRC
+
+Traversable is abstracting the ~[]~ in ~mapM~ to being any Traversable
+data structure, and generalizing the ~Monad~ requirement to only being
+applicative.
+
+* 21.5 So, what's traversable for?
+
+- Any time you need to flip two type constructors around
+- Or map something then flip them around
+
+* 21.6 Morse code revisited
+
+#+BEGIN_SRC haskell
+stringToMorse :: String -> Maybe [Morse]
+stringToMorse s = sequence $ fmap charToMorse s
+
+stringToMorse' :: String -> Maybe [Morse]
+stringToMorse' = traverse charToMorse
+#+END_SRC
+
+** A weird note on composition
+
+~(sequence .) . fmap~ is equivalent to  ~\ f xs -> sequence (fmap f xs)~
+
+The ~(x .) . y~ is a way to let ~y~ wait for two arguments.
+
+** ~traverse~, ~sequence~, ~fmap~ and ~>>=~, ~join~, ~fmap~
+
+- ~traverse~ is just ~fmap~ and the ~Traversable~'s ~sequence~
+- ~>>=~ is just ~join~ composed with ~fmap~
+
+~sequence~ is the unique bit of Traverseable, and ~join~ is the unique
+bit of Monad.
+
+* 21.7 Axing tedious code
+
+- An example that is clearer with traversable
+
+* 21.8 Do all the things
+
+- An example of getting an ~IO [Something]~ rather than ~[IO Something]~
+
+* 21.9 Traversable instances
+
+- ~traverse~ :: Traversable on the inside, Applicative on the outside.
+
+** Either
+
+#+BEGIN_SRC haskell
+data Either' a b = Left' a | Right' b deriving (Eq, Ord, Show)
+
+instance Functor (Either' a) where
+  fmap _ (Left' x) = Left' x
+  fmap f (Right' y) = Right' (f y)
+
+instance Applicative (Either' e) where
+  pure = Right'
+  Left' e <*> _ = Left' e
+  Right' f <*> r = fmap f r
+
+instance Foldable (Either' a) where
+  foldMap _ (Left' _) = mempty
+  foldMap f (Right' y) = f y
+
+  foldr _ z (Left' _) = z
+  foldr f z (Right' y) = f y z
+
+instance Traversable (Either' a) where
+  traverse _ (Left' x) = pure (Left' x)
+  traverse f (Right' y) = Right' <$> f y
+#+END_SRC
+
+** Tuple
+
+...
+
+* 20.10 Traversable Laws
+
+~traverse~ must follow the following laws:
+
+- Naturality :: ~t . traverse f~ should be ~traverse (t . f)~
+- Identity :: ~traverse Identity~ should be ~Identity~
+- Composition :: ~traverse (Compose . fmap g . f)~ should be
+                 ~Compose . fmap (traverse g) . traverse f~
+
+~sequenceA~ must follow the following laws:
+
+- Naturality :: ~t . sequenceA~ should be ~sequenceA . fmap t~
+- Identity ::  ~sequenceA . fmap Identity~ should be ~Identity~
+- Composition :: ~sequenceA . fmap Compose~ should be
+                 ~Compose . fmap sequenceA . sequenceA~
+
+* 21.11 Quality Control
+
+- You can use quickcheck and checkers to test these.
+
+* 21.12 Chapter Exercises
+
+See ~Sandbox/src/exerciese/21-chapter-exercises.hs~

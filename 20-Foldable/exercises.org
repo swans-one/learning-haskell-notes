@@ -96,3 +96,4 @@ Thoughts
     type. Does that mean it's using mempty somewhere
   - I probably have to use ~pure~ from Applicative to get my
     applicative instance out of nowhere. Also from the type signature?
+  - Map false onto mempty, and true onto pure?

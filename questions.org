@@ -395,5 +395,11 @@ what ~>>=~ gives you.
   Monoid instances, Applicative instances, functor instances. Can we
   talk about what it means to fmap over functions, etc?
 * Chapter 20:
-- Is there a better way to write the `elem` lambda?
+- Is there a better way to write the ~elem~ lambda?
 - Is there a better way to do the minimum / maximum other than guards?
+* Chapter 21:
+- pg 813: Why does ~Traversable~ require a ~Functor t~ but ~traverse~
+  requires a ~Applicative f~
+- General: Can we review the Applicative/Monad dependency?
+- pg 820: ~(x .) . y~ as a general pattern for getting a new funciton
+  that takes two arguments?
