@@ -23,7 +23,21 @@ instance Arbitrary a => Arbitrary (Identity a) where
 
 -- Constant
 
-newtype Constant a b = Constant { getConstant :: a }
+newtype Constant a b = Constant { getConstant :: a } deriving (Eq, Show)
+
+instance Foldable (Constant a) where
+  foldMap f (Constant x) = mempty
+
+instance Functor (Constant a) where
+  fmap _ (Constant x) = Constant x
+
+instance Traversable (Constant a) where
+  traverse _ (Constant x) = pure (Constant x)
+
+instance (Eq a, Eq b) => EqProp (Constant a b) where (=-=) = eq
+
+instance Arbitrary a => Arbitrary (Constant a b) where
+  arbitrary = Constant <$> arbitrary
 
 -- Maybe
 
@@ -96,10 +110,16 @@ instance Traversable Tree where
 
 main = do
   let id_trig = undefined :: Identity (Int, Int, [Int])
+  putStrLn "\nIdentity:"
   quickBatch (traversable id_trig)
 
   let opt_trig = undefined :: Optional (Int, Int, [Int])
+  putStrLn "\nOption:"
   quickBatch (traversable opt_trig)
+
+  let const_trig = undefined :: Constant Int (Int, Int, [Int])
+  putStrLn "\nConstant:"
+  quickBatch (traversable const_trig)
 
   -- let s_trig = undefined :: S (Int, Int, [Int]) Int
   -- quickBatch (traversable s_trig)
