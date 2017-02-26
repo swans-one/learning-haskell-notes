@@ -394,10 +394,10 @@ what ~>>=~ gives you.
 - pg 777 Here, and earlier, we see the use of functions as having
   Monoid instances, Applicative instances, functor instances. Can we
   talk about what it means to fmap over functions, etc?
-* Chapter 20:
+* Chapter 20: Foldable
 - Is there a better way to write the ~elem~ lambda?
 - Is there a better way to do the minimum / maximum other than guards?
-* Chapter 21:
+* Chapter 21: Traversable
 - pg 813: Why does ~Traversable~ require a ~Functor t~ but ~traverse~
   requires a ~Applicative f~
 - General: Can we review the Applicative/Monad dependency?
@@ -407,3 +407,44 @@ what ~>>=~ gives you.
 - pg 830: How to quickcheck ~S (n a) a~
 - Why do we need any of the constraints here at all?
 - pg 830: QuickChecking ~Tree~
+* Chapter 22: Reader
+- pg 835: The "structure" is partially applied functions? does it only
+  work for partially applied functions? Why?
+- ** Can we go through the functor/applicative/monad laws for the
+  behavior of functions instances of these typeclasses?
+- Is it clarifying to say "Partially applied functions have a Functor
+  instance"? Like, partially applied ~Either~ values have a Functor
+  instance? Or partially applied ~Constant~ values?
+
+- "The applicative an monad instances give us a way to map a function
+that is awaiting an ~a~ over another function that is also awaiting an
+~a~." How can we see that from the type signature of ~<*>~?
+
+#+BEGIN_SRC haskell
+(<*>) :: Applicative f => f (a -> b) -> f a -> f b
+#+END_SRC
+
+Is ~f a~ above "a function awaiting an ~a~"? Does that make sense
+given the Applicative instance for functions is for ~((->) r)~?
+
+Given that interpretation, it would make sense that the first argument
+is a function awaiting an ~(a -> b)~.
+
+Then, how is ~(+) :: (Num a => a -> a -> a)~ awaiting an ~a -> b~?
+Isn't ~(->)~ right associative? Like ~(Num a => a -> (a -> a))~, not
+left associative like ~(Num a => (a -> a) -> a)~. Still, the following
+works:
+
+    : λ> (+) <*> (* 2) $ 3
+    : 9
+
+- There is so much crazy stuff in section 22.3 for such a short
+  section. Can we break it down/talk about it?
+
+- Is there any way of destructuring functions?
+
+- Maybe partially applied is the wrong way of describing it. Partially
+  specialized?
+
+- pg 848. Write liftA2 yourself. Did I do this right?
+- pg 849. Write the applicative for reader. Did I get it right?

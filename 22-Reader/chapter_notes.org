@@ -1,0 +1,133 @@
+* 22.1 Reader
+
+The reader monad is used to store information that can be accessed
+from a variety of places.
+
+This chapter will
+- Examine the Functor, Applicative, and Monad instances for functions.
+- Learn about the ~Reader~ newtype
+- see some examples of using ~Reader~
+
+* 22.2 A New Beginning
+
+Starting with some examples.
+
+#+BEGIN_SRC haskell
+import Control.Applicative
+
+boop = (*2)
+doop = (+10)
+
+bip :: Integer -> Integer
+bip = boop . doop
+#+END_SRC
+
+We could also write the function composition above as
+
+#+BEGIN_SRC haskell
+bloop :: Integer -> Integer
+bloop = fmap boop doop
+#+END_SRC
+
+What is the functorial context above (the structure we're lifing
+over)?
+
+- I guess it's partially applied functions
+
+#+BEGIN_SRC haskell
+bbop :: Integer -> Integer
+bbop = (+) <$> boop <*> doop
+#+END_SRC
+
+If we evaluate this:
+
+    : λ> ((+) <$> (*2) <*> (+10)) 3
+    : 19
+
+It works differently than just fmap, and will work something like:
+
+    : λ> ((3 * 2) + (3 + 10))
+    : 19
+
+*Use Applicative composition when:* you have two functions and want to
+give them the same input, then combine the results.
+
+This monadic version behaves the same as ~bbop~
+
+#+BEGIN_SRC haskell
+boopDoop :: Integer -> Integer
+boopDoop = do
+  a <- boop
+  b <- doop
+  return (a + b)
+#+END_SRC
+
+** The idea of ~Reader~
+
+Stringing functions together when all those functions are awaiting one
+input from a share environment.
+
+* 22.3 This is Reader
+
+- Usually when you hear or see ~Reader~ it will refer to its ~Monad~
+  or ~Applicative~ instance.
+
+The applicative an monad instances give us a way to map a function
+that is awaiting an ~a~ over another function that is also awaiting an
+~a~.
+
+Apparently we will be making the ~Reader~ a monad transformer.
+
+* 22.4 Breaking down the Functor of functions
+
+#+BEGIN_SRC haskell
+instance Functor ((->) r) where
+  fmap = (.)
+#+END_SRC
+
+We can compare the type signatures of ~(.)~ and ~fmap~ on functions to
+see the similarity.
+
+#+BEGIN_SRC haskell
+(.)  :: (b -> c) ->      (a -> b) ->      (a -> c)
+fmap :: (b -> c) -> ((->) a)   b  -> ((->) a)   c
+#+END_SRC
+
+* 22.5 But uh, Reader?
+
+Reader is a newtype wrapper for the function type
+
+#+BEGIN_SRC haskell
+newtype Reader r a =
+  Reader { runReader :: r -> a }
+#+END_SRC
+
+The ~r~ is the type we're "reading" in and ~a~ is the result type of
+our function.
+
+#+BEGIN_SRC haskell
+instance Functor (Reader r) where
+  fmap :: (a -> b) -> Reader r a -> Reader r b
+  fmap f (Reader ra) = Reader $ \r -> f (ra r)
+#+END_SRC
+
+* 22.6 Functions have an Applicative too
+
+#+BEGIN_SRC haskell
+pure :: a ->     f a
+pure :: a -> (r -> a)
+#+END_SRC
+
+#+BEGIN_SRC haskell
+(<*>) ::    f (a -> b) ->     f a  ->     f b
+(<*>) :: (r -> a -> b) -> (r -> a) -> (r -> b)
+#+END_SRC
+
+* 22.7 The Monad fo functions
+* 22.8 Reader Monad by itself is kinda boring
+* 22.8 You can change what comes below, but not above
+* 22.10 You tend to see ReaderT, not Reader
+* 22.11 Chapter Exercises
+* 22.12 Follow-up resources
+
+end 860
