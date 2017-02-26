@@ -124,10 +124,34 @@ pure :: a -> (r -> a)
 #+END_SRC
 
 * 22.7 The Monad fo functions
+
+** Exmple of the ~Reader~ type
+
+#+BEGIN_SRC haskell
+getDogRM :: Person -> Dog
+getDogRM = do
+  name <- dogName
+  addy <- address
+  return $ Dog name addy
+#+END_SRC
+
+The above will return a function that can construct dogs from from a
+single person argument.
+
 * 22.8 Reader Monad by itself is kinda boring
+
 * 22.8 You can change what comes below, but not above
+
+#+BEGIN_SRC haskell
+withReaderT :: ('r -> r) -> ReaderT r m a -> ReaderT r' m a
+withReaderT f m = ReaderT $ runReaderT m . f
+#+END_SRC
+
 * 22.10 You tend to see ReaderT, not Reader
+
+Reader rarely stands alone. Usually it's one Monad in a stack of
+multiple types providing a Monad instance.
+
 * 22.11 Chapter Exercises
-* 22.12 Follow-up resources
 
 end 860

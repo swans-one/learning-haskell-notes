@@ -448,3 +448,4 @@ works:
 
 - pg 848. Write liftA2 yourself. Did I do this right?
 - pg 849. Write the applicative for reader. Did I get it right?
+- pg 855 What does this ~ReaderT~ thing do at all??
