@@ -1,0 +1,99 @@
+* 23.1 State
+
+Haskell has many ways of rpresenting accessing and modifying state.
+
+- State :: data that exists in addition to the inputs and outputs of
+           our functions
+
+This chapter will
+  - talk about what state means
+  - explore some ways of handling state in Haskell
+  - generate some more random numbers
+  - examine the State newtype and Monad instance
+
+* 23.2 What is state?
+
+- State :: Transistors in binary computers being on or off
+- Most languages have implicity mutable state
+- Haskell only has function input and output to functions
+
+The ~State~ type in haskell is a way of expressing "state". It has a
+convenient monadic interface.
+  - Cleans up the bookkeeping
+
+We can have state that
+  - Doesn't require IO
+  - is limited only to the data in our State container
+  - maintains referntial transparency
+  - is explicit in the types of our functions
+
+* 23.3 Random numbers
+
+An extended example to start.
+
+Using the ~random~ library. ~System.Random~ generates pseudorandom
+values.
+
+We can generate these values purely, with the following functions
+
+#+BEGIN_SRC haskell
+mkStdGen :: Int -> StdGen
+next :: g -> (Int, g)
+random :: (RandomGen g, Random a) => g -> (a, g)
+#+END_SRC
+
+e.g. Running the following
+
+    : next $ mkStdGen 0
+    : next $ mkStdGen 0
+
+Both expressions will always return the same pair, because this is a
+pure computation.
+
+To keep getting new values out of ~next~, you need to use ~snd~ to get
+the generator out of the returned tuple:
+
+    : next (snd (next $ mkStdGen 0))
+
+This chaining of state gets tedious. We address this in this chapter.
+
+* 23.4 The State newtype
+
+#+BEGIN_SRC haskell
+newtype State s a = State { runState :: s -> (a, s) }
+#+END_SRC
+
+Think of the ~State~ data constructor and the ~runState~ record
+accessor as a means of putting a value in and taking a value out of a
+state type.
+
+#+BEGIN_SRC haskell
+State :: (s -> (a, s)) -> State s a
+runState :: State s a -> s -> (a, s)
+#+END_SRC
+
+* 23.5 Throw down
+
+First, see ~Sandbox/src/throwDown.hs~ and compare to
+~Sandbox/src/throwDown2.hs~. The first source file does not use
+~State~, while the second uses ~State~. To use the ~rollThreeDie'~
+function from ~throwDown2.hs~, you invoke it like:
+
+    : evalState rollDieThreeTimes' (mkStdGen 0)
+
+We can invoke ~infiniteDie~ as so:
+
+    : take 5 $ evalState infiniteDie (mkStdGen 0)
+
+But it will not give us what we want. Instead, we need to use
+~replicateM~, as in ~nDie~
+
+    : evalState (nDie 5) (mkStdGen 0)
+
+
+
+* 23.6 Write State for yourself
+* 23.7 Get a coding job with one weird trick
+* 23.8 Chapter Exercises
+
+end 879

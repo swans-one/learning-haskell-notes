@@ -449,3 +449,56 @@ works:
 - pg 848. Write liftA2 yourself. Did I do this right?
 - pg 849. Write the applicative for reader. Did I get it right?
 - pg 855 What does this ~ReaderT~ thing do at all??
+
+* Chapter 23 State
+
+- pg 870: The results of all of my calls to
+
+      : evalState rollDieThreeTimes' (mkStdGen 0)
+
+  result in tuples that start with ~DieSix~, no matter what value I
+  place in the ~0~. Is this expected?
+
+  Answer:
+  Actually, it turns out it's only DieSix in certain ranges. See:
+
+    : length $ filter (== DieSix) (map (\n -> evalState rollDie (mkStdGen n)) [1..10000])
+
+  vs
+
+    : length $ filter (== DieSix) (map (\n -> evalState rollDie (mkStdGen n)) [100000..200000])
+
+- pg 873:
+
+Should the applicative be defined as:
+
+#+BEGIN_SRC haskell
+instance Applicative (Moi s) where
+  -- pure :: a -> Moi s a
+  pure a = Moi (\s -> (a, s))
+
+  -- (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
+  (Moi f) <*> (Moi g) = Moi applied
+    where applied s =
+            let (val, state) = g s
+                f' = fst $ f s
+            in (f' val, state)
+#+END_SRC
+
+or
+
+#+BEGIN_SRC haskell
+instance Applicative (Moi s) where
+  -- pure :: a -> Moi s a
+  pure a = Moi (\s -> (a, s))
+
+  -- (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
+  (Moi f) <*> (Moi g) = Moi applied
+    where applied s =
+            let (val, state) = g s
+                f' = fst $ f state
+            in (f' val, state)
+#+END_SRC
+
+That is, How should the state be passed through the process of getting
+the function out of ~Moi f~, and into applying ~Moi g~?

@@ -26,3 +26,5 @@ library
                     , QuickCheck
                     , hspec
                     , checkers
+                    , random
+                    , transformers
