@@ -1,0 +1,140 @@
+* 24.1 Parser combinators
+
+The word "Parse" comes from the latin word for "parts." We'll be
+breaking a language into its component parts in a structured way.
+
+We'll be:
+
+- accepting serialized input.
+- turning that input into a value of a structured datatype.
+- This will often look like a tree.
+
+In this chapter we're focusing on using haskell's parsing libraries.
+
+- Using a parsing library to cover the basics of parsing
+- demonstrate the awesome power of parser combinators
+- marshall and unmarshall some JSON data
+- talk about tokenization
+
+* 24.2 A few more words of introduction
+
+We won't be looking too deeply into the types of the parsing libraries
+we're using. Trying to focus from the outside in on only the things
+that we'll need.
+
+* 24.3 Understanding the parsing process
+
+- parser :: A function that takes some textual input and returns some
+            structure as an output.
+  - Parsers analyze structure in conformance with rules specified in a
+    grammar
+- parser combinator :: A higher order function that takes parsers as
+     input and returns a new parser as output.
+- Combinator :: an expression with no free variables
+
+** Since we didn't use an analogy for Monad
+
+We'll run through some code that demonstrates the idea of
+parsing. We'll be using the ~trifecta~ library.
+
+The source for this can be found in:
+
+    : Sandbox/src/chpt-24-notes/learnParsers.hs
+
+*** What's the purpose of this demonstration?
+
+Think of parsing as moving a cursor around a linear stream of
+text. Think of the individual units within the stream as characters or
+ideographs.
+
+As we move, we'll be assembling chunks. If we successfully assemble a
+new chunk, we can move on. Otherwise we can throw an error.
+
+*** Notes on the code
+
+We're using the monadic sequence operator ~>>~ to combine parsers.
+
+The definition of a parser type looks a lot like ~State~.
+
+#+BEGIN_SRC haskell
+type Parser a = String -> Maybe (a, String)
+#+END_SRC
+
+Read this as:
+
+1. Await a string value
+2. Produce a result which may succeed or not
+3. Return the tuple of the value you wanted and what's left
+
+We can use the parsers we write in ~learnParsers.hs~ as follows:
+
+    : parseString one' mempty "123"
+
+** Intermission: parsing free jazz
+
+Some examples of using ~char~ and ~string~ with ~parseString~
+
+* 24.4 Parsing fractions
+
+See ~Sandbox/src/chpt-24-notes/parseFractions.hs~.
+
+* 24.5 Haskell's parsing ecosystem
+
+Several libraries exist for parsing in Haskell
+  - parsec
+  - attoparsec
+  - megaparsec
+  - aeson
+  - cassava
+  - trifecta
+
+We're using trifecta because it it stable. It's API is split between
+two libraries, ~parsers~ and ~trifecta~.
+
+** Typeclasses of Parsers
+
+These typeclasses come from the ~parsers~ library.
+
+* 24.6 Alternative
+
+In ~Control.Applicative~ there is a typeclass ~Alternative~ with two
+required functions for a minimal definition:
+  - ~empty~
+  - ~<|>~
+
+You can think of ~<|>~ as a binary associative operator representing a
+choice, and ~empty~ as its identity value. For a thorough treatment
+see [[https://wiki.haskell.org/Typeclassopedia#Failure_and_choice:_Alternative.2C_MonadPlus.2C_ArrowPlus][Typclassopedia's entry on Alternative]].
+
+The ~Parsing~ typeclass in Trifecta has ~Alternative~ as a superclass,
+so all parsers have ~Alternative~ instances.
+
+#+BEGIN_SRC haskell
+import Control.Applicative
+import Text.Trifecta
+
+type NumberOrString = Either Integer String
+
+parseNos :: ParserNumberOrString
+parseNos =
+      (Left <$> integer)
+  <|> (Right <$> some letter)
+#+END_SRC
+
+Using the alternative will parse both of the following:
+
+    : parseString parseNos mempty "123Blah123"
+    : parseString parseNos mempty "Blah123Blah"
+
+As ~Success (Right 123)~ and ~Success (Left "Blah")~ respectively.
+
+
+* 24.7 Parsing configuration files
+* 24.8 Character and token parsers
+* 24.9 Polymorphic parsers
+* 24.10 Marshalling from an AST to a datatype
+* 24.11 Chapter Exercises
+* 24.12 Definitions
+* 24.13 Follow-up resources
+
+948

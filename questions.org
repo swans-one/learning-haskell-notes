@@ -502,3 +502,12 @@ instance Applicative (Moi s) where
 
 That is, How should the state be passed through the process of getting
 the function out of ~Moi f~, and into applying ~Moi g~?
+* Chapter 24 Parser Combinators
+- pg 891: Exercises 2 and 3 use functions we haven't been introduced
+  to. I don't know how to solve these exercises.
+- pg 894-895: How does ~parseFraction~ work? Can we talk about its types?
+  - namely, the statement: "The final result has to be a parser so we
+    embed our integral value in the Parser type by using return"
+  - What does that imply about the types of numerator and denominator?
+- pg 904: I vaguely understand what some vs many are. But can we
+  unpack this mutual recursion?

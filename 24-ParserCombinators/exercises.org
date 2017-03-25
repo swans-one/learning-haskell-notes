@@ -1,0 +1,58 @@
+* Parsing Practice
+
+1. There's a combinator that will let us mark that we expect an input
+   stream to be "finished" at a particular point in our parser. In the
+   ~parsers~ library this is simply called ~eof~ (end of file) and is
+   in the ~Text.Parser.Combinators~ module.
+
+   See if you can make the ~one~ and ~oneTwo~ parsers fail because
+   they didn't exhaust the input stream.
+
+Answer:
+
+The following code requires that the rest of
+~Sandbox/src/chpt-24-notes/learnParsers.hs~ is loaded in order to
+work.
+
+#+BEGIN_SRC haskell
+import Text.Parser.Combinators
+
+one'' = one >> eof
+
+oneTwo'' = oneTwo >> eof
+#+END_SRC
+
+Use this like:
+
+    : parseString one'' mempty "12"
+
+2. Use ~string~ to make a Parser that parses "1", "12", and "123" out
+   of the example input respectively. Try combining it with ~stop~
+   too. That is, a single parser should be able to parse all three of
+   those strings.
+
+3. Try writing a Parser that does what string does, but using ~char~.
+
+* Unit of Success
+
+1. Write a parser that consumes "123" and eof, and returns "Success
+   123" instead of "Success ()".
+
+#+BEGIN_SRC haskell
+import Text.Trifecta
+
+parse123 :: Parser String
+parse123 = do
+  val <- string "123"
+  eof
+  return val
+#+END_SRC
+
+    : parseString parse123 mempty "123"
+
+* Try Try
+
+1. Make a parser using the existing fraction parser plus a new decimal
+   parser, that can parse either decimals or fractions.
+
+See ~Sandbox/src/exercises/24-fractionDecimal.hs~.
