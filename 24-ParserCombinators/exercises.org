@@ -56,3 +56,45 @@ parse123 = do
    parser, that can parse either decimals or fractions.
 
 See ~Sandbox/src/exercises/24-fractionDecimal.hs~.
+* Chapter Exercises
+
+1. Write a parser for semantic versions as defined by
+   [[http:semver.org][Semver.org]]. After making a working parser, write an Ord instance
+   for the ~SemVer~ type that obeys the specification outline on the
+   ~SemVer~ website.
+
+See ~Sandbox/src/exercises/24-semVer.hs~
+
+2. Write a parser for positive integer values. Don't reuse the
+   preexisting ~digit~ or ~integer~ functions, but you can use the
+   rest of the libraries we've shown you so far.
+
+3. Extend the parser you wrote to handle negative and positive
+   integers. Try writing a new parser in terms of the one you already
+   have to do this.
+
+4. Write a parser for US/Canda phone numbers with varying formats.
+
+5. Write a parser for a log file format and sum the time spent in each
+   activity. Additionally provide an alternative aggregation of the
+   data the provides average time spent per pactivity per day.
+
+   In support of this task, define a reasonable datatype for
+   representing this data. As an extra task, make this bi-directional
+   by making a Show representation for the datatype which matches the
+   format you are parsing.
+
+6. Write a parser for IPv4 addresses. Represent the output as Word32
+   (an unsigned 32 bit integer).
+
+7. Write a parser for IPv6 addresses. Represent the output as a
+   Word64.
+
+8. Remove the derived Show instance from the IPAddress/IPAddress6
+   types, write your own show instance for each type that renders in
+   the typical textual format appropriate to each.
+
+9. Write a function that conversts between IPAddress and IPAddress6.
+
+10. Writea a parser for the DOT language that Graphviz uses to express
+    graphs in plain-text.

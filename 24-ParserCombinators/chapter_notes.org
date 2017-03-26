@@ -236,6 +236,7 @@ If we simply try to decode, we'll get nothing
     : Nothing
 
 * 24.11 Chapter Exercises
+
 * 24.12 Definitions
 
 - parser combinator :: combines two or more parsers to produce a new
