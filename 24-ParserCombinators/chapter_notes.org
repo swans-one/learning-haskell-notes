@@ -151,10 +151,104 @@ We'll also be using the monadic operators ~<*~ and ~*>~ to do parser
 evaluation but discard parts of the results.
 
 * 24.8 Character and token parsers
+
+Traditionally parsing is done in two steps: Lexing and parsing.
+
+- lexer :: somtimes called tokenizers, perform simpler parsing, that
+           does not require looking very ahead into the input stream.
+
+Look at the difference between these:
+
+    : parseString (some (some digit)) mempty "123 456"
+    : parseString (some integer) mempty "123 456"
+
+In the above, ~integer~ is a tokenizer. We can create our own
+tokenizing parser:
+
+#+BEGIN_SRC haskell
+p' :: Parser [Integer]
+p' = some $ do
+  i <- token (some digit)
+  return (read i)
+#+END_SRC
+
 * 24.9 Polymorphic parsers
+
+If we take the time to write polymorphic types for our parsers we can
+get parsers that can be run using ~attoparsec~, ~trifecta~, ~parsec~
+or anything else that has implemented the necessary typeclasess.
+
+See ~Sandbox/src/chpt-24-notes/polymorphicParse.hs~ for the
+implementation.
+
+** Failure and backtracking
+
+Parsers have the option, when a parse fails, to backtrack the "cursor"
+to where it was before that step of parsing started. See
+~Sandbox/src/chpt-24-notes/backtracking.hs~ for example code.
+
+Note, we can annotate backtracking parsers with the ~<?>~ operator to
+add information to parse rules.
+
+#+BEGIN_SRC haskell
+tryAnnot :: (Monad f, CharParsing f) => f Char
+tryAnnot =
+      (try (char '1' >> char '2') <?> "Tried 12")
+  <|> (char '3' <?> "Tried 3")
+#+END_SRC
+
+In backtracking.hs, doing this does make it clear how much better
+Trifecta's error messages are.
+
 * 24.10 Marshalling from an AST to a datatype
+
+Parsing is a way of narrowing down some textual input into something
+specific. Marshalling narrows down this input even further into an
+object with domain specific meaning. By contrast, there's also
+unmarshalling and serialization.
+
+The two direcions of the pipeline could be drawn as follows. Parse and
+unmarshall:
+
+    : Text -> Structure -> Meaning
+
+Marshall and serialize:
+
+    : Meaning -> Structure -> Text
+
+
+** Marshalling and unmarshalling JSON data.
+
+The most popular haskell library for JSON is ~aeson~. There is no
+built in unmarshall/marshall step.
+
+The code for this example will be in
+~Sandbox/src/chpt-24-notes/marshall.hs~.
+
+Note, that given some json in a string, we can already decode it into
+a simple value type, if we specify the type we want out:
+
+    : λ> decode someJson :: Maybe Value
+
+If we simply try to decode, we'll get nothing
+
+    : λ> decode someJson
+    : Nothing
+
 * 24.11 Chapter Exercises
 * 24.12 Definitions
+
+- parser combinator :: combines two or more parsers to produce a new
+     parser. Examples include ~<|>~, ~some~, ~many~, ~mappend~, and
+     ~>>~.
+- Marshalling :: transforming a potentially non-linear representation
+                 of data in memory into a format that can be stored on
+                 disk or transmitted over a network socket.
+- Tokenizer :: Converts text, usually a stream of characters into a
+               more meaningful, chunkier structure, such as words,
+               sentences or symbols.
+- Lexer :: See tokenizer.
+
 * 24.13 Follow-up resources
 
 948

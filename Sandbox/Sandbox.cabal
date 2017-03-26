@@ -33,3 +33,7 @@ library
                     , bytestring
                     , containers
                     , text
+                    , attoparsec
+                    , parsec
+                    , raw-strings-qq
+                    , aeson
