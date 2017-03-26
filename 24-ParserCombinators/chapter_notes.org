@@ -130,6 +130,26 @@ As ~Success (Right 123)~ and ~Success (Left "Blah")~ respectively.
 
 
 * 24.7 Parsing configuration files
+
+We'll be parsing the INI configuration file format. It looks something
+like this:
+
+#+BEGIN_SRC ini
+; comment
+[section]
+host=wikipedia.org
+alias=claw
+#+END_SRC
+
+The code for this parser will be in
+~Sandbox/src/chpt-24-notes/iniParser.hs~.
+
+We'll be trying to break the problem into smaller parsing tasks, and
+then compose those smaller parts into the final parser.
+
+We'll also be using the monadic operators ~<*~ and ~*>~ to do parser
+evaluation but discard parts of the results.
+
 * 24.8 Character and token parsers
 * 24.9 Polymorphic parsers
 * 24.10 Marshalling from an AST to a datatype

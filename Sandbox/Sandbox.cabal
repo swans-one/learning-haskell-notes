@@ -30,3 +30,6 @@ library
                     , transformers
                     , trifecta
                     , parsers
+                    , bytestring
+                    , containers
+                    , text
