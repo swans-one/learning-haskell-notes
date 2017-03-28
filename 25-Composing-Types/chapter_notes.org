@@ -1,0 +1,124 @@
+* 25.1 Composing types
+
+This chapter is about monad transformers. The principles and practice
+behind using them.
+
+Functors and applicatives are closed under composition. That is, you
+can compose two functors and get another functor.
+
+Monads are not closed under composition. Composing two monads will not
+necessarily get you another monad.
+
+However, there are still times when we want to compose monads.  Monads
+embody effects. Composing monads builds up computations with multiple
+effects.
+
+- monad transformer :: a variant of an ordinary type, that takes an
+     additional type argument which is assumed to have a monad
+     instance.
+
+In this chapter we will:
+
+- Demonstrate why composing two monads does not give you another
+  monad.
+- Examine the ~Identity~ and ~Compose~ types
+- Manipulate types until we make monads compose
+- Meet some common monad transformers
+- Work through an identity crisis
+
+* 25.2 Common functions as types
+
+We're going to look at types that correspond to basic
+functions. Namely ~id~ and ~(.)~. We'll be using these datatypes to
+show the problems of composing monads.
+
+** Identity is boring
+
+#+BEGIN_SRC haskell
+newtype Identity a = Identity { runIdentity :: a }
+#+END_SRC
+
+Note that the kind of ~Identity~ is ~* -> *~ which parallels the type
+of ~id~, ~a -> a~.
+
+** Compose
+
+#+BEGIN_SRC haskell
+newtype Compose f g a =
+  Compose { getCompose :: f (g a) }
+  deriving (Eq, Show)
+#+END_SRC
+
+The kind of ~Compose~ is:
+
+    : Compose :: (* -> *) -> (* -> *) -> * -> *
+
+This kind looks a lot like the type of ~(.)~, which is:
+
+    : (.) :: (b -> c) -> (a -> b) -> a -> c
+
+To see how this works, we can look at the type of an instance of
+~Compose~:
+
+    : λ> :t Compose [Just "hi", Nothing]
+    : Compose [Just "hi", Nothing] :: Compose [] Maybe [Char]
+
+Type constructors can take other type constructors as arguments
+too. Just as functions can take other functions as arguments.
+
+* 25.3 Two little functors, Lifting
+
+The functor instance for identity is simple, but embodies the idea of
+functor.
+
+#+BEGIN_SRC haskell
+instance Functor Identity where
+  fmap f (Identity a) = Identity (f a)
+#+END_SRC
+
+We can get a functor instance for compose if we require that f and g
+both have functor instances.
+
+#+BEGIN_SRC haskell
+instance (Functor f, Functor g) => Functor (Compose f g) where
+  fmap f (Compose fga) = Compose $ (fmap. fmap) f fga
+#+END_SRC
+
+Composition of two datatypes that have a functor instance gives rise
+to a new functor instance. This means they're "closed under
+composition".
+
+* 25.4 Twinplicative
+
+Applicatives are also closed under composition. Writing the
+implementation is an exercise (See ~exercises.org~).
+
+Because applicative is a weaker algebra than Monad, we get this
+benefit of Applicative being closed under composition.
+
+* 25.5 Twonad?
+
+There's no problem composing two datatypes that have monad
+instances. We can obviously create a list of maybes, or vice
+versa. However, doing so does not necessarily give you a monad.
+
+The reason it doesn't work is because there's no polymorphic way to
+join two arbitrary structures, We cannot write a function with the
+following type signature:
+
+#+BEGIN_SRC haskell
+(Monad f, Monad g) => f (g (f (g a))) -> f (g a)
+#+END_SRC
+
+** No free burrito lunches
+
+Getting another Monad from the composition of two arbitrary types that
+have monad instances is impossible. However, we can get a Monad
+instance for combinations of some specific types using Monad transformers.
+
+* 25.6 Exercises: Compose Instances
+* 25.7 Monad transformers
+* 25.8 IdentityT
+* 25.9 Finding a pattern
+
+973

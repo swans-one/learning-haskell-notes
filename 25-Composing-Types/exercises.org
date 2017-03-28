@@ -1,0 +1,144 @@
+* Composing Applicatives
+
+I'm not entirely sure how this solution works, but it does.
+
+#+BEGIN_SRC haskell
+  {-# LANGUAGE InstanceSigs #-}
+
+  newtype Compose f g a = Compose { getCompose :: f (g a) } deriving (Eq, Show)
+
+  instance (Functor f, Functor g) => Functor (Compose f g) where
+    fmap f (Compose fga) = Compose $ (fmap. fmap) f fga
+
+  instance (Applicative f, Applicative g) => Applicative (Compose f g) where
+    pure :: a -> Compose f g a
+    pure a = Compose (pure $ pure a)
+
+    (<*>) :: Compose f g (a -> b) -> Compose f g a -> Compose f g b
+    (Compose f) <*> (Compose a) = Compose $ (fmap (<*>) f) <*> a
+
+
+  x = Compose [Just f, Just g] <*> Compose [Just 1, Nothing, Just 2]
+    where f = (+ 1)
+          g = (* 2)
+#+END_SRC
+
+* Compose Instances
+
+** Compose Foldable
+
+Write the ~Foldable~ instance for ~Compose~.
+
+#+BEGIN_SRC haskell
+instance (Foldable f, Foldable g) => Foldable (Compose f g) where
+  foldMap f (Compose x) = foldMap (foldMap f) x
+#+END_SRC
+
+** Compose Traversable
+
+Write the ~Traversable~ instance for ~Compose~.
+
+#+BEGIN_SRC haskell
+instance (Traversable f, Traversable g) => Traversable (Compose f g) where
+  -- traverse :: (Traversable t, Applicative f) => (a -> f b) -> (t a) -> f (t b)
+  traverse f (Compose x) = Compose <$> traverse (traverse f) x
+
+c = Compose [Just 1, Just 2]
+traverse (\x -> case x of 1 -> Just 1; _ -> Nothing) c
+-- Nothing
+traverse (\x -> Just 1) c
+-- Just Compose [Just 1, Just 1]
+#+END_SRC
+
+** Bifunctor
+
+Given the following typeclass, ~Bifuctor~ write ~Bifunctor~ instances
+for the given types.
+
+~Bifunctor~ is a functor that can map over two type arguments instead
+of just one.
+
+#+BEGIN_SRC haskell
+class Bifunctor p where
+  bimap :: (a -> b) -> (c -> d) -> p a c -> p b d
+  bimap f g = first f . second g
+
+  first :: (a -> b) -> p a c -> p b c
+  first f = bimap f id
+
+  second :: (b -> c) -> p a b -> p a c
+  second = bimap id
+#+END_SRC
+
+1.
+
+#+BEGIN_SRC haskell
+data Deux a b = Deux a b deriving Show
+
+instance Bifunctor Deux where
+  first f (Deux x y) = Deux (f x) y
+  second f (Deux x y) = Deux x (f y)
+#+END_SRC
+
+2.
+
+#+BEGIN_SRC haskell
+data Const a b = Const a deriving Show
+
+instance Bifunctor Const where
+  first f (Const x) = Const $ f x
+  second _ (Const x) = Const x
+#+END_SRC
+
+3.
+
+#+BEGIN_SRC haskell
+data Drei a b c = Drei a b c deriving Show
+
+instance Bifunctor (Drei a) where
+  first f (Drei x y z) = Drei x (f y) z
+  second f (Drei x y z) = Drei x y (f z)
+#+END_SRC
+
+4.
+
+#+BEGIN_SRC haskell
+data SuperDrei a b c = SuperDrei a b deriving Show
+
+instance Bifunctor (SuperDrei a) where
+  first f (SuperDrei x y) = SuperDrei x (f y)
+  second f (SuperDrei x y) = SuperDrei x y
+#+END_SRC
+
+5.
+
+#+BEGIN_SRC haskell
+data SemiDrei a b c = SemiDrei a
+
+instance Bifunctor (SemiDrei a) where
+  first f (SemiDrei x) = SemiDrei x
+  second f (SemiDrei x) = SemiDrei x
+#+END_SRC
+
+6.
+
+#+BEGIN_SRC haskell
+data Quadriceps a b c d = Quadzzz a b c d
+
+instance Bifunctor (Quadriceps a b) where
+  first f (Quadzzz w x y z) = Quadzzz w x (f y) z
+  second f (Quadzzz w x y z) = Quadzzz w x y (f z)
+#+END_SRC
+
+7.
+
+#+BEGIN_SRC haskell
+data Either' a b = Left' a | Right' b
+
+instance Bifunctor Either' where
+   first f (Left' x) = Left' $ f x
+   first _ (Right' x) = Right' x
+
+   second f (Left' x) = Left' x
+   second f (Right' x) = Right' $ f x
+#+END_SRC

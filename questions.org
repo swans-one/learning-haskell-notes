@@ -511,3 +511,13 @@ the function out of ~Moi f~, and into applying ~Moi g~?
   - What does that imply about the types of numerator and denominator?
 - pg 904: I vaguely understand what some vs many are. But can we
   unpack this mutual recursion?
+* Chapter 24 Composing Types
+- pg 958: "Type constructors can take other type constructs as
+  arguments too", just as functions can take other functions as
+  arguments. This is what allows us to compose types.
+  - This is a neat statement. I wonder what the implications are.
+- pg 955: I don't think I understand what "closed under composition"
+  really means (or implies?). I'd like to revist this in the context
+  of knowing that monads are not closed under composition.
+- pg 956: I got the answer to this exercise, but I don't really
+  understand how it works. Can we walk through it
