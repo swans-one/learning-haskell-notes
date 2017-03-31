@@ -117,8 +117,141 @@ have monad instances is impossible. However, we can get a Monad
 instance for combinations of some specific types using Monad transformers.
 
 * 25.6 Exercises: Compose Instances
+
+See ~exercises.org~
+
 * 25.7 Monad transformers
+
+- monad transformer :: A type constructor that takes a Monad as an
+     argument and returns a monad as a result.
+
+Since we can't join two unknown monads, we reduce the polymorhpism by
+wrapping one of them. The other remains polymorphic as a variable type
+argument.
+
+** Monadic stacking
+
+Sometimes we want a ~(>>=)~ which can address more than one Monad at
+once. For example, combining a Reader for reading HTTP context, and IO
+to interact with a database in a webapp.
+
+How do we get one big bind over a type like the following?
+
+#+BEGIN_SRC haskell
+IO (Reader String [a])
+#+END_SRC
+
+** Doing it badly
+
+We could make one-off types for each combination, e.g.
+
+#+BEGIN_SRC haskell
+newtype MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
+
+newtype MaybeList a = MaybeList { runMaybeList :: [Maybe a] }
+#+END_SRC
+
+We don't need to do this. We can get a monad for two types as long as
+we know what one type is.
+
+Transformers are a means of avoiding making a one-off Monad for every
+possible combination of types.
+
 * 25.8 IdentityT
+
+Using a simple Monad, without a lot going on will help us focus on the
+types.
+
+Compare the ~Identity~ we've already seen to the new ~IdentityT~:
+
+#+BEGIN_SRC haskell
+newtype Identity a = Identity { runIdentity :: a } deriving (Eq, Show)
+
+newtype IdentityT f a = IdentityT { runIdentityT :: f a } deriving (Eq, Show)
+#+END_SRC
+
+Now we'll want Functor instances for both ~Identity~ and ~IdentityT~
+
+#+BEGIN_SRC haskell
+instance Functor Identity where
+  fmap f (Identity a) = Identity (f a)
+
+instance (Functor m) => Functor (IdentityT m) where
+  fmap f (IdentityT fa) = IdentityT (fmap f fa)
+#+END_SRC
+
+In the case of ~IdentityT~ we have some structure that we're fmapping
+through. All we know about this structure is that it has an ~Functor~
+instance.
+
+We'll also want Applicative instances
+
+#+BEGIN_SRC haskell
+instance Applicative Identity where
+  pure = Identity
+  (Identity f) <*> (Identity a) = Identity (f a)
+
+instance (Applicative m) => Applicative (IdentityT m) where
+  pure = IdentityT . pure
+  (IdentityT fab) <*> (IdentityT fa) = IdentityT (fab <*> fa)
+#+END_SRC
+
+Again, we're relying on the ~Applicative~ structure of the first type
+argument to ~IdentityT~ to handle the inner applicative.
+
+Now Monad
+
+#+BEGIN_SRC haskell
+instance Monad Identity where
+  return = pure
+  (Identity a) >>= f = f a
+
+instance (Monad m) => Monad (IdentityT m) where
+  return = pure
+  (IdentityT ma) >>= f =
+    IdentityT $ ma >>= runIdentityT . f
+#+END_SRC
+
+** The bind breakdown
+
+The bind implementation for ~IdentityT~ is tricky. It requires us to
+use concrete type information from ~IdentityT~.
+
+In this case, our bind operater has the type:
+
+#+BEGIN_SRC haskell
+(>>=) :: IdentityT m a -> (a -> IdentityT m b) -> IdentityT m b
+#+END_SRC
+
+Which means the function we need to binding over ~IdentityT m a~ has
+the type ~(a -> IdentityT m b)~.
+
+The inner bind, that we're using inside the implementation should have
+a type:
+
+#+BEGIN_SRC haskell
+(>>=) :: m a -> (a -> m b) -> m b
+#+END_SRC
+
+So, we can't just bind ~ma >>= f~, since we need to return an ~m
+b~. We can get at that ~m b~ by using ~runIdentity~, and then after
+the inner bind, wrap the result in ~IdentityT~.
+
+** The essential extra of Monad transformers
+
+What was the extra thing that we needed concrete type information for
+~IdentityT~ to write the combined monad instance?
+
+It wasn't:
+  - The pattern matching
+  - The ability to bind (~>>=~) on the other monad
+
+It was the need to ~runIdentityT~, and repackage with IdentityT. This
+is like folding over the inner structure in a way. This is impossible
+to do with just Functor Applicative and Monad.
+
 * 25.9 Finding a pattern
 
-973
+Transformers are bearers of single-type concrete information that let
+you create even-bigger Monads. Nesting, like ~(Monad m) => m (m a)~ is
+already covered by ~join~.

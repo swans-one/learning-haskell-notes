@@ -521,3 +521,8 @@ the function out of ~Moi f~, and into applying ~Moi g~?
   of knowing that monads are not closed under composition.
 - pg 956: I got the answer to this exercise, but I don't really
   understand how it works. Can we walk through it
+- pg 692: I'm starting to get how monad transformers work. It feels
+  like a hack though. What if I wanted and IO reader, rather than the
+  other way around? Am I missing some generality? How do haskellers
+  decide what should be a transformer and what should be a regular
+  monad?
