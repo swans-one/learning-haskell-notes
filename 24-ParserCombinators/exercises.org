@@ -84,6 +84,8 @@ See ~Sandbox/src/exercises/24-semVer.hs~
    by making a Show representation for the datatype which matches the
    format you are parsing.
 
+See ~Sandbox/src/exercises/24-logParser.hs~
+
 6. Write a parser for IPv4 addresses. Represent the output as Word32
    (an unsigned 32 bit integer).
 
