@@ -1,5 +1,6 @@
 import Control.Applicative
 import qualified Data.List as L
+import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 
 import Text.Trifecta
@@ -7,13 +8,44 @@ import Test.Hspec
 
 
 data Log = Log [Comment] [Day] deriving (Eq, Show)
-data Day = Day Date Comment [Entry] deriving (Eq, Show)
-data Entry = Entry Time Activity Comment deriving (Eq, Show)
+data Day = Day
+  { getDate::Date
+  , getDayComment::Comment
+  , getEntries::[Entry]
+  }
+  deriving (Eq, Show)
+data Entry = Entry
+  { getTime::Time
+  , getActivity::Activity
+  , getEntryComment::Comment
+  }
+  deriving (Eq, Show)
 
 type Comment = Maybe String
 type Time = Int
 type Activity = String
 type Date = (Int, Int, Int)
+
+type Aggregate = M.Map Activity Time
+
+aggregateLog :: Log -> Aggregate
+aggregateLog (Log comments days) =
+  foldl combine M.empty days
+  where unionTimes = M.unionWith (+)
+        combine = flip (unionTimes . aggregateEntries . getEntries)
+
+aggregateEntries :: [Entry] -> Aggregate
+aggregateEntries = snd . (foldl (flip updateAggregates) (Nothing, M.empty))
+
+updateAggregates :: Entry -> (Maybe Entry, Aggregate) -> (Maybe Entry, Aggregate)
+updateAggregates next (Nothing, aggs) = (Just next, aggs)
+updateAggregates next ((Just last), aggs) =
+  case M.member lastActivity aggs of
+    True -> (Just next, M.adjust (+ timeDiff) lastActivity aggs)
+    False -> (Just next, M.insert lastActivity timeDiff aggs)
+  where lastActivity = (getActivity last)
+        timeDiff = (getTime next) - (getTime last)
+
 
 parseLog :: Parser Log
 parseLog = do
@@ -121,6 +153,28 @@ exampleLog = L.intercalate
 
 htest :: IO ()
 htest = hspec $ do
+  describe "updateAggregates" $ do
+    it "inserts properly" $ do
+      let last = (Entry 450 "last" Nothing)
+          next = (Entry 500 "next" Nothing)
+          expected = (Just next, M.fromList [(getActivity last, 50)])
+          result = updateAggregates next (Just last, M.empty)
+      result `shouldBe` expected
+
+    it "updates properly" $ do
+      let last = (Entry 450 "last" Nothing)
+          next = (Entry 500 "next" Nothing)
+          expected = (Just next, M.fromList [(getActivity last, 100)])
+          result = updateAggregates next (Just last, M.fromList [(getActivity last, 50)])
+      result `shouldBe` expected
+
+    it "handles no last" $ do
+      let last = Nothing
+          next = (Entry 500 "next" Nothing)
+          expected = (Just next, M.empty)
+          result = updateAggregates next (Nothing, M.empty)
+      result `shouldBe` expected
+
   describe "parseLog" $ do
     it "parses nothing" $ do
       let expected = Log [] []
