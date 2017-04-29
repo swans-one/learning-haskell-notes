@@ -1,0 +1,83 @@
+* 26.1 Monad Transformers
+
+Monad transformers are important in a lot of everyday haskell
+code. Even if you know how they work, managing a stack of transformers
+can be tricky.
+
+In this chapter we'll
+
+- Work through more monad transformer types and instances
+- Look at the ordering and wrapping of monad transformer stacks
+- lift, lift, lift and lift some more
+
+* 26.2 MaybeT
+
+The ~Maybe~ monad can be extremely useful, ~MaybeT~ is an important
+variant.
+
+We can start by writing the newtype and the functor instance:
+
+#+BEGIN_SRC haskell
+newtype MaybeT m a = MaybeT { runMaybe :: m (Maybe a) }
+
+instance (Functor m) => Functor (MaybeT m) where
+  fmap f (MaybeT ma) = MaybeT $ (fmap . fmap) f ma
+#+END_SRC
+
+The applicative instance is a bit harder to follow, and it's worth
+referencing the example in ~25-Composing-Types/exercises.org~.
+
+#+BEGIN_SRC haskell
+{-# LANGUAGE InstanceSigs #-}
+
+instance (Applicative m) => Applicative (MaybeT m) where
+  pure x = MaybeT (pure $ pure x)
+
+  (<*>) :: (MaybeT m (a -> b)) -> (MaybeT m a) -> (MaybeT m b)
+  (MaybeT mmab) <*> (MaybeT mma) = MaybeT $ (<*>) <$> mmab <*> mma
+#+END_SRC
+
+Note how, like with the ~Compose~ instance, we're fmaping ~<*>~ in to
+use the polymorhpic applicative's ~<*>~ as the function for the second
+~<*>~.
+
+With all this, we could do something like the following:
+
+    : λ> data Two a b = Two a b deriving Show
+    : λ> runMaybe $ Two <$> MaybeT [Just 1, Nothing] <*> MaybeT [Just 2, Just 3]
+    : [Just (Two 1 2), Nothing]
+
+** MaybeT Monad instance
+
+#+BEGIN_SRC haskell
+instance (Monad m) => Monad (MaybeT m) where
+  return = pure
+  (>>=) :: MaybeT m a -> (a -> MaybeT m b) -> MaybeT m b
+
+  MaybeT $ do
+    v <- ma
+    case v of
+      Nothing -> return Nothing
+      Just y -> runMaybeT (f y)
+#+END_SRC
+
+I understand how this is valid, but I have no idea how to use it yet.
+
+* 26.3 EitherT
+
+This is left as an exercise. See ~exercises.org~.
+
+* 26.4 ReaderT
+* 26.5 StateT
+* 26.6 Types you probably don't want to use
+* 26.7 Recovering an ordinary type from a transformer
+* 26.8 Lexically inner is structurally outer
+* 26.9 MonadTrans
+* 26.10 MonadIO aka zoom-zoom
+* 26.11 Monad transformers in use
+* 26.12 Monads do not commute
+* 26.13 Transform if you want to
+* 26.14 Chapter Exercises
+* 26.15 Follow-up resources
+
+end 1025

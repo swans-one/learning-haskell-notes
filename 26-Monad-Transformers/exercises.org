@@ -1,0 +1,9 @@
+* EitherT
+
+Implement the instances for the transformer variant:
+
+#+BEGIN_SRC haskell
+newtype EitherT e m a = EitherT { runEitherT :: m (Either e a) }
+#+END_SRC
+
+This is done in ~Sandbox/src/exercises/26-eithert.hs~

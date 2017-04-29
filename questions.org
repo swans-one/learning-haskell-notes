@@ -526,3 +526,8 @@ the function out of ~Moi f~, and into applying ~Moi g~?
   other way around? Am I missing some generality? How do haskellers
   decide what should be a transformer and what should be a regular
   monad?
+* Chapter 26 Monad Transformers
+- pg 980: I understand how the MaybeT transformer is constructed now,
+  but why does it matter?
+- pg 981: I'm trying to quickcheck all this, and writing instances for
+  Eq, EqProp, and Show are really hard for EitherT.
