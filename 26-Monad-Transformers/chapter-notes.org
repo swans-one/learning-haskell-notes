@@ -68,6 +68,23 @@ I understand how this is valid, but I have no idea how to use it yet.
 This is left as an exercise. See ~exercises.org~.
 
 * 26.4 ReaderT
+
+We see ~ReaderT~ much more often than ~Reader~ in common haskell.
+
+#+BEGIN_SRC haskell
+newtype ReaderT r m a = ReaderT { runReaderT :: r -> m a }
+#+END_SRC
+
+Here are the variaous instances for ~ReaderT~. The functor instance is
+defined as:
+
+#+BEGIN_SRC haskell
+instance (Functor m) => Functor (ReaderT r m) where
+  fmpa f (ReaderT rma) = ReaderT $ (fmap . fmap) f rma
+#+END_SRC
+
+This uses ~fmap~ in an interesting way, since ~rma~ has type ~r -> m a~,
+
 * 26.5 StateT
 * 26.6 Types you probably don't want to use
 * 26.7 Recovering an ordinary type from a transformer

@@ -533,3 +533,6 @@ the function out of ~Moi f~, and into applying ~Moi g~?
   Eq, EqProp, and Show are really hard for EitherT.
 - pg 981: Should eitherT be defined in terms of Monad operations? Or
   case statements? Or both?
+- pg 983, how does the double fmap here work? Is it at all like:
+
+    : λ> (fmap . fmap) (+1) Just $ 5
