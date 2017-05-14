@@ -536,3 +536,13 @@ the function out of ~Moi f~, and into applying ~Moi g~?
 - pg 983, how does the double fmap here work? Is it at all like:
 
     : λ> (fmap . fmap) (+1) Just $ 5
+- pg 984: "This is one of the most used monad transformers" Then why
+  no examples of use?
+- pg 990: I don't get this at all. Can we break it down.
+- pg 993: "Speaking generally, it is about lifting actions in some
+  Monad over a transformer type which wraps itself in the original
+  Monad."
+  - what the hell?
+  - what is an "action" here
+  - "which wraps itself" -> what is this referring to? The monad, or
+    the transformer, or the action?

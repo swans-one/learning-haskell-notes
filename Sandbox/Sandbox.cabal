@@ -37,3 +37,4 @@ library
                     , parsec
                     , raw-strings-qq
                     , aeson
+                    , mtl

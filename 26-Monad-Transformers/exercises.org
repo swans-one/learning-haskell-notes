@@ -7,3 +7,15 @@ newtype EitherT e m a = EitherT { runEitherT :: m (Either e a) }
 #+END_SRC
 
 This is done in ~Sandbox/src/exercises/26-eithert.hs~
+
+* StateT
+
+* Wrap it Up
+
+Turn ~readerUnwrap~ from the previous example into embedded through
+the use of data constructors for each transformer:
+
+#+BEGIN_SRC haskell
+embedded :: MaybeT (ExceptT String (ReaderT () IO)) Int
+embedded :: ??? (const (Right (Just 1)))
+#+END_SRC

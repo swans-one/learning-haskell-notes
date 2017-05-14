@@ -83,13 +83,112 @@ instance (Functor m) => Functor (ReaderT r m) where
   fmpa f (ReaderT rma) = ReaderT $ (fmap . fmap) f rma
 #+END_SRC
 
-This uses ~fmap~ in an interesting way, since ~rma~ has type ~r -> m a~,
+The applicative is:
+
+#+BEGIN_SRC haskell
+instance (Applicatie m) => Applicatie (ReaderT r m) where
+  pure a = ReaderT (pure (pure a))
+
+  (ReaderT fmab) <*> (ReaderT rma) =
+    ReaderT $ (<*>) <$> fmab <*> rma
+#+END_SRC
+
+The monad is
+
+#+BEGIN_SRC haskell
+instance (Monad m) => Monad (ReaderT r m) where
+  return = pure
+  (ReaderT rma) >>= f = ReaderT $ \r -> do
+    a <- rma r
+    runReaderT (f a) r
+#+END_SRC
+
+From here, there's no discussion of use.
 
 * 26.5 StateT
+
+~StateT~ is ~State~, but with additional monad structure wrapped
+around the result. This is the newtype for ~StateT~:
+
+#+BEGIN_SRC haskell
+newtype StateT s m a = StateT { runStateT :: s -> m (a, s) }
+#+END_SRC
+
+The rest of the implementations are left as an exercise.
+
 * 26.6 Types you probably don't want to use
+
+Not every monad transformer will be performant or make sense. ~ListT~
+and ~Writer/WriterT~ are examples of this.
+
+** Why not use Writer or WriterT?
+
+Writer or WriterT are often too lazy or too strict for the problem
+you're trying to solve. In these cases, it will use more memory than
+you'd like.
+
+** The ListT you want isn't made from the List type
+
+The obvious implementation of ~ListT~ isn't recommended:
+
+1. Most first attempts won't pass the associativity law.
+2. It's not very fast
+3. Streaming libraries like ~pipes~ and ~conduit~ are better for most
+   use cases.
+
+Lists in Haskell are as much a control structure as a data structure
+so streaming libraries such as pipes are usually fine.
+
 * 26.7 Recovering an ordinary type from a transformer
+
+- You have a transformer
+- You want a non-transformer of that type
+- --> you need some monadic structure that doesn't do anything
+- --> you need the ~Identity~ monad
+
+#+BEGIN_SRC haskell
+type MyIdentity a = IdentityT Identity a
+type Maybe a      = MaybeT    Identity a
+type Either e a   = EitherT e Identity a
+type Reader r a   = ReaderT r Identity a
+type State s a    = StateT s  Identity a
+#+END_SRC
+
+** The ~transformers~ library
+
+In general, you don't need to hand roll monad transformers. The
+~transformers~ library contains a bunch of implementations and comes
+with GHC.
+
+Note: In ~transformers~ the ~EitherT~ implementaiton is called
+~ExceptT~.
+
 * 26.8 Lexically inner is structurally outer
+
+I don't understand this at all.
+
 * 26.9 MonadTrans
+
+We often want to lift functions into a larger context.
+
+#+BEGIN_SRC haskell
+fmap  :: Functor f     => (a -> b) -> f a -> f b
+liftA :: Applicative f => (a -> b) -> f a -> f b
+liftM :: Monad m       => (a -> r) => m a -> m r
+#+END_SRC
+
+The ~MonadTrans~ typeclass lets us do some other lifting thing I don't
+understand.
+
+#+BEGIN_SRC haskell
+class MonadTrans t where
+  lift :: (Monad m) => m a -> t m a
+#+END_SRC
+
+** Motivating MonadTrans
+
+Scotty is a web framework for Haskell.
+
 * 26.10 MonadIO aka zoom-zoom
 * 26.11 Monad transformers in use
 * 26.12 Monads do not commute
