@@ -328,8 +328,76 @@ value cannot be bottom (like when they're a literal value).
 It's more complicated when we see that typeclass constriants, under
 they hood, get simplified into additional arguments.
 
+** Forcing sharing
+
+- You can force sharing by giving your expression a name
+- Commonly with ~let~
+
 * 27.9 Refutable and irrefutable patterns
+
+- irrefutable patterns :: A pattern matching pattern which will never
+     fail to match
+- refuttable pattern :: A pattern matching pattern whic has potential
+     failures.
+
+#+BEGIN_SRC haskell
+refutable :: Bool -> Bool
+refutable True = False
+refutable False = True
+
+irrefutable :: Bool -> Bool
+irrefutable x = not x
+#+END_SRC
+
+*Note:* The pattern is refutable or irrefutable, not the function, we
+can combine these types of pattern matching in one function:
+
+#+BEGIN_SRC haskell
+both :: Num a => a -> a
+both 0 = 1
+both 1 = 0
+both x = x
+#+END_SRC
+
+** Lazy patterns
+
+We can make pattern matching lazy using a tilde:
+
+#+BEGIN_SRC haskell
+strictPattern :: (a, b) -> String
+strictPattern (a, b) = const "Cousin It" a
+
+lazyPattern :: (a, b) -> String
+lazyPattern ~(a, b) = const "Cousin It" a
+#+END_SRC
+
+Because we're matching lazily on ~(a, b)~, the following will work:
+
+    : λ> lazyPattern undefined
+    : Cousin It
+
+Whereas with ~strictPattern~ it would have thrown an error, because
+pattern matching would have forced evaluation of the bottom.
+
 * 27.10 Bang-patterns
+
+If we want to evaluate an argument to a function without using it, we
+could do it with ~seq~:
+
+#+BEGIN_SRC haskell
+manualSeq :: Bool -> Int
+manualSeq b = b `seq` 1
+#+END_SRC
+
+Or we can use the language extension `BangPatterns` to do it
+
+#+BEGIN_SRC haskell
+{-# LANGUAGE BangPatterns #-}
+
+banging :: Bool -> Int
+banging !b = 1
+#+END_SRC
+
 * 27.11 Strict and StrictData
 * 27.12 Adding strictness
 * 27.13 Chapter Exercises

@@ -581,3 +581,14 @@ wc x z =
 - pg 1055. At the end of the example at the top of the page, there's a
   reference to ~bla~ which has not been defined. And ~eval'd~ which I
   haven't seen before.
+
+- pg 1065: "At times we'd also like to evaluate the contents to weak
+  head normal form just like with functions." When? Why? This is
+  entirely unmotivated.
+
+- Why doesn't this chapter talk about thunks, or the performance and
+  memory costs of stictness/non-strictness more. I don't care how the
+  tools to turn it on and off work if I don't know how to recognize
+  when I would want to. I realize this is a big topic, but I don't
+  have even a small sense of the practical applications of this after
+  reading this chapter.
