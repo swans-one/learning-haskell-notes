@@ -1,0 +1,15 @@
+* Evaluate
+
+Expand the expression in as much detail as possible. Then, work
+outside in to see what the expression evaluates to.
+
+1)
+
+#+BEGIN_SRC haskell
+const 1 undefined
+
+const x y = x
+
+const
+
+#+END_SRC

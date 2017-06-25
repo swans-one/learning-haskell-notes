@@ -546,3 +546,38 @@ the function out of ~Moi f~, and into applying ~Moi g~?
   - what is an "action" here
   - "which wraps itself" -> what is this referring to? The monad, or
     the transformer, or the action?
+
+* Chapter 27 Non-Strictness
+- pg 1034: How does something like the following work:
+  - ~let wc x z = let y = bot `seq` 'y' in y `seq` x~
+
+like this:
+
+#+BEGIN_SRC haskell
+wc x z =
+  let y = bot `seq` 'y'
+  in y `seq` x
+#+END_SRC
+
+- pg 1044: I'm not sure how to expand these. Especially the simple
+  ones. I haven't seen an example of what you want.
+
+- pg 1044: What about call by reference, is this like call by name?
+  What does it mean to "only evaluate once"? What are some examples of
+  each of these things? I feel like I don't have a grasp on some of
+  these concepts.
+
+- pg 1046 - This example, with GHCi version 8.0.1 does not give a
+  fully evaluated ~myList = [1, 2, 3]~, instead it give ~myList = _~
+
+- pg 1051 - I don't see the sharing behavior in my version of GHCi
+  (8.0.1). I see the trace happening twice in the addition example.
+
+- pg 1052 - It's very unclear to be what the effect of explicit vs
+  implicit parameters does to sharing. It seems like there are
+  contradictory statements on the page and the examples don't seem to
+  relate to the statements.
+
+- pg 1055. At the end of the example at the top of the page, there's a
+  reference to ~bla~ which has not been defined. And ~eval'd~ which I
+  haven't seen before.

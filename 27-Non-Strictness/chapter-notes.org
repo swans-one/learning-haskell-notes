@@ -1,0 +1,338 @@
+* 27.1 Laziness
+
+Haskell is technically "non-strict", not "lazy" (small difference).
+
+Non-strict means that most expressions are only reduced when they are
+needed.
+
+In this chapter we will:
+
+- Define call-by-name and call-by-need evaluation
+- explain the main effects of nonstrict evaluation
+- live the Thunk Life
+- consider the runtime behavior of non-strict code in terms of sharing
+- develop methods for observing sharing and measuring program efficiency
+- bottom out with the bottoms
+
+* 27.2 Observational Bottom Theory
+
+- Non-strictness is _defined_ by the ability to evaluate expressions
+  that have bindings which are bottom in them.
+  -  as long as the bottom itself is never forced.
+
+** Standards and obligations
+
+- lazy :: A language which momoizes the results of all functions it
+          evaluates.
+- non-strict :: Expressions in the language can produce results, even
+                if those results contain undefined or infinite
+                elements.
+
+- Haskell is not required to be lazy only non-strict
+- Truly lazy languages use an unacceptably large amount of memory
+- Non-strict lets you do things like ~fst (1, undefined)~
+
+* 27.3 Outside in, inside out
+
+- Strict languages evaluate _inside out_
+- Non-strict languages evaluate _outside in_
+
+Because haskell evaulates outside in, its ordering of evaluation can
+be dependent on the values passed in at the higher level, where a
+strict language more often have a deterministic order of evaluatation.
+
+Outside in evaluation is also how we can take the length of a list
+without touching any of the contents.
+
+We can see this given a simple definition for ~foldr~:
+
+#+BEGIN_SRC haskell
+foldr k z xs = go xs
+  where
+    go []     = z
+    go (y:ys) = y `k` go ys
+#+END_SRC
+
+With this definition, we can fold with a function that does not
+require looking at anything beyond the first value:
+
+    : λ> foldr const 'z' "abcde"
+    : 'a'
+
+Which means that the elements of the list we're folding over can even
+be bottom:
+
+    : λ> foldr const 'z' ['a', undefined, undefined]
+    : 'a'
+
+At each step of that fold, the ~const~ is in the outermost position,
+so it is evaluated first.
+
+* 27.4 What does the other way look like?
+
+In strict languages:
+
+- You cannot ordinarily bind a computation to a name without having
+  already done all the work to construct it.
+
+** Can we make Haskell strict?
+
+#+BEGIN_SRC haskell
+hypo' :: IO ()
+hypo' = do
+  let x :: Integer
+      x = undefined
+  s <- getLine
+  case x `seq s of
+     "hi" -> print x
+     _ -> putStrLn "hello"
+#+END_SRC
+
+The call to ~seq~ forces evaulation of ~x~, which normally only would
+have been evaluated when "hi" was given as input. This isn't fully
+strict, however, as we can still assign ~undefined~ to ~x~ and it is
+only forced at the case statement.
+
+The ~seq~ function is defined something like:
+
+#+BEGIN_SRC haskell
+seq bottom b            = bottom
+seq anythingNotBottom b = b
+#+END_SRC
+
+Why does this need to exist? Because haskell's evaluation is _demand
+driven_ and if you want to force some evaluation, you need to connect
+some nodes in a graph of expressions to be evaluated.
+
+** seq and weak head normal form
+
+- Weak Head Normal Form (WHNF) :: Evaluation strategy that stops at
+     the first data constructor or lambda.
+
+The ~seq~ function, forces evaluation only to WHNF, which we can see:
+
+    : λ> let dataConstructor = (,) undefined undefined
+    : λ> dataConstructor `seq` 1
+    : 1
+    : λ> let lam = \_ -> undefined
+    : λ> lam `seq` 1
+    : 1
+    : λ> let noDataConstructor = undefined
+    : λ> noDataConstructor `seq` 1
+    : *** Exception
+
+Since ~dataConstructor~ has a data constructor, it doesn't evaluate
+the inner ~undefined~ values, because ~lam~ has a lambda, it doesn't
+evaulate the inner ~undefined~ value. However, with
+~NoDataConstructor~ it evaluates to bottom.
+
+** Case matching also chains evaluations
+
+- Forcing can happen without `seq`.
+- Case statements and pattern matching both force evaluation
+  - Otherwise how could you match?
+
+#+BEGIN_SRC haskell
+data Test  = A Test2 | B Test2 deriving (Show)
+data Test2 = C Int   | D Int   deriving (Show)
+
+forceNothing :: Test -> Int
+forceNothing _ = 0
+
+forceTest :: Test -> Int
+forceTest (A _) = 1
+forceTest (B _) = 2
+#+END_SRC
+
+
+With the above, we can see two things:
+
+1. The underscore ~_~ is syntax for not evaluating a parameter
+
+        : λ> forceNothing undefined
+        : 0
+
+2. Pattern matching only forces evaluation as deep as the necessary
+   data constructor.
+
+        : λ> forceTest (A undefined)
+        : 1
+        : λ> forceTest undefined
+        : *** Exception
+
+** Core dump
+
+- Our first means of evaluating strictness is injecting bottoms into
+  our code to see if they're evaluating
+- The second means of evaluating strictness is to look at the GHC
+  Core, the intermediate language generated by the compiler.
+
+To get a core dump when loading code:
+
+    : λ> :set -ddump-simpl
+    : λ> :l code/coreDump.hs
+
+See ~Sandbox/src/chpt-27-notes/coreDump.hs~ for the code that we're
+core dumping. We can get a more cleaned up version of GHC Core (which
+is pretty ugly) with:
+
+    : λ> :set -dsuppress-all
+    : λ> :r
+
+When we look at these core dumps, we're looking for *case
+expressions*, since case expressions must be evaluated, they will tell
+us where the strictness in our code is.
+
+- In Core, ~case~ expressions are always strict to WHNF.
+
+To learn more about this core language, see the [[https://ghc.haskell.org/trac/ghc/wiki/Commentary/Compiler/CoreSynType][GHC Reference on Core]].
+
+** A little bit stricter now
+
+We still haven't made a totally strict version of our ~hypo~ function.
+
+Until now:
+
+#+BEGIN_SRC haskell
+hypo'' :: IO ()
+hypo'' = do
+  let x :: Integer
+      x = undefined
+  s <- x `seq` getLine
+  case s of
+    "hi" -> print x
+    _ -> putStrLn "hello"
+#+END_SRC
+
+This effectively pushes ~seq~ up to the highest level possible.
+
+* 27.5 Call by name, call by need
+
+Some diferent evaluation strategies:
+
+- Call by value :: Argument expressions are fully evaluated before
+                   entering a function, and the resulting values are
+                   passed in. This is a very /strict/, inside-out
+                   evaluation.
+- Call by name :: Experssions can be arguments to a function without
+                  having been evaluated. You create bindings to
+                  expressions without evaluating them first. This is
+                  not necessarily strict. It's an outside-in
+                  evaluation.
+- Call by need :: Like call by name, but expressions are only
+                  evaluated once.
+
+* 27.6 Non-strict evaluation changes what we can do
+
+- We'll look at some examples of what non-strictness enables.
+
+The following works in strict or non-strict languages:
+
+    : λ> let myList = [1, 2, 3]
+    : λ> tail myList
+    : [2, 3]
+
+While the following will not work in non-strict languages:
+
+    : λ> let myList' = [undefined, 2, 3]
+    : λ> tail myList'
+    : [2, 3]
+
+The above would not work, because in a strict language, ~myList'~
+would have to be fully evaluated before a tail could be taken.
+
+* 27.7 Thunk Life
+
+- thunk :: a reference for a suspended computation that might be
+           performed or computed at a later point in the program. They
+           are computations that are not evaluated up to WHNF.
+
+GHCi has a command ~:sprint~ which lets us look at what has already
+been evaluated.
+
+Compare four computations:
+
+1. all the type constructors are constant
+2. The type constructors are polymorphic
+3. The type constructors are constant, but there is a potential
+   function application.
+4. There is a top level computation
+
+    : λ> let myList1 = [1, 2, 3] :: [Integer]
+    : λ> :sprint myList1
+    : myList1 = [1, 2, 3]
+    :
+    : λ> let myList2 = [1, 2, 3]
+    : λ> :sprint myList2
+    : myList2 = _
+    :
+    : λ> let myList3 = [1, 2, id 3] :: [Integer]
+    : λ> :sprint myList3
+    : myList1 = [1, 2, _]
+    :
+    : λ> let myList4 = [1, 2, id 1] :: [Integer]
+    : λ> let myList4 = myList4 ++ undefined
+    : λ> :sprint myList4
+    : myList4 = _
+
+
+*Note:* The above is what the book says should happen, but not what
+happens in my version of GHCi (8.0.1).
+
+* 27.8 Sharing is caring
+
+- sharing :: when a computation is named, the results of evaluating
+             the computation can be shared between all references to
+             the name without re-evaluating it.
+  - Important due to memory constraints
+  - Lets us go beyond pure call-by-name
+  - Sharing is turned on and off by the compiler when it decides one
+    strategy will be faster
+
+** Using trace to observe sharing
+
+The ~Debug.Trace~ module has functions that can output string without
+an IO context (not for production use!). They'll let us poke at
+sharing.
+
+You can have GCHi print out every evaluation of a variable by setting
+a "trace" on it:
+
+    : λ> let a = trace "ayy" 1
+    : λ> a
+    : ayy
+    : 1
+
+** What promotes sharing?
+
+Naming thins is a good way to signal to GCH to share something.
+
+    : λ> let a = trace "ayy" (1 :: Int)
+    : λ> a + a
+    : ayy
+    : 2
+
+*Note:* I don't see this behavior in my compiler, but this is what the
+book says should happen.
+
+** What suberts or prevents sharing
+
+Defining functions differently? Typeclass constraints? I'm pretty
+unclear on what this section is getting at.
+
+** Why polymorphic values never seem to get forced
+
+GHC will often be oportunistically strict with data when it sees its
+value cannot be bottom (like when they're a literal value).
+
+It's more complicated when we see that typeclass constriants, under
+they hood, get simplified into additional arguments.
+
+* 27.9 Refutable and irrefutable patterns
+* 27.10 Bang-patterns
+* 27.11 Strict and StrictData
+* 27.12 Adding strictness
+* 27.13 Chapter Exercises
+* 27.14 Follow-up resources
+
+end 1075
