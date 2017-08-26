@@ -1,0 +1,5 @@
+* 31.1 Final Project
+
+The vast majority of this chapter is simply typing in code. I'm going
+to be starting a new project with my code, which I won't be uploading
+here.
